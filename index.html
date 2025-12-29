@@ -1640,10 +1640,11 @@
                     Core.Utils.createDropZone(this.els.drop, (f) => this.handleFiles(f));
                     this.els.input.onchange = e => { this.handleFiles([...e.target.files]); this.els.input.value = ""; };
 
-                    // FIX: Added listener for the Name Input
+                    // FIX: Sanitize input immediately (Space -> _) and save
                     this.els.name.oninput = () => {
+                        this.els.name.value = Core.Utils.sanitize(this.els.name.value);
                         this.saveSettings();
-                        this.renderTabs(); // Updates the tab name in real-time
+                        this.renderTabs();
                     };
 
                     ['storyGap', 'storyWidth', 'storyAutoWidth'].forEach(id => {
@@ -1710,7 +1711,6 @@
                 },
                 async downloadAll() { if (!this.projects.some(p => p.images.length > 0)) return; const btn = document.getElementById('downloadAllStoryBtn'); btn.innerText = "Processing..."; const zip = new JSZip(); const origId = this.active.id; for (let i = 0; i < this.projects.length; i++) { const p = this.projects[i]; if (p.images.length === 0) continue; this.active = p; this.draw(); if (this.canvas) { const blob = await new Promise(r => this.canvas.toBlob(r, 'image/jpeg', 0.9)); zip.file(`${p.name}.jpg`, blob); } } this.switchProject(origId); const content = await zip.generateAsync({ type: "blob" }); const a = document.createElement("a"); a.href = URL.createObjectURL(content); a.download = "boards.zip"; a.click(); btn.innerText = "Download All"; }
             },
-
             Stills: {
                 collection: {}, currentId: null, queue: [],
                 els: { drop: document.getElementById('stillsDropZone'), input: document.getElementById('stillsInput'), stacks: document.getElementById('stillsStacksContainer'), empty: document.getElementById('stillsEmpty'), procBtn: document.getElementById('createStillsBtn'), dlBtn: document.getElementById('downloadStillsBtn'), clearBtn: document.getElementById('clearStillsBtn'), overlay: document.getElementById('stillsDetailOverlay'), title: document.getElementById('stillsOverlayTitle'), count: document.getElementById('stillsOverlayCount'), grid: document.getElementById('stillsOverlayGrid'), selectAll: document.getElementById('stillsSelectAll'), dlSel: document.getElementById('stillsDownloadSelected') },
