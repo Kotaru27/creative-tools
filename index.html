@@ -1,0 +1,1045 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" name="viewport" />
+    <title>Creative Tools Suite</title>
+<link rel="manifest" href="manifest.json">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Rajdhani:wght@600;700&display=swap"
+        rel="stylesheet" />
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+    <script>pdfjsLib.GlobalWorkerOptions.workerSrc = "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";</script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <style>
+        /* ================= AMOLED THEME VARIABLES ================= */
+        :root {
+            --bg-main: #000000;
+            --bg-panel: #111111;
+            --bg-input: #080808;
+            --border: #333333;
+            
+            /* Default Accent (Blue) - Will be overridden by JS */
+            --accent: #3B82F6; 
+            --accent-hover: #2563EB;
+            
+            --text-main: #ffffff;
+            --text-muted: #888888;
+            --danger: #ef4444;
+            --success: #10b981;
+            --radius: 8px;
+            --spacing: 30px;
+        }
+
+        /* RESET */
+        * { box-sizing: border-box; outline: none; }
+        input[type=number]::-webkit-inner-spin-button, input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
+        input[type=number] { -moz-appearance: textfield; }
+
+        body {
+            margin: 0; padding: 0;
+            background-color: var(--bg-main);
+            color: var(--text-main);
+            font-family: 'Inter', sans-serif;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            transition: --accent 0.3s ease;
+        }
+
+        /* SCROLLBARS */
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: var(--bg-main); }
+        ::-webkit-scrollbar-thumb { background: #333; border-radius: 3px; }
+        ::-webkit-scrollbar-thumb:hover { background: #555; }
+
+        /* HEADER */
+        .header {
+            height: 60px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 var(--spacing);
+            background: var(--bg-panel);
+            flex-shrink: 0;
+            z-index: 200;
+        }
+        
+        /* HIDE HEADER WHEN TOOL IS ACTIVE */
+        body.tool-active .header { display: none !important; }
+
+        .brand-title {
+            font-family: 'Rajdhani', sans-serif;
+            font-weight: 700;
+            font-size: 1.4rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .main-layout { display: flex; flex: 1; overflow: hidden; position: relative; }
+
+        /* NAVIGATION SIDEBAR */
+        .nav-sidebar {
+            width: 70px;
+            background: var(--bg-panel);
+            border-right: 1px solid var(--border);
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            padding-top: var(--spacing);
+            gap: 15px;
+            z-index: 100;
+        }
+
+        .nav-sidebar.visible { display: flex; }
+
+        .nav-item {
+            width: 48px;
+            height: 48px;
+            background: transparent;
+            border: 1px solid transparent;
+            color: var(--text-muted);
+            cursor: pointer;
+            border-radius: var(--radius);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s ease;
+            position: relative;
+        }
+
+        .nav-item:hover {
+            background: #222;
+            transform: scale(1.05);
+        }
+
+        /* Active State uses the dynamic variable */
+        .nav-item.active {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: var(--accent);
+            color: var(--accent) !important;
+            box-shadow: 0 0 15px rgba(0,0,0,0.5);
+        }
+
+        .nav-item i { transition: color 0.3s; }
+
+        .view-container {
+            flex: 1;
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        #view-home, #view-app {
+            width: 100%;
+            height: 100%;
+            overflow-y: auto;
+            padding: var(--spacing);
+        }
+
+        #view-app { display: none; }
+        #view-app.active { display: block; }
+
+        /* HOME GRID */
+        .home-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+            gap: 30px;
+            max-width: 1400px;
+            margin: 0 auto;
+            align-content: center;
+            height: 100%;
+        }
+
+        .home-card {
+            background: var(--bg-panel);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 50px 30px;
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            gap: 20px;
+            transition: all 0.2s;
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* No colored top border anymore */
+
+        .home-card:hover {
+            border-color: var(--card-color); /* Only color border on hover */
+            background: #151515;
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+        
+        .home-card i {
+            color: var(--text-muted);
+            width: 56px;
+            height: 56px;
+            stroke-width: 1.5;
+            transition: color 0.2s;
+        }
+
+        .home-card:hover i {
+            color: var(--card-color);
+        }
+
+        .card-title {
+            font-family: 'Rajdhani', sans-serif;
+            font-weight: 700;
+            font-size: 1.3rem;
+            margin-top: 5px;
+        }
+
+        .card-desc { font-size: 0.95rem; color: var(--text-muted); line-height: 1.5; }
+
+        /* UI ELEMENTS */
+        .liquid-input {
+            background: var(--bg-input);
+            border: 1px solid var(--border);
+            color: var(--text-main);
+            height: 44px;
+            padding: 0 14px;
+            width: 100%;
+            font-family: inherit;
+            font-size: 0.9rem;
+            border-radius: var(--radius);
+            transition: border-color 0.2s;
+        }
+        .liquid-input:focus { border-color: var(--accent); }
+        textarea.liquid-input { height: auto; min-height: 100px; padding-top: 12px; resize: vertical; }
+        select.liquid-input { cursor: pointer; }
+        select.liquid-input option { background-color: var(--bg-panel); color: white; }
+
+        .liquid-btn {
+            background: #222;
+            border: 1px solid var(--border);
+            color: var(--text-main);
+            height: 44px;
+            padding: 0 20px;
+            cursor: pointer;
+            font-size: 0.95rem;
+            font-weight: 500;
+            border-radius: var(--radius);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            white-space: nowrap;
+            user-select: none;
+            transition: all 0.2s;
+        }
+        .liquid-btn:hover:not(:disabled) { background: #333; }
+        .liquid-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+        
+        .liquid-btn.active-mode {
+            background: var(--accent);
+            border-color: var(--accent);
+            color: white; 
+        }
+        .liquid-btn.active-mode:hover { filter: brightness(1.1); }
+
+        .liquid-btn.danger-btn { border-color: var(--danger); color: var(--danger); background: transparent; }
+        .liquid-btn.danger-btn:hover { background: var(--danger); color: white; }
+        .liquid-btn.icon-only { width: 36px; height: 36px; padding: 0; }
+
+        /* LAYOUT & PANELS */
+        .tool-section { display: none; max-width: 100%; margin: 0; height: 100%; }
+        .tool-section.active { display: flex; flex-direction: column; }
+
+        /* COMPACT TOOL HEADER */
+        .tool-header {
+            display: flex; align-items: center; gap: 10px;
+            margin-bottom: 15px; padding-bottom: 10px;
+            border-bottom: 1px solid var(--border);
+        }
+        .tool-header h2 {
+            margin: 0; font-family: 'Rajdhani'; text-transform: uppercase;
+            font-size: 1.2rem; font-weight: 700; flex: 1; line-height: 1;
+            color: var(--accent);
+        }
+        .tool-icon { width: 24px; height: 24px; color: var(--accent); }
+        
+        .editor-layout { display: grid; grid-template-columns: 360px 1fr; gap: 30px; align-items: flex-start; height: 100%; }
+        #section-story .editor-layout { grid-template-columns: 360px 1fr 300px; }
+
+        .story-center-panel {
+            background: #050505; border: 1px solid var(--border); border-radius: var(--radius);
+            height: calc(100vh - 150px); display: flex; align-items: center; justify-content: center;
+            overflow: hidden; position: relative; padding: 30px;
+        }
+        #storyPreview { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; overflow: hidden; }
+        #storyPreview canvas { max-width: 100%; max-height: 100%; width: auto; height: auto; object-fit: contain; box-shadow: 0 10px 40px rgba(0, 0, 0, 0.6); border-radius: 4px; }
+
+        .sidebar-panel {
+            display: flex; flex-direction: column; gap: 25px; position: sticky; top: 0;
+            overflow-y: auto; max-height: calc(100vh - 60px); padding-right: 5px;
+        }
+
+        .glass-panel { background: var(--bg-panel); border: 1px solid var(--border); border-radius: var(--radius); padding: 24px; }
+        .control-group { display: flex; flex-direction: column; gap: 15px; }
+        .actions-group { display: flex; flex-direction: column; gap: 12px; margin-top: 10px; }
+        .label-header { font-size: 0.8rem; color: var(--text-muted); font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 6px; display: block; }
+
+        .drop-zone {
+            border: 2px dashed var(--border); background: var(--bg-input); text-align: center;
+            padding: 40px 20px; border-radius: var(--radius); cursor: pointer; transition: all 0.2s;
+        }
+        .drop-zone:hover, .drop-zone.drag-over { border-color: var(--accent); background: #111; }
+
+        .canvas-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: var(--spacing); align-content: start; }
+
+        .logo-card-item {
+            background: var(--bg-panel); border: 1px solid var(--border); display: flex; flex-direction: column;
+            border-radius: var(--radius); overflow: hidden; transition: border-color 0.2s;
+        }
+        .logo-card-item:hover { border-color: #555; }
+
+        .preview-box {
+            background-color: #050505;
+            background-image: linear-gradient(45deg, #111 25%, transparent 25%), linear-gradient(-45deg, #111 25%, transparent 25%), linear-gradient(45deg, transparent 75%, #111 75%), linear-gradient(-45deg, transparent 75%, #111 75%);
+            background-size: 20px 20px; display: flex; align-items: center; justify-content: center;
+            aspect-ratio: 1; overflow: hidden; padding: 15px; position: relative;
+        }
+        .preview-box img, .preview-box canvas { max-width: 100%; max-height: 100%; object-fit: contain; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5); }
+        .card-controls { padding: 15px; display: flex; flex-direction: column; gap: 12px; border-top: 1px solid var(--border); background: var(--bg-panel); }
+
+        /* SPLIT OVERLAY */
+        .split-preview-overlay { position: absolute; inset: 0; display: grid; grid-template-columns: repeat(var(--cols, 1), 1fr); grid-template-rows: repeat(var(--rows, 1), 1fr); pointer-events: none; z-index: 10; }
+        .split-cell { border: 1px solid rgba(255, 255, 255, 0.4); box-shadow: inset 0 0 1px rgba(0, 0, 0, 0.5); }
+
+        /* CONTROLS */
+        .toggle-switch {
+            appearance: none; width: 48px; height: 26px; background: #333; border-radius: 99px;
+            position: relative; cursor: pointer; border: 1px solid transparent; flex-shrink: 0; transition: background 0.2s;
+        }
+        .toggle-switch::after {
+            content: ''; position: absolute; top: 3px; left: 3px; width: 18px; height: 18px;
+            background: #fff; border-radius: 50%; transition: left 0.15s cubic-bezier(0.4, 0.0, 0.2, 1);
+        }
+        .toggle-switch:checked { background: var(--accent); border-color: var(--accent); }
+        .toggle-switch:checked::after { left: 25px; }
+        .toggle-switch.small { width: 36px; height: 20px; }
+        .toggle-switch.small::after { width: 14px; height: 14px; top: 2px; left: 2px; }
+        .toggle-switch.small:checked::after { left: 18px; }
+
+        .range-slider {
+            -webkit-appearance: none; width: 100%; height: 6px; background: #333; margin: 12px 0; border-radius: 3px;
+        }
+        .range-slider::-webkit-slider-thumb {
+            -webkit-appearance: none; width: 18px; height: 18px; background: #fff; border-radius: 50%;
+            cursor: pointer; margin-top: -6px; box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+        }
+
+        /* PDF STACKS */
+        .pdf-stacks-container { display: flex; flex-wrap: wrap; gap: var(--spacing); align-items: flex-start; }
+        .pdf-stack-wrapper {
+            width: 240px; height: auto; position: relative; cursor: pointer; border: 1px solid var(--border);
+            background: var(--bg-panel); padding: 0; border-radius: var(--radius); display: flex; flex-direction: column;
+            overflow: hidden; transition: transform 0.15s, border-color 0.15s;
+        }
+        .pdf-stack-wrapper:hover { transform: translateY(-4px); border-color: var(--accent); }
+        .pdf-stack-wrapper img { width: 100%; height: 220px; display: block; object-fit: contain; background: #000; }
+        .stack-meta { background: var(--bg-panel); padding: 15px; font-size: 0.9rem; border-top: 1px solid var(--border); display: flex; flex-direction: column; gap: 6px; }
+        .stack-title { font-weight: 600; color: var(--text-main); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .stack-count { color: var(--text-muted); font-size: 0.8rem; }
+
+        .hidden { display: none !important; }
+        .empty-state-msg {
+            grid-column: 1 / -1; width: 100%; color: var(--text-muted); text-align: center;
+            padding: 80px 20px; border: 2px dashed var(--border); background: var(--bg-input);
+            border-radius: var(--radius); display: flex; flex-direction: column; align-items: center;
+            gap: 15px; justify-content: center;
+        }
+        .terminal-input { background: #080808; border: 1px solid #333; color: #4ade80; font-family: monospace; font-size: 0.85rem; padding: 15px; line-height: 1.5; }
+        .tiny-row, .dense-grid-3 { display: flex; gap: 12px; } .dense-grid-3>* { flex: 1; }
+
+        .overlay-fixed { position: fixed; inset: 0; background: rgba(0, 0, 0, 0.95); z-index: 1000; display: none; flex-direction: column; padding: 40px; }
+        .overlay-fixed.active { display: flex; }
+        .pdf-grid-view { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: var(--spacing); overflow-y: auto; padding: 10px; }
+        .pdf-page-card { border: 1px solid var(--border); background: var(--bg-panel); border-radius: var(--radius); overflow: hidden; display: flex; flex-direction: column; }
+        .pdf-thumb { width: 100%; display: block; cursor: pointer; aspect-ratio: 16/9; object-fit: contain; background: #000; border-bottom: 1px solid var(--border); }
+        .page-card-actions { padding: 12px; display: flex; justify-content: space-between; align-items: center; background: var(--bg-panel); }
+
+        .progress-container { margin-top: 15px; display: none; }
+        .progress-container.active { display: block; }
+        .progress-bar-bg { width: 100%; height: 8px; background: #222; border-radius: 4px; overflow: hidden; margin-bottom: 8px; }
+        .progress-bar-fill { height: 100%; background: var(--accent); width: 0%; transition: width 0.2s; }
+        .progress-text { font-size: 0.85rem; color: var(--text-muted); display: flex; justify-content: space-between; }
+
+        #errorToast {
+            position: fixed; bottom: 30px; right: 30px; background: var(--bg-panel);
+            border: 1px solid var(--danger); border-left: 5px solid var(--danger);
+            padding: 18px 25px; border-radius: var(--radius); color: white; z-index: 2000;
+            display: none; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5); max-width: 450px; font-weight: 500;
+        }
+        #errorToast.visible { display: block; animation: slideIn 0.3s ease-out; }
+        @keyframes slideIn { from { transform: translateY(100%); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+
+        @media (max-width: 1000px) {
+            .editor-layout { grid-template-columns: 1fr; }
+            #section-story .editor-layout { grid-template-columns: 1fr; }
+            .story-center-panel { height: 350px; order: -1; }
+            .nav-sidebar.visible { width: 100%; position: fixed; bottom: 0; height: 65px; flex-direction: row; justify-content: space-around; padding: 0; border-top: 1px solid var(--border); border-right: none; background: var(--bg-panel); }
+            .header { padding: 0 20px; }
+            #view-app { padding-bottom: 90px; }
+            .overlay-fixed { padding: 20px; }
+            .pdf-grid-view { grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); }
+        }
+    </style>
+</head>
+
+<body>
+
+    <header class="header">
+        <div class="brand-title"><i data-lucide="box" style="color:var(--accent);"></i>Tools</div>
+    </header>
+
+    <div class="main-layout">
+        <nav class="nav-sidebar" id="mainSidebar">
+            <button class="nav-item active" id="nav-home" onclick="UI.showHome()" title="Home">
+                <i data-lucide="layout-grid"></i>
+            </button>
+            <div style="height:1px; width:30px; background:var(--border); margin:5px 0;"></div>
+            
+            <button class="nav-item" id="nav-logo" onclick="UI.openTool('section-logo')" title="Logo Resizer">
+                <i data-lucide="image" style="color: #3B82F6;"></i>
+            </button>
+            <button class="nav-item" id="nav-pdf" onclick="UI.openTool('section-pdf')" title="PDF Tools">
+                <i data-lucide="file-text" style="color: #EF4444;"></i>
+            </button>
+            <button class="nav-item" id="nav-split" onclick="UI.openTool('section-split')" title="Image Splitter">
+                <i data-lucide="scissors" style="color: #F59E0B;"></i>
+            </button>
+            <button class="nav-item" id="nav-story" onclick="UI.openTool('section-story')" title="Storyboard">
+                <i data-lucide="clapperboard" style="color: #8B5CF6;"></i>
+            </button>
+            <button class="nav-item" id="nav-stills" onclick="UI.openTool('section-stills')" title="Video Stills">
+                <i data-lucide="film" style="color: #06b6d4;"></i>
+            </button>
+            <button class="nav-item" id="nav-adlinks" onclick="UI.openTool('section-adlinks')" title="Ad Links">
+                <i data-lucide="link-2" style="color: #10B981;"></i>
+            </button>
+        </nav>
+
+        <div class="view-container">
+            <div id="view-home">
+                <div class="home-grid">
+                    <div class="home-card" onclick="UI.openTool('section-logo')" style="--card-color: #3B82F6;">
+                        <i data-lucide="image"></i>
+                        <div><div class="card-title">Logo Resizer</div><div class="card-desc">Resize & Overlay Text</div></div>
+                    </div>
+                    <div class="home-card" onclick="UI.openTool('section-pdf')" style="--card-color: #EF4444;">
+                        <i data-lucide="file-text"></i>
+                        <div><div class="card-title">PDF to Image</div><div class="card-desc">High-Res Extraction</div></div>
+                    </div>
+                    <div class="home-card" onclick="UI.openTool('section-split')" style="--card-color: #F59E0B;">
+                        <i data-lucide="scissors"></i>
+                        <div><div class="card-title">Image Splitter</div><div class="card-desc">Grid & Sequence Split</div></div>
+                    </div>
+                    <div class="home-card" onclick="UI.openTool('section-story')" style="--card-color: #8B5CF6;">
+                        <i data-lucide="clapperboard"></i>
+                        <div><div class="card-title">Storyboard</div><div class="card-desc">Board Creator</div></div>
+                    </div>
+                    <div class="home-card" onclick="UI.openTool('section-stills')" style="--card-color: #06b6d4;">
+                        <i data-lucide="film"></i>
+                        <div><div class="card-title">Video Stills</div><div class="card-desc">Extract Frames</div></div>
+                    </div>
+                    <div class="home-card" onclick="UI.openTool('section-adlinks')" style="--card-color: #10B981;">
+                        <i data-lucide="link-2"></i>
+                        <div><div class="card-title">Ad Links</div><div class="card-desc">Generate Links</div></div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="view-app">
+                <div class="tool-section" id="section-logo">
+                    <div class="tool-header">
+                        <i data-lucide="image" class="tool-icon"></i><h2>Logo Resizer</h2>
+                    </div>
+                    <div class="editor-layout">
+                        <div class="sidebar-panel">
+                            <div class="drop-zone" id="dropZone"><label class="liquid-btn active-mode" style="width:100%"><input accept="image/*" hidden id="logoInput" multiple type="file" /><i data-lucide="upload"></i> Add Images</label></div>
+                            <div id="logoControls" style="display:flex; flex-direction:column; gap:25px;">
+                                <div class="glass-panel control-group"><span class="label-header">Text Settings</span><input class="liquid-input persist-val" id="fontSizeInput" placeholder="Font Size (px)" type="number" /><div style="display:flex; align-items:center; justify-content:space-between;"><label style="display:flex; gap:10px; font-size:0.95rem; align-items:center;"><input class="toggle-switch small persist-chk" id="boldToggle" type="checkbox" /> Bold</label><input id="fontColorPicker" class="persist-val" style="background:none; border:none; height:35px; width:60px; cursor:pointer;" type="color" value="#000000" /></div></div>
+                                <div class="glass-panel control-group"><span class="label-header">Vertical Adjust</span><input class="range-slider persist-val" id="globalImgPos" max="50" min="-50" type="range" value="0" /></div>
+                                <div class="glass-panel control-group"><span class="label-header">Output Size</span><div class="tiny-row"><input class="liquid-input persist-val" id="exportWidth" placeholder="W" type="number" value="300" /><input class="liquid-input persist-val" id="exportHeight" placeholder="H" type="number" value="" /></div><div class="actions-group"><button class="liquid-btn active-mode" disabled id="exportAllBtn" style="width:100%">Download Zip</button><button class="liquid-btn danger-btn" id="clearLogoBtn" style="width:100%;">Reset</button></div></div>
+                            </div>
+                        </div>
+                        <div class="canvas-grid" id="logoGrid"><div class="empty-state-msg" id="logoEmpty"><i data-lucide="image" style="width:50px; height:50px; opacity:0.5;"></i><p>No images selected</p></div></div>
+                    </div>
+                </div>
+
+                <div class="tool-section" id="section-pdf">
+                    <div class="tool-header"><i data-lucide="file-text" class="tool-icon"></i><h2>PDF Convert</h2></div>
+                    <div class="editor-layout">
+                        <div class="sidebar-panel">
+                            <div class="drop-zone" id="pdfDropZone"><label class="liquid-btn active-mode" style="width:100%"><input accept="application/pdf" hidden id="pdfInput" multiple type="file" /><i data-lucide="upload"></i> Add PDF Files</label></div>
+                            <div class="glass-panel control-group"><span class="label-header">Output Format</span><select class="liquid-input persist-val" id="pdfFormat"><option value="image/png">PNG</option><option value="image/jpeg">JPG</option></select><div class="actions-group"><button class="liquid-btn" id="cancelPdfBtn" style="display:none; width:100%;">Cancel Processing</button><button class="liquid-btn danger-btn" id="clearPdfBtn" style="width:100%;">Clear All</button></div></div>
+                            <div class="progress-container glass-panel" id="pdfProgress"><div class="progress-text"><span id="pdfStatusText">Initializing...</span><span id="pdfStatusPercent">0%</span></div><div class="progress-bar-bg"><div class="progress-bar-fill" id="pdfProgressBar"></div></div></div>
+                        </div>
+                        <div class="right-panel"><div class="pdf-stacks-container" id="pdfStacksContainer"><div class="empty-state-msg" id="pdfEmptyState" style="width:100%"><i data-lucide="file-text" style="width:50px; height:50px; opacity:0.5;"></i><p>No PDFs loaded</p></div></div></div>
+                    </div>
+                </div>
+
+                <div class="tool-section" id="section-split">
+                    <div class="tool-header"><i data-lucide="scissors" class="tool-icon"></i><h2>Image Splitter</h2></div>
+                    <div class="editor-layout">
+                        <div class="sidebar-panel">
+                            <div class="drop-zone" id="splitDropZone"><label class="liquid-btn active-mode" style="width:100%"><input accept="image/*" hidden id="splitInput" multiple type="file" /><i data-lucide="upload"></i> Add Images</label></div>
+                            <div id="splitControls" style="display:flex; flex-direction:column; gap:25px;">
+                                <div class="glass-panel control-group"><span class="label-header">Configuration</span><select class="liquid-input persist-val" id="splitMode"><option value="vert">Columns Only</option><option value="horz">Rows Only</option><option value="grid">Grid (Rows & Cols)</option></select><div class="tiny-row"><div><span class="label-header">Rows</span><input class="liquid-input persist-val" id="splitRows" min="1" type="number" value="2" /></div><div><span class="label-header">Cols</span><input class="liquid-input persist-val" id="splitCols" min="1" type="number" value="2" /></div></div></div>
+                                <div class="actions-group"><button class="liquid-btn" id="processSplitBtn" disabled style="width:100%;">Process</button><button class="liquid-btn active-mode" disabled id="downloadSplitBtn" style="width:100%;">Download Zip</button><button class="liquid-btn danger-btn" id="clearSplitBtn" style="width:100%;">Reset</button></div>
+                            </div>
+                        </div>
+                        <div class="canvas-grid" id="splitGrid"><div class="empty-state-msg" id="splitEmpty"><i data-lucide="scissors" style="width:50px; height:50px; opacity:0.5;"></i><p>No images</p></div></div>
+                    </div>
+                </div>
+
+                <div class="tool-section" id="section-story">
+                    <div class="tool-header"><i data-lucide="clapperboard" class="tool-icon"></i><h2>Storyboard</h2></div>
+                    <div class="editor-layout">
+                        <div class="sidebar-panel">
+                            <div id="storyBoardControls">
+                                <div class="glass-panel" style="margin-bottom:25px;"><div id="storyProjectTabs" style="display:flex; flex-wrap:wrap; gap:8px; margin-bottom:15px;"></div><button class="liquid-btn" onclick="Tools.Story.addNewProject()" style="width:100%; height:36px; font-size:0.85rem;">+ New Board</button></div>
+                                <div class="drop-zone" id="storyDropZone"><label class="liquid-btn active-mode" style="width:100%"><input accept="image/*,video/*" hidden id="storyInput" multiple type="file" /><i data-lucide="upload"></i> Add Assets</label></div>
+                                <div style="margin-top:25px;"><div class="glass-panel control-group"><div class="dense-grid-3"><div><span class="label-header">Gap</span><input class="liquid-input persist-val" id="storyGap" type="number" value="0" /></div><div><span class="label-header">Width</span><input class="liquid-input persist-val" disabled id="storyWidth" type="number" value="1920" /></div></div><label style="font-size:0.9rem; display:flex; gap:10px; align-items:center; margin-top:15px;"><input class="toggle-switch small persist-chk" checked id="storyAutoWidth" type="checkbox" /> Auto Width</label></div></div>
+                            </div>
+                        </div>
+                        <div class="story-center-panel"><div id="storyBoardPreviewArea" style="width:100%; height:100%;"><div id="storyPreview" style="position:relative; width:100%; height:100%;"><span class="text-muted">Preview</span></div></div></div>
+                        <div class="sidebar-panel">
+                            <div id="storyRightPanelContent">
+                                <div class="glass-panel control-group"><span class="label-header">Board Actions</span><input class="liquid-input" id="storyNameInput" type="text" value="Board_1" placeholder="Board Name" /><div class="tiny-row"><button class="liquid-btn" id="generateStoryBtn" style="flex:1">Render</button><button class="liquid-btn active-mode" id="downloadStoryBtn" style="flex:1">Save JPG</button></div><div class="actions-group"><button class="liquid-btn" id="downloadAllStoryBtn" style="width:100%;">Download All (Zip)</button><button class="liquid-btn danger-btn" id="clearStoryBtn" style="width:100%;">Clear Board</button></div></div>
+                                <div class="glass-panel control-group" style="flex:1; display:flex; flex-direction:column; min-height: 250px;"><span class="label-header">Added Assets</span><div style="flex:1; overflow-y:auto; padding-right:5px;"><div id="storyFileList" style="display:flex; flex-direction:column; gap:8px;"></div></div></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="tool-section" id="section-stills">
+                    <div class="tool-header"><i data-lucide="film" class="tool-icon"></i><h2>Video Stills</h2></div>
+                    <div class="editor-layout">
+                        <div class="sidebar-panel">
+                            <div class="drop-zone" id="stillsDropZone"><label class="liquid-btn active-mode" style="width:100%"><input accept="video/*" hidden id="stillsInput" multiple type="file" /><i data-lucide="video"></i> Add Videos</label></div>
+                            <div id="stillsControls" style="margin-top:25px;"><div class="actions-group"><button class="liquid-btn" id="createStillsBtn" style="width:100%;">Process Videos</button><button class="liquid-btn active-mode" disabled id="downloadStillsBtn" style="width:100%;">Download All</button><button class="liquid-btn danger-btn" id="clearStillsBtn" style="width:100%;">Reset</button></div></div>
+                        </div>
+                        <div class="right-panel"><div class="pdf-stacks-container" id="stillsStacksContainer"><div class="empty-state-msg" id="stillsEmpty" style="width:100%"><i data-lucide="film" style="width:50px; height:50px; opacity:0.5;"></i><p>No videos</p></div></div></div>
+                    </div>
+                </div>
+
+                <div class="tool-section" id="section-adlinks">
+                    <div class="tool-header"><i data-lucide="link-2" class="tool-icon"></i><h2>Ad Link Gen</h2></div>
+                    <div class="editor-layout">
+                        <div class="sidebar-panel">
+                            <div class="glass-panel control-group"><span class="label-header">Server</span><select class="liquid-input persist-val" id="alg-server"><option value="aldi">ALDI Blob</option><option value="s3">S3 Media</option></select></div>
+                            <div class="glass-panel control-group"><span class="label-header">Path</span><input class="liquid-input persist-val" id="alg-folder" placeholder="Folder/Path" /></div>
+                            <div class="glass-panel control-group"><span class="label-header">Filenames</span><textarea id="alg-input" class="liquid-input terminal-input" style="min-height:200px;"></textarea></div>
+                            <button class="liquid-btn active-mode" onclick="Tools.AdLinkGen.generate()" style="width:100%">Generate</button>
+                        </div>
+                        <div class="right-panel" style="display:flex; flex-direction:column; gap:var(--spacing);">
+                            <div class="glass-panel control-group"><div style="display:flex; justify-content:space-between;"><span class="label-header">Ad Exposure</span><button class="liquid-btn" style="height:24px; font-size:0.7rem;" onclick="Tools.AdLinkGen.copy('alg-out-ads', this)">Copy</button></div><textarea class="liquid-input terminal-input" id="alg-out-ads" readonly style="min-height:150px;"></textarea></div>
+                            <div class="glass-panel control-group"><div style="display:flex; justify-content:space-between;"><span class="label-header">Storyboard Code</span><button class="liquid-btn" style="height:24px; font-size:0.7rem;" onclick="Tools.AdLinkGen.copy('alg-out-story', this)">Copy</button></div><textarea class="liquid-input terminal-input" id="alg-out-story" readonly style="min-height:150px;"></textarea></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="overlay-fixed" id="pdfDetailOverlay">
+        <div style="display:flex; justify-content:space-between; margin-bottom:20px; border-bottom:1px solid var(--border); padding-bottom:15px; align-items:center; flex-wrap:wrap; gap:15px;"><div><h3 id="pdfOverlayTitle" style="margin:0; font-family:'Rajdhani'; font-size:1.5rem;">Title</h3><span id="pdfOverlayCount" style="color:var(--text-muted);">0 Pages</span></div><div style="display:flex; gap:12px; align-items:center;"><label style="display:flex; align-items:center; gap:8px; cursor:pointer;"><input class="toggle-switch small" id="pdfSelectAll" type="checkbox" /> Select All (Ctrl+A)</label><button class="liquid-btn active-mode" id="pdfDownloadSelected">Download Selected (Ctrl+S)</button><button class="liquid-btn danger-btn" onclick="Tools.Pdf.closeDetail()"><i data-lucide="x"></i></button></div></div><div class="pdf-grid-view" id="pdfOverlayGrid"></div>
+    </div>
+    <div class="overlay-fixed" id="stillsDetailOverlay">
+        <div style="display:flex; justify-content:space-between; margin-bottom:20px; border-bottom:1px solid var(--border); padding-bottom:15px; align-items:center;"><div><h3 id="stillsOverlayTitle" style="margin:0; font-family:'Rajdhani'; font-size:1.5rem;">Video</h3><span id="stillsOverlayCount">0 Frames</span></div><div style="display:flex; gap:12px;"><label style="display:flex; align-items:center; gap:8px; cursor:pointer;"><input class="toggle-switch small" id="stillsSelectAll" type="checkbox" /> Select All (Ctrl+A)</label><button class="liquid-btn active-mode" id="stillsDownloadSelected">Download Selected (Ctrl+D)</button><button class="liquid-btn danger-btn" onclick="Tools.Stills.closeDetail()"><i data-lucide="x"></i></button></div></div><div class="pdf-grid-view" id="stillsOverlayGrid"></div>
+    </div>
+    <div class="overlay-fixed" id="lightbox" onclick="UI.closeLightbox()" style="align-items:center; justify-content:center;"><img id="lightboxImg" style="max-width:90%; max-height:90%; border:1px solid #333; box-shadow:0 0 50px black;" /></div>
+    <div id="errorToast"></div>
+
+    <script>
+        /* =================================================================
+           1. CORE (State, Memory, Utils)
+           ================================================================= */
+        const Core = {
+            BlobRegistry: {
+                urls: [],
+                create(blob) { const url = URL.createObjectURL(blob); this.urls.push(url); return url; },
+                revokeAll() { this.urls.forEach(url => URL.revokeObjectURL(url)); this.urls = []; }
+            },
+            AppState: {
+                save(key, value) { localStorage.setItem('cts_' + key, value); },
+                load(key) { return localStorage.getItem('cts_' + key); },
+                restoreInputs() {
+                    document.querySelectorAll('.persist-val').forEach(el => {
+                        const saved = this.load(el.id);
+                        if (saved !== null) el.value = saved;
+                        el.addEventListener('change', () => this.save(el.id, el.value));
+                    });
+                    document.querySelectorAll('.persist-chk').forEach(el => {
+                        const saved = this.load(el.id);
+                        if (saved !== null) el.checked = saved === 'true';
+                        el.addEventListener('change', () => this.save(el.id, el.checked));
+                    });
+                }
+            },
+            Utils: {
+                sanitize(s) { return (s || "").replace(/\s+/g, "_").replace(/[\\\/:*?"<>|]/g, ""); },
+                debounce(func, wait) { let timeout; return function (...args) { clearTimeout(timeout); timeout = setTimeout(() => func.apply(this, args), wait); }; },
+                createDropZone(el, onFiles) {
+                    if (!el) return;
+                    el.ondragover = e => { e.preventDefault(); el.classList.add('drag-over'); };
+                    el.ondragleave = () => el.classList.remove('drag-over');
+                    el.ondrop = e => { e.preventDefault(); el.classList.remove('drag-over'); onFiles([...e.dataTransfer.files]); };
+                }
+            }
+        };
+
+        /* =================================================================
+           2. UI (Navigation, Themes, Overlays)
+           ================================================================= */
+        const UI = {
+            ToolColors: {
+                'home': '#3B82F6',          
+                'section-logo': '#3B82F6',  
+                'section-pdf': '#EF4444',   
+                'section-split': '#F59E0B', 
+                'section-story': '#8B5CF6', 
+                'section-stills': '#06b6d4',
+                'section-adlinks': '#10B981'
+            },
+            els: {
+                sidebar: document.getElementById('mainSidebar'),
+                viewApp: document.getElementById('view-app'),
+                viewHome: document.getElementById('view-home'),
+                lightbox: document.getElementById('lightbox'),
+                lightboxImg: document.getElementById('lightboxImg'),
+                toast: document.getElementById('errorToast')
+            },
+            
+            showHome() {
+                document.body.classList.remove('tool-active');
+                this.els.sidebar.classList.remove('visible'); 
+                this.els.viewApp.classList.remove('active');
+                this.els.viewHome.classList.remove('hidden'); 
+                this.updateNav('nav-home');
+                this.applyTheme('home');
+                Core.AppState.save('activeTool', 'home');
+                
+                // Cleanup other tools
+                Object.values(Tools).forEach(tool => { if(tool.destroy) tool.destroy(); });
+            },
+
+            openTool(id) {
+                document.body.classList.add('tool-active');
+                this.els.sidebar.classList.add('visible'); 
+                this.els.viewHome.classList.add('hidden');
+                document.querySelectorAll('.tool-section').forEach(e => e.classList.remove('active'));
+                document.getElementById(id).classList.add('active'); 
+                this.els.viewApp.classList.add('active');
+                
+                const navMap = { 
+                    'section-logo': 'nav-logo', 'section-pdf': 'nav-pdf', 
+                    'section-split': 'nav-split', 'section-story': 'nav-story', 
+                    'section-stills': 'nav-stills', 'section-adlinks': 'nav-adlinks' 
+                };
+                
+                this.updateNav(navMap[id]);
+                this.applyTheme(id);
+                Core.AppState.save('activeTool', id);
+            },
+
+            updateNav(id) { 
+                document.querySelectorAll('.nav-item').forEach(e => e.classList.remove('active')); 
+                if (id) document.getElementById(id).classList.add('active');
+            },
+
+            applyTheme(toolId) {
+                const color = this.ToolColors[toolId] || this.ToolColors['home'];
+                document.documentElement.style.setProperty('--accent', color);
+                document.documentElement.style.setProperty('--accent-hover', color);
+            },
+
+            toggleEmptyState(container, isEmpty) { 
+                if (container) container.querySelector('.empty-state-msg').style.display = isEmpty ? 'flex' : 'none'; 
+            },
+
+            showSuccess(btn, text = "Done") { 
+                const old = btn.innerText; btn.innerText = text; btn.style.borderColor = "var(--success)"; 
+                setTimeout(() => { btn.innerText = old; btn.style.borderColor = "var(--border)"; }, 1500); 
+            },
+
+            showError(msg) { 
+                this.els.toast.innerText = msg; this.els.toast.classList.add('visible'); 
+                setTimeout(() => this.els.toast.classList.remove('visible'), 4000); 
+            },
+
+            openLightbox(src) { this.els.lightboxImg.src = src; this.els.lightbox.classList.add('active'); },
+            closeLightbox() { this.els.lightbox.classList.remove('active'); }
+        };
+
+        /* =================================================================
+           3. TOOLS (Logic for each app)
+           ================================================================= */
+        const Tools = {
+            
+            Logo: {
+                cards: [],
+                els: { 
+                    input: document.getElementById("logoInput"), dropZone: document.getElementById("dropZone"), 
+                    grid: document.getElementById("logoGrid"), empty: document.getElementById("logoEmpty"), 
+                    fontSize: document.getElementById("fontSizeInput"), bold: document.getElementById("boldToggle"), 
+                    color: document.getElementById("fontColorPicker"), width: document.getElementById("exportWidth"), 
+                    height: document.getElementById("exportHeight"), pos: document.getElementById("globalImgPos"), 
+                    exportBtn: document.getElementById("exportAllBtn"), clearBtn: document.getElementById("clearLogoBtn") 
+                },
+                init() {
+                    Core.Utils.createDropZone(this.els.dropZone, (f) => this.handleFiles(f));
+                    this.els.input.onchange = e => { this.handleFiles([...e.target.files]); this.els.input.value = ""; };
+                    
+                    // Listeners
+                    this.els.fontSize.oninput = Core.Utils.debounce(() => {
+                        const g = this.getGlobalFont();
+                        this.cards.forEach(c => { if (!c.hasLocalFont) { c.fontVal = g; c.inputs.font.value = this.els.fontSize.value || ""; this.draw(c); } });
+                    }, 50);
+                    this.els.bold.addEventListener('change', () => this.cards.forEach(c => this.draw(c)));
+                    this.els.color.oninput = Core.Utils.debounce(() => this.cards.forEach(c => this.draw(c)), 20);
+                    this.els.pos.oninput = Core.Utils.debounce(() => { const v = this.els.pos.value; this.cards.forEach(c => { c.inputs.imgSlider.value = v; this.draw(c); }); }, 10);
+                    this.els.width.oninput = Core.Utils.debounce(() => this.cards.forEach(c => this.draw(c)), 100);
+                    this.els.height.oninput = Core.Utils.debounce(() => this.cards.forEach(c => this.draw(c)), 100);
+                    this.els.exportBtn.onclick = () => this.exportAll();
+                    this.els.clearBtn.onclick = () => { if (confirm("Reset?")) this.destroy(); };
+                },
+                destroy() {
+                    this.cards.forEach(c => URL.revokeObjectURL(c.img.src)); 
+                    this.cards = []; 
+                    this.els.grid.innerHTML = ""; 
+                    this.els.grid.appendChild(this.els.empty); 
+                    UI.toggleEmptyState(this.els.grid, true); 
+                    this.els.exportBtn.disabled = true;
+                },
+                handleFiles(files) {
+                    if (files.length > 0) { UI.toggleEmptyState(this.els.grid, false); this.els.exportBtn.disabled = false; }
+                    files.forEach(f => { if (f.type.startsWith("image/")) this.createCard(f); });
+                },
+                getGlobalFont() { const v = parseInt(this.els.fontSize.value, 10); return isNaN(v) ? 28 : Math.max(8, Math.min(v, 200)); },
+                createCard(file) {
+                    const card = document.createElement('div'); card.className = "logo-card-item";
+                    card.innerHTML = `<div class="preview-box"><canvas></canvas></div><div class="card-controls"><textarea class="liquid-input card-text" rows="2" placeholder="Label"></textarea><div class="tiny-row"><input class="liquid-input card-fname" placeholder="Filename (opt)" style="flex:2"><input type="number" class="liquid-input card-font" placeholder="Size" style="flex:1"></div><div class="tiny-row"><div style="flex:1"><span class="label-header">Text Y</span><input type="range" class="range-slider card-txt-pos" min="0" max="100" value="90"></div><div style="flex:1"><span class="label-header">Image Y</span><input type="range" class="range-slider card-img-pos" min="-50" max="50" value="${this.els.pos.value}"></div></div><div class="tiny-row" style="margin-top:5px;"><button class="liquid-btn card-dl" style="flex:1"><i data-lucide="download"></i> Download</button><button class="liquid-btn card-rm danger-btn"><i data-lucide="trash-2"></i></button></div></div>`;
+                    const canvas = card.querySelector('canvas'), previewBox = card.querySelector('.preview-box');
+                    canvas.onclick = () => UI.openLightbox(canvas.toDataURL());
+                    const inputs = { text: card.querySelector('.card-text'), fname: card.querySelector('.card-fname'), font: card.querySelector('.card-font'), txtSlider: card.querySelector('.card-txt-pos'), imgSlider: card.querySelector('.card-img-pos'), download: card.querySelector('.card-dl'), remove: card.querySelector('.card-rm') };
+                    lucide.createIcons({ root: card });
+                    const img = new Image(); img.src = Core.BlobRegistry.create(file);
+                    const obj = { img, canvas, previewBox, inputs, fontVal: this.getGlobalFont(), hasLocalFont: false };
+                    this.cards.push(obj);
+                    img.onload = () => this.draw(obj);
+                    
+                    inputs.text.oninput = Core.Utils.debounce(() => this.draw(obj), 50);
+                    inputs.fname.oninput = () => inputs.fname.value = Core.Utils.sanitize(inputs.fname.value);
+                    inputs.txtSlider.oninput = Core.Utils.debounce(() => this.draw(obj), 10);
+                    inputs.imgSlider.oninput = Core.Utils.debounce(() => this.draw(obj), 10);
+                    inputs.font.oninput = Core.Utils.debounce(() => { const v = parseInt(inputs.font.value, 10); if (!isNaN(v)) { obj.hasLocalFont = true; obj.fontVal = Math.max(8, Math.min(v, 200)); } else { obj.hasLocalFont = false; obj.fontVal = this.getGlobalFont(); } this.draw(obj); }, 50);
+                    inputs.download.onclick = () => this.downloadSingle(obj);
+                    inputs.remove.onclick = () => { card.remove(); URL.revokeObjectURL(obj.img.src); this.cards = this.cards.filter(c => c !== obj); if (!this.cards.length) { UI.toggleEmptyState(this.els.grid, true); this.els.exportBtn.disabled = true; } };
+                    this.els.grid.prepend(card);
+                },
+                draw(c) {
+                    if (!c.img.complete) return;
+                    requestAnimationFrame(() => {
+                        let tW = parseInt(this.els.width.value, 10) || 300, tH = parseInt(this.els.height.value, 10) || 400;
+                        c.canvas.width = tW; c.canvas.height = tH; c.previewBox.style.aspectRatio = `${tW}/${tH}`;
+                        const ctx = c.canvas.getContext("2d"); ctx.fillStyle = "#ffffff"; ctx.fillRect(0, 0, tW, tH);
+                        const pad = 20, aW = tW - (pad * 2), aH = tH - (pad * 2);
+                        const scale = Math.min(aW / c.img.naturalWidth, aH / c.img.naturalHeight);
+                        const rW = c.img.naturalWidth * scale, rH = c.img.naturalHeight * scale;
+                        const x = (tW - rW) / 2, y = (tH - rH) / 2 + (parseFloat(c.inputs.imgSlider.value) / 100) * tH;
+                        ctx.drawImage(c.img, x, y, rW, rH);
+                        if (c.inputs.text.value) {
+                            ctx.fillStyle = this.els.color.value; ctx.textAlign = "center"; ctx.textBaseline = "middle";
+                            ctx.font = `${this.els.bold.checked ? "700" : "400"} ${c.fontVal}px Inter`;
+                            const lines = c.inputs.text.value.split("\n"), lh = c.fontVal * 1.25;
+                            const yS = (tH * parseFloat(c.inputs.txtSlider.value)) / 100 - (lh * lines.length) / 2 + lh / 2;
+                            lines.forEach((l, i) => ctx.fillText(l, tW / 2, yS + i * lh));
+                        }
+                    });
+                },
+                async downloadSingle(c) { const blob = await new Promise(r => c.canvas.toBlob(r, "image/png")); const name = Core.Utils.sanitize(c.inputs.fname.value.trim() || "card"); const a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = `${name}.png`; a.click(); },
+                async exportAll() {
+                    if (!this.cards.length) return;
+                    this.els.exportBtn.innerText = "Processing..."; this.els.exportBtn.disabled = true;
+                    const zip = new JSZip();
+                    for (let i = 0; i < this.cards.length; i++) { const c = this.cards[i]; const b = await new Promise(r => c.canvas.toBlob(r, "image/png")); const name = Core.Utils.sanitize(c.inputs.fname.value.trim() || `card_${i + 1}`); zip.file(`${name}.png`, b); }
+                    zip.generateAsync({ type: "blob" }).then(c => { const a = document.createElement("a"); a.href = URL.createObjectURL(c); a.download = "cards.zip"; a.click(); this.els.exportBtn.innerText = "Download Zip"; this.els.exportBtn.disabled = false; UI.showSuccess(this.els.exportBtn); });
+                }
+            },
+
+            Pdf: {
+                collection: {}, currentId: null, abortCtrl: null,
+                els: {
+                    dropZone: document.getElementById('pdfDropZone'), input: document.getElementById('pdfInput'),
+                    stacks: document.getElementById('pdfStacksContainer'), empty: document.getElementById('pdfEmptyState'),
+                    format: document.getElementById('pdfFormat'), clearBtn: document.getElementById('clearPdfBtn'),
+                    cancelBtn: document.getElementById('cancelPdfBtn'), progress: document.getElementById('pdfProgress'),
+                    status: document.getElementById('pdfStatusText'), percent: document.getElementById('pdfStatusPercent'),
+                    bar: document.getElementById('pdfProgressBar'), overlay: document.getElementById('pdfDetailOverlay'),
+                    title: document.getElementById('pdfOverlayTitle'), count: document.getElementById('pdfOverlayCount'),
+                    grid: document.getElementById('pdfOverlayGrid'), selectAll: document.getElementById('pdfSelectAll'),
+                    dlSelected: document.getElementById('pdfDownloadSelected')
+                },
+                init() {
+                    Core.Utils.createDropZone(this.els.dropZone, (f) => this.handleFiles(f));
+                    this.els.input.onchange = e => { this.handleFiles([...e.target.files]); this.els.input.value = ""; };
+                    this.els.clearBtn.onclick = () => { if (confirm("Clear all PDFs?")) this.destroy(); };
+                    this.els.cancelBtn.onclick = () => { if (this.abortCtrl) this.abortCtrl.abort(); };
+                    this.els.selectAll.onchange = (e) => this.toggleAll(e.target.checked);
+                    this.els.dlSelected.onclick = () => this.downloadSelected();
+                    document.addEventListener('keydown', (e) => { if (!this.currentId || !this.els.overlay.classList.contains('active')) return; if (e.ctrlKey && e.key === 'a') { e.preventDefault(); this.els.selectAll.click(); } if (e.ctrlKey && e.key === 's') { e.preventDefault(); this.downloadSelected(); } });
+                },
+                destroy() {
+                    this.collection = {}; this.els.stacks.innerHTML = ""; this.els.stacks.appendChild(this.els.empty); UI.toggleEmptyState(this.els.stacks, true); Core.BlobRegistry.revokeAll();
+                },
+                async handleFiles(files) {
+                    const pdfFiles = files.filter(f => f.type === "application/pdf");
+                    if (pdfFiles.length === 0) return UI.showError("Please upload valid PDF files.");
+
+                    UI.toggleEmptyState(this.els.stacks, false);
+                    this.els.progress.classList.add('active');
+                    this.els.cancelBtn.style.display = 'inline-flex';
+                    this.abortCtrl = new AbortController(); const signal = this.abortCtrl.signal;
+
+                    try { for (const file of pdfFiles) { if (signal.aborted) break; await this.processSinglePdf(file, this.els.format.value, signal); } } catch (e) { if (e.name !== 'AbortError') UI.showError(e.message); } finally { this.els.progress.classList.remove('active'); this.els.cancelBtn.style.display = 'none'; this.abortCtrl = null; }
+                },
+                async processSinglePdf(file, format, signal) {
+                    const pdfId = `pdf-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+                    this.els.status.innerText = `Loading ${file.name}...`;
+                    this.els.bar.style.width = '0%';
+                    try {
+                        const arrayBuffer = await file.arrayBuffer(); const pdf = await pdfjsLib.getDocument(arrayBuffer).promise;
+                        const stack = document.createElement('div'); stack.className = 'pdf-stack-wrapper';
+                        stack.innerHTML = `<div style="width:100%; height:200px; background:#111; display:flex; align-items:center; justify-content:center; color:#555;">Processing...</div><div class="stack-meta"><div class="stack-title">${file.name}</div><div class="stack-count">0/${pdf.numPages}</div></div>`;
+                        stack.onclick = () => this.openDetail(pdfId);
+                        this.els.stacks.prepend(stack);
+                        this.collection[pdfId] = { name: file.name, total: pdf.numPages, pages: [], format: format };
+
+                        for (let i = 1; i <= pdf.numPages; i++) {
+                            if (signal.aborted) throw new DOMException("Aborted", "AbortError");
+                            await new Promise(resolve => setTimeout(resolve, 0));
+                            this.els.status.innerText = `Rendering ${file.name} (Page ${i}/${pdf.numPages})`;
+                            const pct = Math.round((i / pdf.numPages) * 100) + '%';
+                            this.els.percent.innerText = pct; this.els.bar.style.width = pct;
+                            stack.querySelector('.stack-count').innerText = `${i}/${pdf.numPages}`;
+                            const page = await pdf.getPage(i); const viewport = page.getViewport({ scale: 2.0 });
+                            const canvas = document.createElement('canvas'); canvas.width = viewport.width; canvas.height = viewport.height;
+                            await page.render({ canvasContext: canvas.getContext('2d'), viewport }).promise;
+                            if (i === 1) { stack.querySelector('div').replaceWith(Object.assign(new Image(), { src: canvas.toDataURL(format, 0.5) })); }
+                            const blob = await new Promise(r => canvas.toBlob(r, format, 0.9));
+                            const url = Core.BlobRegistry.create(blob);
+                            this.collection[pdfId].pages.push({ num: i, blob, url, checked: true });
+                        }
+                        stack.querySelector('.stack-count').innerText = `${pdf.numPages} Pages`;
+                    } catch (err) { if (err.name !== 'AbortError') { console.error(err); UI.showError(`Failed to process ${file.name}: ${err.message}`); } }
+                },
+                openDetail(id) {
+                    if (!this.collection[id]) return;
+                    this.currentId = id; const data = this.collection[id];
+                    this.els.title.innerText = data.name; this.els.count.innerText = `${data.total} Pages`;
+                    this.els.grid.innerHTML = ''; this.els.selectAll.checked = true;
+                    data.pages.sort((a, b) => a.num - b.num);
+                    data.pages.forEach(page => {
+                        const card = document.createElement('div'); card.className = 'pdf-page-card';
+                        const ext = data.format.split('/')[1] === 'jpeg' ? 'jpg' : 'png';
+                        card.innerHTML = `<img src="${page.url}" class="pdf-thumb" onclick="UI.openLightbox('${page.url}')"><div class="page-card-actions"><span style="font-size:0.8rem; color:var(--text-muted);">#${page.num}</span><div style="display:flex; gap:10px; align-items:center;"><button class="liquid-btn icon-only" title="Download Page ${page.num}" onclick="Tools.Pdf.downloadSingle('${page.url}', '${page.num}.${ext}')"><i data-lucide="download" style="width:16px;"></i></button><input type="checkbox" class="detail-check toggle-switch small" ${page.checked ? 'checked' : ''}></div></div>`;
+                        card.querySelector('.detail-check').onchange = (e) => { page.checked = e.target.checked; };
+                        this.els.grid.appendChild(card);
+                    });
+                    lucide.createIcons({ root: this.els.grid }); this.els.overlay.classList.add('active');
+                },
+                closeDetail() { this.els.overlay.classList.remove('active'); this.currentId = null; },
+                toggleAll(val) { if (!this.currentId) return; this.collection[this.currentId].pages.forEach(p => p.checked = val); this.els.grid.querySelectorAll('.detail-check').forEach(c => c.checked = val); },
+                downloadSingle(url, name) { const a = document.createElement('a'); a.href = url; a.download = name; a.click(); },
+                async downloadSelected() {
+                    if (!this.currentId) return; const data = this.collection[this.currentId]; const selected = data.pages.filter(p => p.checked);
+                    if (selected.length === 0) return UI.showError("No pages selected.");
+                    this.els.dlSelected.innerText = "Zipping..."; const zip = new JSZip(); const ext = data.format.split('/')[1] === 'jpeg' ? 'jpg' : 'png';
+                    selected.forEach(p => zip.file(`${p.num}.${ext}`, p.blob));
+                    const content = await zip.generateAsync({ type: "blob" });
+                    const a = document.createElement('a'); a.href = URL.createObjectURL(content); a.download = `${data.name}_images.zip`; a.click();
+                    this.els.dlSelected.innerText = "Download Selected (Ctrl+S)";
+                }
+            },
+
+            Split: {
+                items: [],
+                els: { drop: document.getElementById("splitDropZone"), input: document.getElementById("splitInput"), grid: document.getElementById("splitGrid"), processBtn: document.getElementById("processSplitBtn"), dlBtn: document.getElementById("downloadSplitBtn"), clearBtn: document.getElementById("clearSplitBtn"), mode: document.getElementById("splitMode"), rows: document.getElementById("splitRows"), cols: document.getElementById("splitCols") },
+                init() {
+                    Core.Utils.createDropZone(this.els.drop, (f) => this.handleFiles(f));
+                    this.els.input.onchange = e => { this.handleFiles([...e.target.files]); this.els.input.value = ""; };
+                    this.els.processBtn.onclick = () => this.process();
+                    this.els.dlBtn.onclick = () => this.download();
+                    this.els.clearBtn.onclick = () => { if (confirm("Reset?")) this.destroy(); };
+                    [this.els.mode, this.els.rows, this.els.cols].forEach(el => el.addEventListener('input', () => this.updateGridLines()));
+                },
+                destroy() { this.items.forEach(i => URL.revokeObjectURL(i.url)); this.items = []; this.render(); },
+                handleFiles(files) { const valid = files.filter(f => f.type.startsWith("image/")); if (!valid.length) return; valid.forEach(file => this.items.push({ file, img: null, url: Core.BlobRegistry.create(file), checked: true, splitBlobs: [] })); this.render(); this.els.processBtn.disabled = false; },
+                updateGridLines() {
+                    const mode = this.els.mode.value, rIn = parseInt(this.els.rows.value) || 1, cIn = parseInt(this.els.cols.value) || 1;
+                    let rows = (mode === 'horz' || mode === 'grid') ? rIn : 1; let cols = (mode === 'vert' || mode === 'grid') ? cIn : 1;
+                    document.querySelectorAll('.split-preview-overlay').forEach(el => {
+                        el.style.setProperty('--rows', rows); el.style.setProperty('--cols', cols); el.innerHTML = '';
+                        for (let i = 0; i < rows * cols; i++) { el.appendChild(document.createElement('div')).className = 'split-cell'; }
+                    });
+                },
+                render() {
+                    this.els.grid.innerHTML = ''; if (this.items.length === 0) { this.els.grid.innerHTML = '<div class="empty-state-msg" id="splitEmpty"><i data-lucide="scissors" style="width:50px; height:50px; opacity:0.5;"></i><p>No images</p></div>'; this.els.processBtn.disabled = true; this.els.dlBtn.disabled = true; lucide.createIcons({ root: this.els.grid }); return; }
+                    this.items.forEach(item => {
+                        const card = document.createElement('div'); card.className = "logo-card-item";
+                        card.innerHTML = `<div class="preview-box"><img src="${item.url}"><div class="split-preview-overlay"></div></div><div class="card-controls"><div style="font-size:0.8rem; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; font-weight:600;">${item.file.name}</div><label style="display:flex; gap:8px; align-items:center; font-size:0.9rem;"><input type="checkbox" class="split-check toggle-switch small" ${item.checked ? 'checked' : ''}> Split</label><div class="split-status" style="font-size:0.75rem; color:var(--text-muted);">${item.splitBlobs.length > 0 ? 'Done' : 'Ready'}</div></div>`;
+                        this.els.grid.appendChild(card); item.card = card; card.querySelector('.split-check').onchange = (e) => item.checked = e.target.checked;
+                    });
+                    this.updateGridLines();
+                },
+                async process() {
+                    this.els.processBtn.innerText = "Processing..."; await new Promise(r => setTimeout(r, 100));
+                    const mode = this.els.mode.value; const rInput = parseInt(this.els.rows.value) || 1; const cInput = parseInt(this.els.cols.value) || 1;
+                    let rows = 1, cols = 1; if (mode === 'grid') { rows = rInput; cols = cInput; } else if (mode === 'vert') { cols = cInput; } else if (mode === 'horz') { rows = rInput; }
+                    for (const item of this.items) {
+                        if (!item.checked) continue;
+                        if (!item.img) { item.img = new Image(); item.img.src = item.url; await new Promise(r => item.img.onload = r); }
+                        item.splitBlobs = []; const pW = item.img.naturalWidth / cols; const pH = item.img.naturalHeight / rows;
+                        for (let r = 0; r < rows; r++) { for (let c = 0; c < cols; c++) { const cvs = document.createElement('canvas'); cvs.width = pW; cvs.height = pH; cvs.getContext('2d').drawImage(item.img, c * pW, r * pH, pW, pH, 0, 0, pW, pH); item.splitBlobs.push({ blob: await new Promise(res => cvs.toBlob(res, item.file.type)) }); } }
+                        item.card.querySelector('.split-status').innerText = `Done (${rows * cols})`;
+                    }
+                    this.els.processBtn.innerText = "Process"; this.els.dlBtn.disabled = false;
+                },
+                async download() {
+                    this.els.dlBtn.innerText = "Zipping..."; const zip = new JSZip(); let count = 1;
+                    this.items.forEach(item => { const ext = item.file.name.split('.').pop(); if (item.checked && item.splitBlobs.length > 0) item.splitBlobs.forEach(b => { zip.file(`${count}.${ext}`, b.blob); count++; }); else { zip.file(`${count}.${ext}`, item.file); count++; } });
+                    const a = document.createElement("a"); a.href = URL.createObjectURL(await zip.generateAsync({ type: "blob" })); a.download = "split_images.zip"; a.click(); this.els.dlBtn.innerText = "Download Zip";
+                }
+            },
+
+            Story: {
+                projects: [], active: null, canvas: null,
+                els: { tabs: document.getElementById('storyProjectTabs'), list: document.getElementById('storyFileList'), preview: document.getElementById('storyPreview'), name: document.getElementById('storyNameInput'), drop: document.getElementById('storyDropZone'), input: document.getElementById('storyInput') },
+                init() {
+                    Core.Utils.createDropZone(this.els.drop, (f) => this.handleFiles(f));
+                    this.els.input.onchange = e => { this.handleFiles([...e.target.files]); this.els.input.value = ""; };
+                    ['storyGap', 'storyWidth', 'storyAutoWidth'].forEach(id => { document.getElementById(id).addEventListener('change', Core.Utils.debounce(() => { if (id === 'storyAutoWidth') { document.getElementById('storyWidth').disabled = document.getElementById('storyAutoWidth').checked; } this.saveSettings(); this.draw(); }, 150)); });
+                    document.getElementById('generateStoryBtn').onclick = () => this.draw();
+                    document.getElementById('downloadStoryBtn').onclick = () => { if (this.canvas) { const a = document.createElement('a'); a.href = this.canvas.toDataURL('image/jpeg', 0.9); a.download = `${this.active.name}.jpg`; a.click(); } };
+                    document.getElementById('downloadAllStoryBtn').onclick = () => this.downloadAll();
+                    document.getElementById('clearStoryBtn').onclick = () => { if (confirm("Clear board?")) this.destroy(); };
+                    this.addNewProject();
+                },
+                destroy() { this.active.images.forEach(i => URL.revokeObjectURL(i.img.src)); this.active.images = []; this.updateList(); this.els.preview.innerHTML = '<span class="text-muted">Preview</span>'; },
+                addNewProject() { const id = Date.now(); this.projects.push({ id, name: `Board_${this.projects.length + 1}`, images: [], settings: { gap: 0, width: 1920, autoWidth: true } }); this.switchProject(id); },
+                switchProject(id) { 
+                    if (this.active) this.saveSettings(); this.active = this.projects.find(p => p.id === id); this.loadSettings(); this.renderTabs(); this.updateList(); 
+                    if (this.active.images.length > 0) { this.draw(); } else { this.els.preview.innerHTML = '<span class="text-muted">Preview</span>'; } 
+                },
+                saveSettings() { if (!this.active) return; const s = this.active.settings; s.gap = parseInt(document.getElementById('storyGap').value) || 0; s.width = parseInt(document.getElementById('storyWidth').value) || 1920; s.autoWidth = document.getElementById('storyAutoWidth').checked; this.active.name = this.els.name.value; },
+                loadSettings() { if (!this.active) return; const s = this.active.settings; document.getElementById('storyGap').value = s.gap; document.getElementById('storyWidth').value = s.width; document.getElementById('storyAutoWidth').checked = s.autoWidth; this.els.name.value = this.active.name; document.getElementById('storyWidth').disabled = s.autoWidth; },
+                renderTabs() { this.els.tabs.innerHTML = ''; this.projects.forEach(p => { const tab = document.createElement('div'); tab.style.cssText = `padding:6px 12px; background:${p.id === this.active.id ? 'var(--accent)' : '#333'}; color:white; border-radius:4px; font-size:0.75rem; cursor:pointer; display:flex; gap:6px; align-items:center; transition: background 0.2s;`; tab.innerHTML = `<span>${p.name}</span><span style="opacity:0.5;" title="Delete">&times;</span>`; tab.querySelector('span:last-child').onclick = (e) => { e.stopPropagation(); this.deleteProject(p.id); }; tab.onclick = () => this.switchProject(p.id); this.els.tabs.appendChild(tab); }); },
+                deleteProject(id) { if (!confirm("Delete?")) return; const idx = this.projects.findIndex(p => p.id === id); this.projects.splice(idx, 1); if (this.projects.length === 0) this.addNewProject(); else this.switchProject(this.projects[Math.max(0, idx - 1)].id); },
+                async handleFiles(files) { 
+                    for (const file of files) { 
+                        let img; if (file.type.startsWith('video/')) { try { img = await this.getVideoFrame(file); } catch (e) { continue; } } else if (file.type.startsWith('image/')) { img = new Image(); img.src = Core.BlobRegistry.create(file); } else { continue; } 
+                        this.active.images.push({ file, img }); 
+                    } 
+                    this.saveSettings(); this.updateList(); this.draw(); 
+                },
+                getVideoFrame(file) { return new Promise((resolve) => { const video = document.createElement('video'); video.src = URL.createObjectURL(file); video.muted = true; video.currentTime = 1.0; video.onseeked = () => { const c = document.createElement('canvas'); c.width = video.videoWidth; c.height = video.videoHeight; c.getContext('2d').drawImage(video, 0, 0); const img = new Image(); img.src = c.toDataURL('image/jpeg'); img.onload = () => resolve(img); }; }); },
+                updateList() { this.els.list.innerHTML = ''; this.active.images.forEach((item, index) => { const div = document.createElement('div'); div.style.cssText = "display:flex; justify-content:space-between; align-items:center; padding:10px 12px; background:var(--bg-input); border:1px solid var(--border); font-size:0.85rem; border-radius:6px; margin-bottom:6px; transition: border-color 0.2s;"; div.innerHTML = `<div style="display:flex; align-items:center; gap:10px;"><img src="${item.img.src}" style="width:30px; height:30px; object-fit:cover; border-radius:4px;"><span>${index + 1}</span></div><div style="display:flex; gap:5px;"><button class="liquid-btn" style="padding:0 8px; height:28px;" onclick="Tools.Story.moveImage(${index},-1)">↑</button><button class="liquid-btn" style="padding:0 8px; height:28px;" onclick="Tools.Story.moveImage(${index},1)">↓</button><button class="liquid-btn danger-btn" style="padding:0 8px; height:28px;" onclick="Tools.Story.removeImage(${index})">×</button></div>`; this.els.list.appendChild(div); }); },
+                moveImage(idx, dir) { const t = idx + dir; if (t < 0 || t >= this.active.images.length) return;[this.active.images[idx], this.active.images[t]] = [this.active.images[t], this.active.images[idx]]; this.updateList(); this.draw(); },
+                removeImage(idx) { URL.revokeObjectURL(this.active.images[idx].img.src); this.active.images.splice(idx, 1); this.saveSettings(); this.updateList(); this.draw(); },
+                draw() { 
+                    if (!this.active || !this.active.images.length) return; 
+                    const imgs = this.active.images; if(!imgs[0].img.complete) return; const s = this.active.settings; 
+                    const count = imgs.length; let cols, rows; if (count === 4) { cols = 2; rows = 2; } else if (count === 9) { cols = 3; rows = 3; } else if (count === 16) { cols = 4; rows = 4; } else { cols = Math.ceil(Math.sqrt(count)); rows = Math.ceil(count / cols); }
+                    let fW = s.autoWidth ? (imgs[0].img.naturalWidth * cols) : s.width; if (fW > 8192) fW = 8192; 
+                    const baseAspect = imgs[0].img.naturalWidth / imgs[0].img.naturalHeight; let fH = fW * (rows / cols) / baseAspect; 
+                    const c = document.createElement('canvas'); c.width = fW; c.height = fH; const ctx = c.getContext('2d'); ctx.fillStyle = '#ffffff'; ctx.fillRect(0, 0, fW, fH); 
+                    const cellW = (fW - (s.gap * (cols + 1))) / cols; const cellH = (fH - (s.gap * (rows + 1))) / rows; 
+                    let idx = 0; 
+                    for (let r = 0; r < rows; r++) { 
+                        const rem = imgs.length - idx; const count = Math.min(cols, rem); if (count <= 0) break; const shiftX = ((cols - count) * (cellW + s.gap)) / 2; 
+                        for (let col = 0; col < count; col++) { 
+                            const item = imgs[idx]; const x = s.gap + col * (cellW + s.gap) + shiftX; const y = s.gap + r * (cellH + s.gap); 
+                            const iR = item.img.naturalWidth / item.img.naturalHeight; const cR = cellW / cellH; 
+                            let sw, sh, sx, sy; if (iR > cR) { sh = item.img.naturalHeight; sw = sh * cR; sy = 0; sx = (item.img.naturalWidth - sw) / 2; } else { sw = item.img.naturalWidth; sh = sw / cR; sx = 0; sy = (item.img.naturalHeight - sh) / 2; } 
+                            ctx.drawImage(item.img, sx, sy, sw, sh, x, y, cellW, cellH); idx++; 
+                        } 
+                    } 
+                    c.onclick = () => UI.openLightbox(c.toDataURL()); this.canvas = c; this.els.preview.innerHTML = ''; this.els.preview.appendChild(c); 
+                    const badge = document.createElement('div'); badge.innerHTML = `<span style="opacity:0.7">SIZE:</span> ${Math.round(fW)} <span style="opacity:0.7">x</span> ${Math.round(fH)}`; badge.style.cssText = "position:absolute; top:20px; right:20px; background:rgba(0,0,0,0.8); backdrop-filter:blur(4px); color:white; padding:6px 10px; border-radius:6px; font-size:0.75rem; font-family:'Rajdhani', sans-serif; font-weight:600; border:1px solid #333; pointer-events:none; letter-spacing:1px; z-index:10;"; this.els.preview.appendChild(badge); 
+                },
+                async downloadAll() { if (!this.projects.some(p => p.images.length > 0)) return; const btn = document.getElementById('downloadAllStoryBtn'); btn.innerText = "Processing..."; const zip = new JSZip(); const origId = this.active.id; for (let i = 0; i < this.projects.length; i++) { const p = this.projects[i]; if (p.images.length === 0) continue; this.active = p; this.draw(); if (this.canvas) { const blob = await new Promise(r => this.canvas.toBlob(r, 'image/jpeg', 0.9)); zip.file(`${p.name}.jpg`, blob); } } this.switchProject(origId); const content = await zip.generateAsync({ type: "blob" }); const a = document.createElement("a"); a.href = URL.createObjectURL(content); a.download = "boards.zip"; a.click(); btn.innerText = "Download All"; }
+            },
+
+            Stills: {
+                collection: {}, currentId: null, queue: [],
+                els: { drop: document.getElementById('stillsDropZone'), input: document.getElementById('stillsInput'), stacks: document.getElementById('stillsStacksContainer'), empty: document.getElementById('stillsEmpty'), procBtn: document.getElementById('createStillsBtn'), dlBtn: document.getElementById('downloadStillsBtn'), clearBtn: document.getElementById('clearStillsBtn'), overlay: document.getElementById('stillsDetailOverlay'), title: document.getElementById('stillsOverlayTitle'), count: document.getElementById('stillsOverlayCount'), grid: document.getElementById('stillsOverlayGrid'), selectAll: document.getElementById('stillsSelectAll'), dlSel: document.getElementById('stillsDownloadSelected') },
+                init() {
+                    Core.Utils.createDropZone(this.els.drop, (f) => this.handleFiles(f));
+                    this.els.input.onchange = e => { this.handleFiles([...e.target.files]); this.els.input.value = ""; };
+                    this.els.procBtn.onclick = () => this.process();
+                    this.els.clearBtn.onclick = () => { if (confirm("Clear?")) this.destroy(); };
+                    this.els.selectAll.onchange = (e) => { if (!this.currentId) return; this.collection[this.currentId].frames.forEach(f => f.checked = e.target.checked); document.querySelectorAll('#stillsOverlayGrid .detail-check').forEach(cb => cb.checked = e.target.checked); };
+                    this.els.dlSel.onclick = () => this.downloadSelected(); this.els.dlBtn.onclick = () => this.downloadAll();
+                    document.addEventListener('keydown', (e) => { if (!this.currentId || !this.els.overlay.classList.contains('active')) return; if (e.ctrlKey && e.key === 'a') { e.preventDefault(); this.els.selectAll.click(); } if (e.ctrlKey && e.key === 'd') { e.preventDefault(); this.els.dlSel.click(); } });
+                },
+                destroy() { this.collection = {}; this.els.stacks.innerHTML = ""; this.els.stacks.appendChild(this.els.empty); UI.toggleEmptyState(this.els.stacks, true); },
+                handleFiles(files) { const valid = files.filter(f => f.type.startsWith("video/")); if (!valid.length) return; this.queue.push(...valid); this.els.empty.innerHTML = `${this.queue.length} video(s) queued.`; },
+                async process() { 
+                    if (!this.queue.length) return; this.els.procBtn.innerText = "Processing..."; UI.toggleEmptyState(this.els.stacks, false); 
+                    for (let i = 0; i < this.queue.length; i++) { 
+                        try { 
+                            const file = this.queue[i]; const name = file.name.replace(/\.[^/.]+$/, "").replace(/\s+/g, "_"); 
+                            const vid = document.createElement('video'); vid.src = Core.BlobRegistry.create(file); vid.muted = true; await new Promise(r => { vid.onloadedmetadata = r; vid.onerror = r; }); 
+                            const id = `vid-${Date.now()}`; this.collection[id] = { name: name, frames: [] }; vid.currentTime = 0.5; await new Promise(r => vid.onseeked = r); 
+                            const cv = document.createElement('canvas'); cv.width = 400; cv.height = 400 * (vid.videoHeight / vid.videoWidth); cv.getContext('2d').drawImage(vid, 0, 0, cv.width, cv.height); 
+                            const stack = document.createElement('div'); stack.className = 'pdf-stack-wrapper'; stack.innerHTML = `<img src="${cv.toDataURL()}"><div class="stack-meta"><div class="stack-title">${name}</div><div class="stack-count">Processing...</div></div>`; stack.onclick = () => this.openDetail(id); this.els.stacks.appendChild(stack); 
+                            const frames = Math.floor(vid.duration) || 1; const interval = vid.duration / (frames + 1); 
+                            for (let f = 1; f <= frames; f++) { await new Promise(resolve => setTimeout(resolve, 0)); vid.currentTime = f * interval; await new Promise(r => vid.onseeked = r); const c = document.createElement('canvas'); c.width = vid.videoWidth; c.height = vid.videoHeight; c.getContext('2d').drawImage(vid, 0, 0); const blob = await new Promise(r => c.toBlob(r, 'image/jpeg', 0.9)); this.collection[id].frames.push({ num: f, blob, url: Core.BlobRegistry.create(blob), checked: true }); } 
+                            stack.querySelector('.stack-count').innerText = `${frames} Frames`; 
+                        } catch (e) { console.error(e); } 
+                    } 
+                    this.els.procBtn.innerText = "Process Videos"; this.queue = []; this.els.dlBtn.disabled = false; 
+                },
+                openDetail(id) { this.currentId = id; const data = this.collection[id]; this.els.title.innerText = data.name; this.els.count.innerText = `${data.frames.length} Frames`; this.els.grid.innerHTML = ''; data.frames.forEach(f => { const card = document.createElement('div'); card.className = 'pdf-page-card'; card.innerHTML = `<img src="${f.url}" class="pdf-thumb" onclick="UI.openLightbox('${f.url}')"><div style="padding:10px; display:flex; justify-content:space-between; align-items:center;"><span style="font-size:0.8rem; color:var(--text-muted);">#${f.num}</span><input type="checkbox" class="detail-check toggle-switch small" ${f.checked ? 'checked' : ''}></div>`; card.querySelector('.detail-check').onchange = (e) => f.checked = e.target.checked; this.els.grid.appendChild(card); }); this.els.overlay.classList.add('active'); },
+                closeDetail() { this.els.overlay.classList.remove('active'); this.currentId = null; },
+                async downloadSelected() { if (!this.currentId) return; const sel = this.collection[this.currentId].frames.filter(f => f.checked); const zip = new JSZip(); sel.forEach(f => zip.file(`${f.num}.jpg`, f.blob)); const a = document.createElement('a'); a.href = URL.createObjectURL(await zip.generateAsync({ type: "blob" })); a.download = "frames.zip"; a.click(); },
+                async downloadAll() { this.els.dlBtn.innerText = "Zipping..."; const zip = new JSZip(); Object.values(this.collection).forEach(v => { const f = zip.folder(v.name); v.frames.forEach(frame => f.file(`${frame.num}.jpg`, frame.blob)); }); const a = document.createElement('a'); a.href = URL.createObjectURL(await zip.generateAsync({ type: "blob" })); a.download = "all_stills.zip"; a.click(); this.els.dlBtn.innerText = "Download All"; }
+            },
+
+            AdLinkGen: {
+                base: { aldi: "https://aldimediaeu.blob.core.windows.net/aldimediaeu/", s3: "https://s3media-ml-eu.surveycenter.com/" },
+                normFolder(v) { return v.trim().replace(/\s+/g, "/").replace(/\/+/g, "/").replace(/^\/|\/$/g, "") + "/"; },
+                generate() { const server = document.getElementById("alg-server").value; const folder = this.normFolder(document.getElementById("alg-folder").value); const lines = document.getElementById("alg-input").value.split("\n").map(l => l.trim()).filter(Boolean); let ads = [], story = []; lines.forEach(name => { const ext = name.split(".").pop().toLowerCase(); const url = this.base[server] + folder + name; if (ext === "jpg" || ext === "png") { ads.push(`<img src="${url}" class="zoomImage" style="max-width:80%">`); story.push(`<img src="${url}" class="zoomImage" style="max-height:280px">`); } else if (ext === "mp4") { ads.push(url); story.push(`<img src="${this.base[server] + folder + name.replace(".mp4", ".jpg")}" class="zoomImage" style="max-height:280px">`); } else if (ext === "mp3") { ads.push(url); story.push(name); } }); document.getElementById("alg-out-ads").value = ads.join("\n\n"); document.getElementById("alg-out-story").value = story.join("\n"); },
+                copy(id, btn) { const el = document.getElementById(id); el.select(); el.setSelectionRange(0, 99999); navigator.clipboard.writeText(el.value).then(() => { UI.showSuccess(btn, "Copied"); }); }
+            }
+        };
+
+        // Initialize All Tools
+        Object.values(Tools).forEach(tool => { if(tool.init) tool.init(); });
+        
+        Core.AppState.restoreInputs();
+        UI.showHome(); 
+        lucide.createIcons();
+        window.addEventListener('beforeunload', (e) => { if (Core.BlobRegistry.urls.length > 0) e.preventDefault(); });
+    </script>
+</body>
+</html>
