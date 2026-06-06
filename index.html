@@ -13,6 +13,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
     <script>pdfjsLib.GlobalWorkerOptions.workerSrc = "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";</script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
 
     <style>
@@ -23,14 +24,14 @@
             --bg-input: #080808;
             --border: #333333;
 
-            /* Default Accent (Blue) - Will be overridden by JS */
-            --accent: #3B82F6;
-            --accent-hover: #2563EB;
+            /* Default Accent (White) - Will be overridden by JS but we'll default to white */
+            --accent: #ffffff;
+            --accent-hover: #dddddd;
 
             --text-main: #ffffff;
             --text-muted: #888888;
-            --danger: #ef4444;
-            --success: #10b981;
+            --danger: #aaaaaa;
+            --success: #cccccc;
             --radius: 8px;
             --spacing: 30px;
         }
@@ -49,6 +50,7 @@
 
         input[type=number] {
             -moz-appearance: textfield;
+            appearance: textfield;
         }
 
         body {
@@ -285,7 +287,7 @@
 
         select.liquid-input option {
             background-color: var(--bg-panel);
-            color: white;
+            color: var(--text-main);
         }
 
         .liquid-btn {
@@ -317,9 +319,9 @@
         }
 
         .liquid-btn.active-mode {
-            background: var(--accent);
-            border-color: var(--accent);
-            color: white;
+            background: var(--text-main);
+            border-color: var(--text-main);
+            color: #000;
         }
 
         .liquid-btn.active-mode:hover {
@@ -334,7 +336,7 @@
 
         .liquid-btn.danger-btn:hover {
             background: var(--danger);
-            color: white;
+            color: #000;
         }
 
         .liquid-btn.icon-only {
@@ -391,7 +393,7 @@
             height: 100%;
         }
 
-        #section-story .editor-layout {
+        #stillsTabContentStory .editor-layout {
             grid-template-columns: 360px 1fr 300px;
         }
 
@@ -578,12 +580,13 @@
         }
 
         .toggle-switch:checked {
-            background: var(--accent);
-            border-color: var(--accent);
+            background: var(--text-main);
+            border-color: var(--text-main);
         }
 
         .toggle-switch:checked::after {
             left: 25px;
+            background: #000;
         }
 
         .toggle-switch.small {
@@ -600,6 +603,7 @@
 
         .toggle-switch.small:checked::after {
             left: 18px;
+            background: #000;
         }
 
         .range-slider {
@@ -704,7 +708,7 @@
         .terminal-input {
             background: #080808;
             border: 1px solid #333;
-            color: #4ade80;
+            color: #cccccc;
             font-family: monospace;
             font-size: 0.85rem;
             padding: 15px;
@@ -837,11 +841,28 @@
         }
 
         @media (max-width: 1000px) {
+            .responsive-editor-layout {
+                flex-direction: column !important;
+                overflow-y: auto !important;
+            }
+            .responsive-editor-right {
+                width: 100% !important;
+                border-left: none !important;
+                border-top: 1px solid var(--border) !important;
+                flex: auto !important;
+                grid-template-columns: 1fr !important;
+            }
+            .responsive-editor-left {
+                flex: none !important;
+                height: 380px !important;
+            }
+
             .editor-layout {
                 grid-template-columns: 1fr;
             }
 
-            #section-story .editor-layout {
+            #stillsTabContentStory .editor-layout,
+            #stillsTabContentVideo .editor-layout {
                 grid-template-columns: 1fr;
             }
 
@@ -896,64 +917,44 @@
             <div style="height:1px; width:30px; background:var(--border); margin:5px 0;"></div>
 
             <button class="nav-item" id="nav-logo" onclick="UI.openTool('section-logo')" title="Logo Resizer">
-                <i data-lucide="image" style="color: #3B82F6;"></i>
+                <i data-lucide="image" style="color: #ffffff;"></i>
             </button>
             <button class="nav-item" id="nav-pdf" onclick="UI.openTool('section-pdf')" title="PDF Tools">
-                <i data-lucide="file-text" style="color: #EF4444;"></i>
+                <i data-lucide="file-text" style="color: #cccccc;"></i>
             </button>
-            <button class="nav-item" id="nav-split" onclick="UI.openTool('section-split')" title="Image Splitter">
-                <i data-lucide="scissors" style="color: #F59E0B;"></i>
-            </button>
-            <button class="nav-item" id="nav-story" onclick="UI.openTool('section-story')" title="Storyboard">
-                <i data-lucide="clapperboard" style="color: #8B5CF6;"></i>
-            </button>
-            <button class="nav-item" id="nav-stills" onclick="UI.openTool('section-stills')" title="Video Stills">
-                <i data-lucide="film" style="color: #06b6d4;"></i>
+            <button class="nav-item" id="nav-stills-boards" onclick="UI.openTool('section-stills-boards')" title="Stills & Boards">
+                <i data-lucide="clapperboard" style="color: #eeeeee;"></i>
             </button>
             <button class="nav-item" id="nav-adlinks" onclick="UI.openTool('section-adlinks')" title="Ad Links">
-                <i data-lucide="link-2" style="color: #10B981;"></i>
+                <i data-lucide="link-2" style="color: #bbbbbb;"></i>
             </button>
         </nav>
 
         <div class="view-container">
             <div id="view-home">
                 <div class="home-grid">
-                    <div class="home-card" onclick="UI.openTool('section-logo')" style="--card-color: #3B82F6;">
+                    <div class="home-card" onclick="UI.openTool('section-logo')" style="--card-color: #ffffff;">
                         <i data-lucide="image"></i>
                         <div>
                             <div class="card-title">Logo Resizer</div>
                             <div class="card-desc">Resize & Overlay Text</div>
                         </div>
                     </div>
-                    <div class="home-card" onclick="UI.openTool('section-pdf')" style="--card-color: #EF4444;">
+                    <div class="home-card" onclick="UI.openTool('section-pdf')" style="--card-color: #cccccc;">
                         <i data-lucide="file-text"></i>
                         <div>
-                            <div class="card-title">PDF to Image</div>
-                            <div class="card-desc">High-Res Extraction</div>
+                            <div class="card-title">PDF Tools</div>
+                            <div class="card-desc">Convert & Split</div>
                         </div>
                     </div>
-                    <div class="home-card" onclick="UI.openTool('section-split')" style="--card-color: #F59E0B;">
-                        <i data-lucide="scissors"></i>
-                        <div>
-                            <div class="card-title">Image Splitter</div>
-                            <div class="card-desc">Grid & Sequence Split</div>
-                        </div>
-                    </div>
-                    <div class="home-card" onclick="UI.openTool('section-story')" style="--card-color: #8B5CF6;">
+                    <div class="home-card" onclick="UI.openTool('section-stills-boards')" style="--card-color: #eeeeee;">
                         <i data-lucide="clapperboard"></i>
                         <div>
-                            <div class="card-title">Storyboard</div>
-                            <div class="card-desc">Board Creator</div>
+                            <div class="card-title">Stills & Boards</div>
+                            <div class="card-desc">Video Stills & Storyboarding</div>
                         </div>
                     </div>
-                    <div class="home-card" onclick="UI.openTool('section-stills')" style="--card-color: #06b6d4;">
-                        <i data-lucide="film"></i>
-                        <div>
-                            <div class="card-title">Video Stills</div>
-                            <div class="card-desc">Extract Frames</div>
-                        </div>
-                    </div>
-                    <div class="home-card" onclick="UI.openTool('section-adlinks')" style="--card-color: #10B981;">
+                    <div class="home-card" onclick="UI.openTool('section-adlinks')" style="--card-color: #bbbbbb;">
                         <i data-lucide="link-2"></i>
                         <div>
                             <div class="card-title">Ad Links</div>
@@ -967,7 +968,7 @@
                 <div class="tool-section" id="section-logo">
                     <div class="tool-header">
                         <i data-lucide="image" class="tool-icon"></i>
-                        <h2>Logo Resizer</h2>
+                        <h2>Logo Workspace</h2>
                     </div>
                     <div class="editor-layout">
                         <div class="sidebar-panel">
@@ -976,20 +977,48 @@
                                         type="file" /><i data-lucide="upload"></i> Add Images</label></div>
                             <div id="logoControls" style="display:flex; flex-direction:column; gap:25px;">
                                 <div class="glass-panel control-group"><span class="label-header">Text
-                                        Settings</span><input class="liquid-input persist-val" id="fontSizeInput"
+                                        Settings</span>
+                                    <select class="liquid-input persist-val" id="globalFontFamily" style="margin-bottom:10px;">
+                                        <option value="Arial">Arial (Classic)</option>
+                                        <option value="Calibri">Calibri</option>
+                                        <option value="Comic Sans MS">Comic Sans MS</option>
+                                        <option value="Courier New">Courier New (Fixed)</option>
+                                        <option value="Georgia">Georgia (Serif)</option>
+                                        <option value="Impact">Impact (Heavy)</option>
+                                        <option value="Lucida Console">Lucida Console</option>
+                                        <option value="Palatino Linotype">Palatino Linotype</option>
+                                        <option value="Segoe UI">Segoe UI</option>
+                                        <option value="Tahoma">Tahoma</option>
+                                        <option value="Times New Roman">Times New Roman</option>
+                                        <option value="Trebuchet MS">Trebuchet MS</option>
+                                        <option value="Verdana">Verdana</option>
+                                        <option value="sans-serif">Default Sans</option>
+                                    </select>
+                                    <input class="liquid-input persist-val" id="fontSizeInput"
                                         placeholder="Font Size (px)" type="number" />
-                                    <div style="display:flex; align-items:center; justify-content:space-between;"><label
+                                    <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:10px;"><label
                                             style="display:flex; gap:10px; font-size:0.95rem; align-items:center;"><input
                                                 class="toggle-switch small persist-chk" id="boldToggle"
-                                                type="checkbox" /> Bold</label><input id="fontColorPicker"
+                                                type="checkbox" /> Bold</label><label
+                                            style="display:flex; gap:10px; font-size:0.95rem; align-items:center;"><input
+                                                class="toggle-switch small persist-chk" id="syncFilenameToggle"
+                                                type="checkbox" checked /> Sync Filename</label><input id="fontColorPicker"
                                             class="persist-val"
-                                            style="background:none; border:none; height:35px; width:60px; cursor:pointer;"
+                                            style="background:none; border:none; height:35px; width:40px; cursor:pointer;"
                                             type="color" value="#000000" /></div>
                                 </div>
-                                <div class="glass-panel control-group"><span class="label-header">Vertical
-                                        Adjust</span><input class="range-slider persist-val" id="globalImgPos" max="50"
-                                        min="-50" type="range" value="0" /></div>
-                                <div class="glass-panel control-group"><span class="label-header">Output Size</span>
+                                <div class="glass-panel control-group">
+                                    <span class="label-header">Layout Adjust</span>
+                                    <div style="display:flex; flex-direction:column; gap:5px; margin-bottom: 10px;">
+                                        <span class="label-header" style="font-size:0.7rem; color:var(--text-muted);">Padding (0 - 150)</span>
+                                        <input class="range-slider persist-val" id="globalPadding" max="150" min="0" type="range" value="0" />
+                                    </div>
+                                    <div style="display:flex; flex-direction:column; gap:5px;">
+                                        <span class="label-header" style="font-size:0.7rem; color:var(--text-muted);">Vertical Offset (-50 to +50)</span>
+                                        <input class="range-slider persist-val" id="globalImgPos" max="50" min="-50" type="range" value="0" />
+                                    </div>
+                                </div>
+                                <div class="glass-panel control-group"><span class="label-header">Export Size</span>
                                     <div class="tiny-row"><input class="liquid-input persist-val" id="exportWidth"
                                             placeholder="W" type="number" value="300" /><input
                                             class="liquid-input persist-val" id="exportHeight" placeholder="H"
@@ -1011,172 +1040,187 @@
                 </div>
 
                 <div class="tool-section" id="section-pdf">
-                    <div class="tool-header"><i data-lucide="file-text" class="tool-icon"></i>
-                        <h2>PDF Convert</h2>
+                    <div class="tool-header">
+                        <i data-lucide="layers" class="tool-icon"></i>
+                        <h2>PDF Tools</h2>
                     </div>
-                    <div class="editor-layout">
-                        <div class="sidebar-panel">
-                            <div class="drop-zone" id="pdfDropZone"><label class="liquid-btn active-mode"
-                                    style="width:100%"><input accept="application/pdf" hidden id="pdfInput" multiple
-                                        type="file" /><i data-lucide="upload"></i> Add PDF Files</label></div>
-                            <div class="glass-panel control-group"><span class="label-header">Output
-                                    Format</span><select class="liquid-input persist-val" id="pdfFormat">
-                                    <option value="image/png">PNG</option>
-                                    <option value="image/jpeg">JPG</option>
-                                </select>
-                                <div class="actions-group"><button class="liquid-btn" id="cancelPdfBtn"
-                                        style="display:none; width:100%;">Cancel Processing</button><button
-                                        class="liquid-btn danger-btn" id="clearPdfBtn" style="width:100%;">Clear
-                                        All</button></div>
-                            </div>
-                            <div class="progress-container glass-panel" id="pdfProgress">
-                                <div class="progress-text"><span id="pdfStatusText">Initializing...</span><span
-                                        id="pdfStatusPercent">0%</span></div>
-                                <div class="progress-bar-bg">
-                                    <div class="progress-bar-fill" id="pdfProgressBar"></div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="right-panel">
-                            <div class="pdf-stacks-container" id="pdfStacksContainer">
-                                <div class="empty-state-msg" id="pdfEmptyState" style="width:100%"><i
-                                        data-lucide="file-text" style="width:50px; height:50px; opacity:0.5;"></i>
-                                    <p>No PDFs loaded</p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
 
-                <div class="tool-section" id="section-split">
-                    <div class="tool-header"><i data-lucide="scissors" class="tool-icon"></i>
-                        <h2>Image Splitter</h2>
+                    <div style="display:flex; gap:10px; padding:0 20px; border-bottom:1px solid var(--border); margin-bottom:20px;">
+                        <button class="liquid-btn active-mode" id="pdfTabConvert" onclick="UI.switchPdfTab('convert')" style="border-bottom-left-radius:0; border-bottom-right-radius:0;">PDF to Image</button>
+                        <button class="liquid-btn" id="pdfTabSplit" onclick="UI.switchPdfTab('split')" style="border-bottom-left-radius:0; border-bottom-right-radius:0; background:transparent; border:1px solid transparent;">Image Splitter</button>
                     </div>
-                    <div class="editor-layout">
-                        <div class="sidebar-panel">
-                            <div class="drop-zone" id="splitDropZone"><label class="liquid-btn active-mode"
-                                    style="width:100%"><input accept="image/*" hidden id="splitInput" multiple
-                                        type="file" /><i data-lucide="upload"></i> Add Images</label></div>
-                            <div id="splitControls" style="display:flex; flex-direction:column; gap:25px;">
-                                <div class="glass-panel control-group"><span
-                                        class="label-header">Configuration</span><select
-                                        class="liquid-input persist-val" id="splitMode">
-                                        <option value="vert">Columns Only</option>
-                                        <option value="horz">Rows Only</option>
-                                        <option value="grid">Grid (Rows & Cols)</option>
+
+                    <div id="pdfTabContentConvert">
+                        <div class="editor-layout">
+                            <div class="sidebar-panel">
+                                <div class="drop-zone" id="pdfDropZone"><label class="liquid-btn active-mode"
+                                        style="width:100%"><input accept="application/pdf" hidden id="pdfInput" multiple
+                                            type="file" /><i data-lucide="upload"></i> Add PDF Files</label></div>
+                                <div class="glass-panel control-group"><span class="label-header">Output
+                                        Format</span><select class="liquid-input persist-val" id="pdfFormat">
+                                        <option value="image/png">PNG</option>
+                                        <option value="image/jpeg">JPG</option>
                                     </select>
-                                    <div class="tiny-row">
-                                        <div><span class="label-header">Rows</span><input
-                                                class="liquid-input persist-val" id="splitRows" min="1" type="number"
-                                                value="2" /></div>
-                                        <div><span class="label-header">Cols</span><input
-                                                class="liquid-input persist-val" id="splitCols" min="1" type="number"
-                                                value="2" /></div>
+                                    <div class="actions-group"><button class="liquid-btn" id="cancelPdfBtn"
+                                            style="display:none; width:100%;">Cancel Processing</button><button
+                                            class="liquid-btn danger-btn" id="clearPdfBtn" style="width:100%;">Clear
+                                            All</button></div>
+                                </div>
+                                <div class="progress-container glass-panel" id="pdfProgress">
+                                    <div class="progress-text"><span id="pdfStatusText">Initializing...</span><span
+                                            id="pdfStatusPercent">0%</span></div>
+                                    <div class="progress-bar-bg">
+                                        <div class="progress-bar-fill" id="pdfProgressBar"></div>
                                     </div>
                                 </div>
-                                <div class="actions-group"><button class="liquid-btn" id="processSplitBtn" disabled
-                                        style="width:100%;">Process</button><button class="liquid-btn active-mode"
-                                        disabled id="downloadSplitBtn" style="width:100%;">Download Zip</button><button
-                                        class="liquid-btn danger-btn" id="clearSplitBtn"
-                                        style="width:100%;">Reset</button></div>
+                            </div>
+                            <div class="right-panel">
+                                <div class="pdf-stacks-container" id="pdfStacksContainer">
+                                    <div class="empty-state-msg" id="pdfEmptyState" style="width:100%"><i
+                                            data-lucide="file-text" style="width:50px; height:50px; opacity:0.5;"></i>
+                                        <p>No PDFs loaded</p>
+                                    </div>
+                                </div>
                             </div>
                         </div>
-                        <div class="canvas-grid" id="splitGrid">
-                            <div class="empty-state-msg" id="splitEmpty"><i data-lucide="scissors"
-                                    style="width:50px; height:50px; opacity:0.5;"></i>
-                                <p>No images</p>
+                    </div>
+
+                    <div id="pdfTabContentSplit" style="display:none;">
+                        <div class="editor-layout">
+                            <div class="sidebar-panel">
+                                <div class="drop-zone" id="splitDropZone"><label class="liquid-btn active-mode"
+                                        style="width:100%"><input accept="image/*" hidden id="splitInput" multiple
+                                            type="file" /><i data-lucide="upload"></i> Add Images</label></div>
+                                <div id="splitControls" style="display:flex; flex-direction:column; gap:25px;">
+                                    <div class="glass-panel control-group"><span
+                                            class="label-header">Configuration</span><select
+                                            class="liquid-input persist-val" id="splitMode">
+                                            <option value="vert">Columns Only</option>
+                                            <option value="horz">Rows Only</option>
+                                            <option value="grid">Grid (Rows & Cols)</option>
+                                        </select>
+                                        <div class="tiny-row">
+                                            <div><span class="label-header">Rows</span><input
+                                                    class="liquid-input persist-val" id="splitRows" min="1" type="number"
+                                                    value="2" /></div>
+                                            <div><span class="label-header">Cols</span><input
+                                                    class="liquid-input persist-val" id="splitCols" min="1" type="number"
+                                                    value="2" /></div>
+                                        </div>
+                                    </div>
+                                    <div class="actions-group"><button class="liquid-btn" id="processSplitBtn" disabled
+                                            style="width:100%;">Process</button><button class="liquid-btn active-mode"
+                                            disabled id="downloadSplitBtn" style="width:100%;">Download Zip</button><button
+                                            class="liquid-btn danger-btn" id="clearSplitBtn"
+                                            style="width:100%;">Reset</button></div>
+                                </div>
+                            </div>
+                            <div class="canvas-grid" id="splitGrid">
+                                <div class="empty-state-msg" id="splitEmpty"><i data-lucide="scissors"
+                                        style="width:50px; height:50px; opacity:0.5;"></i>
+                                    <p>No images</p>
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
 
-                <div class="tool-section" id="section-story">
-                    <div class="tool-header"><i data-lucide="clapperboard" class="tool-icon"></i>
-                        <h2>Storyboard</h2>
+                <div class="tool-section" id="section-stills-boards">
+                    <div class="tool-header">
+                        <i data-lucide="clapperboard" class="tool-icon"></i>
+                        <h2>Stills & Boards</h2>
                     </div>
-                    <div class="editor-layout">
-                        <div class="sidebar-panel">
-                            <div id="storyBoardControls">
-                                <div class="glass-panel" style="margin-bottom:25px;">
-                                    <div id="storyProjectTabs"
-                                        style="display:flex; flex-wrap:wrap; gap:8px; margin-bottom:15px;"></div><button
-                                        class="liquid-btn" onclick="Tools.Story.addNewProject()"
-                                        style="width:100%; height:36px; font-size:0.85rem;">+ New Board</button>
-                                </div>
-                                <div class="drop-zone" id="storyDropZone"><label class="liquid-btn active-mode"
-                                        style="width:100%"><input accept="image/*,video/*" hidden id="storyInput"
-                                            multiple type="file" /><i data-lucide="upload"></i> Add Assets</label></div>
-                                <div style="margin-top:25px;">
-                                    <div class="glass-panel control-group">
-                                        <div class="dense-grid-3">
-                                            <div><span class="label-header">Gap</span><input
-                                                    class="liquid-input persist-val" id="storyGap" type="number"
-                                                    value="0" /></div>
-                                            <div><span class="label-header">Width</span><input
-                                                    class="liquid-input persist-val" disabled id="storyWidth"
-                                                    type="number" value="1920" /></div>
-                                        </div><label
-                                            style="font-size:0.9rem; display:flex; gap:10px; align-items:center; margin-top:15px;"><input
-                                                class="toggle-switch small persist-chk" checked id="storyAutoWidth"
-                                                type="checkbox" /> Auto Width</label>
+
+                    <div style="display:flex; gap:10px; padding:0 20px; border-bottom:1px solid var(--border); margin-bottom:20px;">
+                        <button class="liquid-btn active-mode" id="stillsTabVideo" onclick="UI.switchStillsTab('video')" style="border-bottom-left-radius:0; border-bottom-right-radius:0;">Video Stills</button>
+                        <button class="liquid-btn" id="stillsTabStory" onclick="UI.switchStillsTab('story')" style="border-bottom-left-radius:0; border-bottom-right-radius:0; background:transparent; border:1px solid transparent;">Storyboard</button>
+                    </div>
+
+                    <div id="stillsTabContentStory" style="display:none;">
+                        <div class="editor-layout">
+                            <div class="sidebar-panel">
+                                <div id="storyBoardControls">
+                                    <div class="glass-panel" style="margin-bottom:25px;">
+                                        <div id="storyProjectTabs"
+                                            style="display:flex; flex-wrap:wrap; gap:8px; margin-bottom:15px;"></div><button
+                                            class="liquid-btn" onclick="Tools.Story.addNewProject()"
+                                            style="width:100%; height:36px; font-size:0.85rem;">+ New Board</button>
+                                    </div>
+                                    <div class="drop-zone" id="storyDropZone"><label class="liquid-btn active-mode"
+                                            style="width:100%"><input accept="image/*,video/*" hidden id="storyInput"
+                                                multiple type="file" /><i data-lucide="upload"></i> Add Assets</label></div>
+                                    <div style="margin-top:25px;">
+                                        <div class="glass-panel control-group">
+                                            <div class="dense-grid-3">
+                                                <div><span class="label-header">Cols</span><input
+                                                        class="liquid-input persist-val" id="storyCols" type="number"
+                                                        value="0" placeholder="Auto" /></div>
+                                                <div><span class="label-header">Gap</span><input
+                                                        class="liquid-input persist-val" id="storyGap" type="number"
+                                                        value="0" /></div>
+                                                <div><span class="label-header">Width</span><input
+                                                        class="liquid-input persist-val" disabled id="storyWidth"
+                                                        type="number" value="1920" /></div>
+                                            </div><label
+                                                style="font-size:0.9rem; display:flex; gap:10px; align-items:center; margin-top:15px;"><input
+                                                    class="toggle-switch small persist-chk" checked id="storyAutoWidth"
+                                                    type="checkbox" /> Auto Width</label>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
-                        </div>
-                        <div class="story-center-panel">
-                            <div id="storyBoardPreviewArea" style="width:100%; height:100%;">
-                                <div id="storyPreview" style="position:relative; width:100%; height:100%;"><span
-                                        class="text-muted">Preview</span></div>
-                            </div>
-                        </div>
-                        <div class="sidebar-panel">
-                            <div id="storyRightPanelContent">
-                                <div class="glass-panel control-group"><span class="label-header">Board
-                                        Actions</span><input class="liquid-input" id="storyNameInput" type="text"
-                                        value="Board_1" placeholder="Board Name" />
-                                    <div class="tiny-row"><button class="liquid-btn" id="generateStoryBtn"
-                                            style="flex:1">Render</button><button class="liquid-btn active-mode"
-                                            id="downloadStoryBtn" style="flex:1">Save JPG</button></div>
-                                    <div class="actions-group"><button class="liquid-btn" id="downloadAllStoryBtn"
-                                            style="width:100%;">Download All (Zip)</button><button
-                                            class="liquid-btn danger-btn" id="clearStoryBtn" style="width:100%;">Clear
-                                            Board</button></div>
+                            <div class="story-center-panel">
+                                <div id="storyBoardPreviewArea" style="width:100%; height:100%;">
+                                    <div id="storyPreview" style="position:relative; width:100%; height:100%;"><span
+                                            class="text-muted">Preview</span></div>
                                 </div>
-                                <div class="glass-panel control-group"
-                                    style="flex:1; display:flex; flex-direction:column; min-height: 250px;"><span
-                                        class="label-header">Added Assets</span>
-                                    <div style="flex:1; overflow-y:auto; padding-right:5px;">
-                                        <div id="storyFileList" style="display:flex; flex-direction:column; gap:8px;">
+                            </div>
+                            <div class="sidebar-panel">
+                                <div id="storyRightPanelContent">
+                                    <div class="glass-panel control-group"><span class="label-header">Board
+                                            Actions</span><input class="liquid-input" id="storyNameInput" type="text"
+                                            value="Board_1" placeholder="Board Name" />
+                                        <div class="tiny-row"><button class="liquid-btn" id="generateStoryBtn"
+                                                style="flex:1">Render</button><button class="liquid-btn active-mode"
+                                                id="downloadStoryBtn" style="flex:1">Save JPG</button></div>
+                                        <div class="actions-group"><button class="liquid-btn" id="downloadAllStoryBtn"
+                                                style="width:100%;">Download All (Zip)</button><button
+                                                class="liquid-btn danger-btn" id="clearStoryBtn" style="width:100%;">Clear
+                                                Board</button></div>
+                                    </div>
+                                    <div class="glass-panel control-group"
+                                        style="flex:1; display:flex; flex-direction:column; min-height: 250px;"><span
+                                            class="label-header">Added Assets</span>
+                                        <div style="flex:1; overflow-y:auto; padding-right:5px;">
+                                            <div id="storyFileList" style="display:flex; flex-direction:column; gap:8px;">
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
                             </div>
                         </div>
                     </div>
-                </div>
 
-                <div class="tool-section" id="section-stills">
-                    <div class="tool-header"><i data-lucide="film" class="tool-icon"></i>
-                        <h2>Video Stills</h2>
-                    </div>
-                    <div class="editor-layout">
-                        <div class="sidebar-panel">
-                            <div class="drop-zone" id="stillsDropZone"><label class="liquid-btn active-mode"
-                                    style="width:100%"><input accept="video/*" hidden id="stillsInput" multiple
-                                        type="file" /><i data-lucide="video"></i> Add Videos</label></div>
-                            <div id="stillsControls" style="margin-top:25px;">
-                                <div class="actions-group"><button class="liquid-btn" id="createStillsBtn"
-                                        style="width:100%;">Process Videos</button><button
-                                        class="liquid-btn active-mode" disabled id="downloadStillsBtn"
-                                        style="width:100%;">Download All</button><button class="liquid-btn danger-btn"
-                                        id="clearStillsBtn" style="width:100%;">Reset</button></div>
+                    <div id="stillsTabContentVideo">
+                        <div class="editor-layout">
+                            <div class="sidebar-panel">
+                                <div class="drop-zone" id="stillsDropZone"><label class="liquid-btn active-mode"
+                                        style="width:100%"><input accept="video/*" hidden id="stillsInput" multiple
+                                            type="file" /><i data-lucide="video"></i> Add Videos</label></div>
+                                <div id="stillsControls" style="margin-top:25px;">
+                                    <div class="actions-group"><button class="liquid-btn" id="createStillsBtn"
+                                            style="width:100%;">Process Videos</button><button
+                                            class="liquid-btn active-mode" disabled id="downloadStillsBtn"
+                                            style="width:100%;">Download All</button><button class="liquid-btn danger-btn"
+                                            id="clearStillsBtn" style="width:100%;">Reset</button></div>
+                                </div>
                             </div>
-                        </div>
-                        <div class="right-panel">
-                            <div class="pdf-stacks-container" id="stillsStacksContainer">
-                                <div class="empty-state-msg" id="stillsEmpty" style="width:100%"><i data-lucide="film"
-                                        style="width:50px; height:50px; opacity:0.5;"></i>
-                                    <p>No videos</p>
+                            <div class="right-panel">
+                                <div class="pdf-stacks-container" id="stillsStacksContainer">
+                                    <div class="empty-state-msg" id="stillsEmpty" style="width:100%"><i data-lucide="film"
+                                            style="width:50px; height:50px; opacity:0.5;"></i>
+                                        <p>No videos</p>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -1184,41 +1228,163 @@
                 </div>
 
                 <div class="tool-section" id="section-adlinks">
-                    <div class="tool-header"><i data-lucide="link-2" class="tool-icon"></i>
-                        <h2>Ad Link Gen</h2>
+                    <div class="tool-header">
+                        <i data-lucide="link-2" class="tool-icon"></i>
+                        <h2>Ad Links & Downloader</h2>
                     </div>
-                    <div class="editor-layout">
-                        <div class="sidebar-panel">
-                            <div class="glass-panel control-group"><span class="label-header">Server</span><select
-                                    class="liquid-input persist-val" id="alg-server">
-                                    <option value="aldi">ALDI Blob</option>
-                                    <option value="s3">S3 Media</option>
-                                </select></div>
-                            <div class="glass-panel control-group"><span class="label-header">Path</span><input
-                                    class="liquid-input persist-val" id="alg-folder" placeholder="Folder/Path" /></div>
-                            <div class="glass-panel control-group"><span class="label-header">Filenames</span><textarea
-                                    id="alg-input" class="liquid-input terminal-input"
-                                    style="min-height:200px;"></textarea></div>
-                            <button class="liquid-btn active-mode" onclick="Tools.AdLinkGen.generate()"
-                                style="width:100%">Generate</button>
-                        </div>
-                        <div class="right-panel" style="display:flex; flex-direction:column; gap:var(--spacing);">
-                            <div class="glass-panel control-group">
-                                <div style="display:flex; justify-content:space-between;"><span class="label-header">Ad
-                                        Exposure</span><button class="liquid-btn" style="height:24px; font-size:0.7rem;"
-                                        onclick="Tools.AdLinkGen.copy('alg-out-ads', this)">Copy</button></div><textarea
-                                    class="liquid-input terminal-input" id="alg-out-ads" readonly
-                                    style="min-height:150px;"></textarea>
+
+                    <div style="display:flex; gap:10px; padding:0 20px; border-bottom:1px solid var(--border); margin-bottom:20px;">
+                        <button class="liquid-btn active-mode" id="adlinksTabGen" onclick="UI.switchAdlinksTab('gen')" style="border-bottom-left-radius:0; border-bottom-right-radius:0;">Link Gen</button>
+                        <button class="liquid-btn" id="adlinksTabDownloader" onclick="UI.switchAdlinksTab('downloader')" style="border-bottom-left-radius:0; border-bottom-right-radius:0; background:transparent; border:1px solid transparent;">Downloader</button>
+                    </div>
+
+                    <div id="adlinksTabContentGen">
+                        <div class="editor-layout">
+                            <div class="sidebar-panel">
+                                <div class="glass-panel control-group"><span class="label-header">Server</span><select
+                                        class="liquid-input persist-val" id="alg-server">
+                                        <option value="aldi">ALDI Blob</option>
+                                        <option value="s3">S3 Media</option>
+                                    </select></div>
+                                <div class="glass-panel control-group"><span class="label-header">Path</span><input
+                                        class="liquid-input persist-val" id="alg-folder" placeholder="Folder/Path" /></div>
+                                <div class="glass-panel control-group"><span class="label-header">Filenames</span><textarea
+                                        id="alg-input" class="liquid-input terminal-input"
+                                        style="min-height:200px;"></textarea></div>
+                                <button class="liquid-btn active-mode" onclick="Tools.AdLinkGen.generate()"
+                                    style="width:100%">Generate</button>
                             </div>
-                            <div class="glass-panel control-group">
-                                <div style="display:flex; justify-content:space-between;"><span
-                                        class="label-header">Storyboard Code</span><button class="liquid-btn"
-                                        style="height:24px; font-size:0.7rem;"
-                                        onclick="Tools.AdLinkGen.copy('alg-out-story', this)">Copy</button></div>
-                                <textarea class="liquid-input terminal-input" id="alg-out-story" readonly
-                                    style="min-height:150px;"></textarea>
+                            <div class="right-panel" style="display:flex; flex-direction:column; gap:var(--spacing);">
+                                <div class="glass-panel control-group">
+                                    <div style="display:flex; justify-content:space-between;"><span class="label-header">Ad
+                                            Exposure</span><button class="liquid-btn" style="height:24px; font-size:0.7rem;"
+                                            onclick="Tools.AdLinkGen.copy('alg-out-ads', this)">Copy</button></div><textarea
+                                        class="liquid-input terminal-input" id="alg-out-ads" readonly
+                                        style="min-height:150px;"></textarea>
+                                </div>
+                                <div class="glass-panel control-group">
+                                    <div style="display:flex; justify-content:space-between;"><span
+                                            class="label-header">Storyboard Code</span><button class="liquid-btn"
+                                            style="height:24px; font-size:0.7rem;"
+                                            onclick="Tools.AdLinkGen.copy('alg-out-story', this)">Copy</button></div>
+                                    <textarea class="liquid-input terminal-input" id="alg-out-story" readonly
+                                        style="min-height:150px;"></textarea>
+                                </div>
                             </div>
                         </div>
+                    </div>
+
+                    <div id="adlinksTabContentDownloader" style="display:none;">
+                        <div class="editor-layout">
+                            <div class="sidebar-panel">
+                                <div class="drop-zone" id="adDlDropZone"><label class="liquid-btn active-mode"
+                                        style="width:100%"><input accept=".xlsx,.xls" hidden id="adDlInput"
+                                            type="file" /><i data-lucide="file-spreadsheet"></i> 
+                                        <span id="adDlFileNameDisplay" style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">Select Excel (.xlsx)</span></label>
+                                </div>
+                                <div style="margin-top:25px;">
+                                    <button class="liquid-btn active-mode" id="adDlBuildBtn" onclick="Tools.AdDownloader.loadExcel()" style="width:100%">Build Dashboard</button>
+                                </div>
+                                <div id="adDlSummaryBar" class="glass-panel control-group" style="display:none; margin-top:25px;">
+                                    <span class="label-header">Actions</span>
+                                    <div class="badge" id="adDlCount" style="margin-bottom: 15px; color: var(--text-main); font-size: 0.85rem; display:flex; gap: 8px;"><i data-lucide="check-circle-2" style="color: #10b981;"></i><span id="adDlCountText">0 Ads Detected</span></div>
+                                    <div class="actions-group" style="display:flex; flex-direction:column; gap:8px;">
+                                        <button class="liquid-btn" onclick="Tools.AdDownloader.copyAllNames()" style="width:100%;">Copy All Names</button>
+                                        <button class="liquid-btn" onclick="Tools.AdDownloader.copyBucketTable()" style="width:100%;">Copy Table</button>
+                                        <button class="liquid-btn" onclick="Tools.AdDownloader.copyForstaScript()" style="width:100%;">Copy Script</button>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="right-panel">
+                                <div id="adDlTableContainer" class="glass-panel" style="display:none; height: 100%; overflow: auto; padding: 0;">
+                                    <table style="width: 100%; border-collapse: collapse; text-align: left; font-size: 0.85rem;">
+                                        <thead style="background: rgba(0,0,0,0.2);">
+                                            <tr style="color: var(--text-muted);">
+                                                <th style="padding: 16px; font-weight: normal; border-bottom: 1px solid var(--border);">Ad No</th>
+                                                <th style="padding: 16px; font-weight: normal; border-bottom: 1px solid var(--border);">Generated Name</th>
+                                                <th style="padding: 16px; text-align: right; font-weight: normal; border-bottom: 1px solid var(--border);">Actions</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="adDlTableBody"></tbody>
+                                        <tbody id="adDlDownloadedBody">
+                                            <tr id="adDlDownloadedHeaderRow" style="display:none; background: rgba(0,0,0,0.3);">
+                                                <td colspan="3" style="padding: 12px 16px; font-size:0.75rem; text-transform:uppercase; letter-spacing:1px; color: var(--text-muted);">Downloaded Ads</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                                <div id="adDlEmptyState" class="empty-state-msg glass-panel" style="width: 100%; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center;">
+                                    <i data-lucide="file-spreadsheet" style="width:50px; height:50px; opacity:0.5; margin-bottom:15px;"></i>
+                                    <p>Select an Excel file to get started</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="overlay-fixed" id="logoDetailOverlay">
+        <div class="overlay-content" style="max-width:1000px; width:90%; padding: 0; display:flex; flex-direction:column; background:var(--bg-panel); border:1px solid var(--border); border-radius:8px; overflow:hidden; margin:auto; box-shadow:0 20px 50px rgba(0,0,0,0.8);">
+            <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid var(--border); padding:15px 20px;">
+                <div style="display:flex; align-items:center; gap:15px;">
+                    <input class="liquid-input" id="logoDetailFname" placeholder="Filename" style="font-family:'Rajdhani', sans-serif; font-size:1.2rem; font-weight:600; width:180px; background:transparent; border:1px solid transparent; padding:2px 8px; height:auto; outline:none;" />
+                    <span id="logoDetailIndex" style="font-size:0.85rem; color:var(--text-muted); background:var(--bg-input); padding:3px 8px; border-radius:4px; border:1px solid var(--border);"></span>
+                    
+                    <div style="display:flex; align-items:center; gap:8px; margin-left:15px;">
+                        <span style="font-size:0.8rem; font-weight:bold; color:var(--text-muted);">Size Override:</span>
+                        <input type="number" class="liquid-input" id="logoDetailFontSize" placeholder="Auto" style="width:100px; height:30px; font-size:0.85rem;" />
+                    </div>
+                </div>
+                <div style="display:flex; gap:10px;">
+                    <button class="liquid-btn active-mode" id="logoDetailDownload"><i data-lucide="download"></i> Save PNG</button>
+                    <button class="liquid-btn icon-only" id="logoDetailClose"><i data-lucide="x"></i></button>
+                </div>
+            </div>
+            
+            <div class="responsive-editor-layout" style="display:flex; flex:1; min-height:60vh; overflow:hidden;">
+                <!-- Left: Preview Canvas -->
+                <div class="responsive-editor-left" style="flex:1; display:flex; flex-direction:column; position:relative; background:#000; overflow:hidden;">
+                    <div style="position:absolute; inset:0; display:flex; align-items:center; justify-content:center; background-image:radial-gradient(var(--border) 1px, transparent 1px); background-size:20px 20px;">
+                        <canvas id="logoDetailCanvas" style="max-width:90%; max-height:80%; box-shadow:0 0 50px rgba(0,0,0,0.8); transition:transform 0.2s;"></canvas>
+                    </div>
+                    <!-- Navigation Buttons -->
+                    <button class="liquid-btn icon-only" id="logoDetailPrev" style="position:absolute; left:20px; top:50%; transform:translateY(-50%); z-index:10; border-radius:50%; width:50px; height:50px;"><i data-lucide="chevron-left" style="width:24px; height:24px;"></i></button>
+                    <button class="liquid-btn icon-only" id="logoDetailNext" style="position:absolute; right:20px; top:50%; transform:translateY(-50%); z-index:10; border-radius:50%; width:50px; height:50px;"><i data-lucide="chevron-right" style="width:24px; height:24px;"></i></button>
+                    
+                    <div style="position:absolute; bottom:15px; width:100%; text-align:center; font-size:0.8rem; color:var(--text-muted); pointer-events:none;">Press Arrow Keys (← / →) to navigate • Esc to Close</div>
+                </div>
+                
+                <!-- Right: Editing Panel -->
+                <div class="responsive-editor-right" style="background:var(--bg-input); border-left:1px solid var(--border); display:grid; grid-template-columns:1fr 1fr; padding:20px; gap:20px; overflow-y:auto; flex-shrink:0;">
+                    
+                    <div class="glass-panel control-group" style="margin:0;"><span class="label-header">Label Text</span>
+                        <textarea class="liquid-input" id="logoDetailText" rows="3" placeholder="Overlay text..." style="resize:vertical;"></textarea>
+                    </div>
+
+                    <div class="glass-panel control-group" style="margin:0;"><span class="label-header">Padding & Offsets</span>
+                        <div style="display:flex; flex-direction:column; gap:5px; margin-bottom:10px;">
+                            <div style="display:flex; justify-content:space-between; align-items:center;">
+                                <span class="label-header" style="font-size:0.7rem; color:var(--text-muted);">Image Padding</span>
+                                <button id="logoDetailResetPadding" style="background:none; border:none; color:var(--text-muted); font-size:0.7rem; cursor:pointer; padding:0;">Reset to Global</button>
+                            </div>
+                            <input type="range" class="range-slider" id="logoDetailPaddingSlider" min="0" max="150" value="0" />
+                        </div>
+
+                        <div style="display:flex; flex-direction:column; gap:5px; margin-bottom:10px;">
+                            <span class="label-header" style="font-size:0.7rem; color:var(--text-muted);">Image Y Offset</span>
+                            <input type="range" class="range-slider" id="logoDetailImgSlider" min="-50" max="50" value="0" />
+                        </div>
+                        
+                        <div style="display:flex; flex-direction:column; gap:5px;">
+                            <span class="label-header" style="font-size:0.7rem; color:var(--text-muted);">Text Y Offset</span>
+                            <input type="range" class="range-slider" id="logoDetailTxtSlider" min="0" max="100" value="90" />
+                        </div>
+                    </div>
+
+                    <div style="grid-column: 1 / -1; margin-top:auto;">
+                        <button class="liquid-btn danger-btn" id="logoDetailDelete" style="width:100%;"><i data-lucide="trash-2"></i> Delete This Logo</button>
                     </div>
                 </div>
             </div>
@@ -1305,13 +1471,11 @@
            ================================================================= */
         const UI = {
             ToolColors: {
-                'home': '#3B82F6',
-                'section-logo': '#3B82F6',
-                'section-pdf': '#EF4444',
-                'section-split': '#F59E0B',
-                'section-story': '#8B5CF6',
-                'section-stills': '#06b6d4',
-                'section-adlinks': '#10B981'
+                'home': '#ffffff',
+                'section-logo': '#ffffff',
+                'section-pdf': '#cccccc',
+                'section-stills-boards': '#eeeeee',
+                'section-adlinks': '#bbbbbb'
             },
             els: {
                 sidebar: document.getElementById('mainSidebar'),
@@ -1345,13 +1509,100 @@
 
                 const navMap = {
                     'section-logo': 'nav-logo', 'section-pdf': 'nav-pdf',
-                    'section-split': 'nav-split', 'section-story': 'nav-story',
-                    'section-stills': 'nav-stills', 'section-adlinks': 'nav-adlinks'
+                    'section-stills-boards': 'nav-stills-boards',
+                    'section-adlinks': 'nav-adlinks'
                 };
 
                 this.updateNav(navMap[id]);
                 this.applyTheme(id);
                 Core.AppState.save('activeTool', id);
+            },
+
+            switchPdfTab(tabId) {
+                const convertTab = document.getElementById('pdfTabConvert');
+                const splitTab = document.getElementById('pdfTabSplit');
+                const convertContent = document.getElementById('pdfTabContentConvert');
+                const splitContent = document.getElementById('pdfTabContentSplit');
+                
+                if (tabId === 'convert') {
+                    convertTab.classList.add('active-mode');
+                    convertTab.style.background = '';
+                    convertTab.style.border = '';
+                    splitTab.classList.remove('active-mode');
+                    splitTab.style.background = 'transparent';
+                    splitTab.style.border = '1px solid transparent';
+                    
+                    convertContent.style.display = 'block';
+                    splitContent.style.display = 'none';
+                } else if (tabId === 'split') {
+                    splitTab.classList.add('active-mode');
+                    splitTab.style.background = '';
+                    splitTab.style.border = '';
+                    convertTab.classList.remove('active-mode');
+                    convertTab.style.background = 'transparent';
+                    convertTab.style.border = '1px solid transparent';
+                    
+                    splitContent.style.display = 'block';
+                    convertContent.style.display = 'none';
+                }
+            },
+
+            switchStillsTab(tabId) {
+                const storyTab = document.getElementById('stillsTabStory');
+                const videoTab = document.getElementById('stillsTabVideo');
+                const storyContent = document.getElementById('stillsTabContentStory');
+                const videoContent = document.getElementById('stillsTabContentVideo');
+                
+                if (tabId === 'story') {
+                    storyTab.classList.add('active-mode');
+                    storyTab.style.background = '';
+                    storyTab.style.border = '';
+                    videoTab.classList.remove('active-mode');
+                    videoTab.style.background = 'transparent';
+                    videoTab.style.border = '1px solid transparent';
+                    
+                    storyContent.style.display = 'block';
+                    videoContent.style.display = 'none';
+                } else if (tabId === 'video') {
+                    videoTab.classList.add('active-mode');
+                    videoTab.style.background = '';
+                    videoTab.style.border = '';
+                    storyTab.classList.remove('active-mode');
+                    storyTab.style.background = 'transparent';
+                    storyTab.style.border = '1px solid transparent';
+                    
+                    videoContent.style.display = 'block';
+                    storyContent.style.display = 'none';
+                }
+            },
+
+            switchAdlinksTab(tabId) {
+                const genTab = document.getElementById('adlinksTabGen');
+                const dlTab = document.getElementById('adlinksTabDownloader');
+                const genContent = document.getElementById('adlinksTabContentGen');
+                const dlContent = document.getElementById('adlinksTabContentDownloader');
+                
+                if (tabId === 'gen') {
+                    genTab.classList.add('active-mode');
+                    genTab.style.background = '';
+                    genTab.style.border = '';
+                    dlTab.classList.remove('active-mode');
+                    dlTab.style.background = 'transparent';
+                    dlTab.style.border = '1px solid transparent';
+                    
+                    genContent.style.display = 'block';
+                    dlContent.style.display = 'none';
+                } else if (tabId === 'downloader') {
+                    dlTab.classList.add('active-mode');
+                    dlTab.style.background = '';
+                    dlTab.style.border = '';
+                    genTab.classList.remove('active-mode');
+                    genTab.style.background = 'transparent';
+                    genTab.style.border = '1px solid transparent';
+                    
+                    dlContent.style.display = 'block';
+                    genContent.style.display = 'none';
+                }
             },
 
             updateNav(id) {
@@ -1389,31 +1640,107 @@
         const Tools = {
 
             Logo: {
-                cards: [],
-                els: {
-                    input: document.getElementById("logoInput"), dropZone: document.getElementById("dropZone"),
-                    grid: document.getElementById("logoGrid"), empty: document.getElementById("logoEmpty"),
-                    fontSize: document.getElementById("fontSizeInput"), bold: document.getElementById("boldToggle"),
-                    color: document.getElementById("fontColorPicker"), width: document.getElementById("exportWidth"),
-                    height: document.getElementById("exportHeight"), pos: document.getElementById("globalImgPos"),
-                    exportBtn: document.getElementById("exportAllBtn"), clearBtn: document.getElementById("clearLogoBtn")
-                },
+                cards: [], activeDetailIndex: null, els: {},
                 init() {
+                    this.els = {
+                        input: document.getElementById("logoInput"), dropZone: document.getElementById("dropZone"),
+                        grid: document.getElementById("logoGrid"), empty: document.getElementById("logoEmpty"),
+                        fontSize: document.getElementById("fontSizeInput"), bold: document.getElementById("boldToggle"), syncFilename: document.getElementById("syncFilenameToggle"),
+                        color: document.getElementById("fontColorPicker"), width: document.getElementById("exportWidth"),
+                        height: document.getElementById("exportHeight"), pos: document.getElementById("globalImgPos"),
+                        padding: document.getElementById("globalPadding"), fontFamily: document.getElementById("globalFontFamily"),
+                        exportBtn: document.getElementById("exportAllBtn"), clearBtn: document.getElementById("clearLogoBtn"),
+                        
+                        mOverlay: document.getElementById("logoDetailOverlay"), mCanvas: document.getElementById("logoDetailCanvas"),
+                        mPrev: document.getElementById("logoDetailPrev"), mNext: document.getElementById("logoDetailNext"),
+                        mClose: document.getElementById("logoDetailClose"), mDown: document.getElementById("logoDetailDownload"),
+                        mTitle: document.getElementById("logoDetailTitle"), mIndex: document.getElementById("logoDetailIndex"),
+                        
+                        mFname: document.getElementById("logoDetailFname"), mText: document.getElementById("logoDetailText"),
+                        mFontSize: document.getElementById("logoDetailFontSize"),
+                        mImgSlider: document.getElementById("logoDetailImgSlider"), mTxtSlider: document.getElementById("logoDetailTxtSlider"),
+                        mPaddingSlider: document.getElementById("logoDetailPaddingSlider"), mResetPadding: document.getElementById("logoDetailResetPadding"),
+                        mDelete: document.getElementById("logoDetailDelete")
+                    };
+
                     Core.Utils.createDropZone(this.els.dropZone, (f) => this.handleFiles(f));
                     this.els.input.onchange = e => { this.handleFiles([...e.target.files]); this.els.input.value = ""; };
 
-                    // Listeners
-                    this.els.fontSize.oninput = Core.Utils.debounce(() => {
-                        const g = this.getGlobalFont();
-                        this.cards.forEach(c => { if (!c.hasLocalFont) { c.fontVal = g; c.inputs.font.value = this.els.fontSize.value || ""; this.draw(c); } });
-                    }, 50);
-                    this.els.bold.addEventListener('change', () => this.cards.forEach(c => this.draw(c)));
-                    this.els.color.oninput = Core.Utils.debounce(() => this.cards.forEach(c => this.draw(c)), 20);
-                    this.els.pos.oninput = Core.Utils.debounce(() => { const v = this.els.pos.value; this.cards.forEach(c => { c.inputs.imgSlider.value = v; this.draw(c); }); }, 10);
-                    this.els.width.oninput = Core.Utils.debounce(() => this.cards.forEach(c => this.draw(c)), 100);
-                    this.els.height.oninput = Core.Utils.debounce(() => this.cards.forEach(c => this.draw(c)), 100);
+                    const redrawAll = () => this.cards.forEach(c => this.draw(c));
+                    const redrawAllDebounced = Core.Utils.debounce(redrawAll, 50);
+
+                    this.els.fontSize.oninput = redrawAllDebounced;
+                    this.els.bold.addEventListener("change", redrawAll);
+                    this.els.color.oninput = redrawAllDebounced;
+                    this.els.pos.oninput = redrawAllDebounced;
+                    this.els.padding.oninput = redrawAllDebounced;
+                    this.els.fontFamily.onchange = redrawAll;
+                    this.els.width.oninput = Core.Utils.debounce(redrawAll, 200);
+                    this.els.height.oninput = Core.Utils.debounce(redrawAll, 200);
                     this.els.exportBtn.onclick = () => this.exportAll();
-                    this.els.clearBtn.onclick = () => { if (confirm("Reset?")) this.destroy(); };
+                    this.els.clearBtn.onclick = () => { if (confirm("Remove all logos and reset workspace?")) this.destroy(); };
+
+                    this.els.mClose.onclick = () => this.closeDetail();
+                    this.els.mPrev.onclick = () => this.goDetail(-1);
+                    this.els.mNext.onclick = () => this.goDetail(1);
+                    this.els.mDown.onclick = () => this.downloadActiveDetail();
+                    this.els.mDelete.onclick = () => { const obj = this.cards[this.activeDetailIndex]; if (obj) this.removeCard(obj); };
+
+                    const redrawModal = () => { const obj = this.cards[this.activeDetailIndex]; if (obj) this.draw(obj); };
+                    const dRedrawModal = Core.Utils.debounce(redrawModal, 20);
+
+                    this.els.mFname.oninput = () => { const obj = this.cards[this.activeDetailIndex]; if(obj) { obj.fname = Core.Utils.sanitize(this.els.mFname.value.trim()); obj.els.fname.value = obj.fname || "Untitled"; }};
+                    this.els.mText.oninput = () => { 
+                        const obj = this.cards[this.activeDetailIndex]; 
+                        if(obj) { 
+                            obj.text = this.els.mText.value; 
+                            obj.els.textInput.value = obj.text; 
+
+                            if (this.els.syncFilename.checked && obj.text.trim()) {
+                                obj.fname = Core.Utils.sanitize(obj.text.trim().substring(0, 30));
+                                this.els.mFname.value = obj.fname;
+                                obj.els.fname.value = obj.fname;
+                            }
+                            dRedrawModal(); 
+                        }
+                    };
+                    this.els.mFontSize.oninput = () => { 
+                        const obj = this.cards[this.activeDetailIndex]; 
+                        if(obj) { 
+                            const val = parseInt(this.els.mFontSize.value,10);
+                            obj.fontValOverride = isNaN(val) ? null : val; 
+                            obj.els.localFontInp.value = obj.fontValOverride || "";
+                            dRedrawModal(); 
+                        }
+                    };
+                    this.els.mImgSlider.oninput = () => { const obj = this.cards[this.activeDetailIndex]; if(obj) { obj.imgSlider = parseInt(this.els.mImgSlider.value,10); dRedrawModal(); }};
+                    this.els.mTxtSlider.oninput = () => { const obj = this.cards[this.activeDetailIndex]; if(obj) { obj.txtSlider = parseInt(this.els.mTxtSlider.value,10); dRedrawModal(); }};
+                    
+                    this.els.mPaddingSlider.oninput = () => { 
+                        const obj = this.cards[this.activeDetailIndex]; 
+                        if(obj) { 
+                            obj.padding = parseInt(this.els.mPaddingSlider.value,10);
+                            this.els.mResetPadding.style.display = "block"; 
+                            dRedrawModal(); 
+                        }
+                    };
+                    this.els.mResetPadding.onclick = () => {
+                        const obj = this.cards[this.activeDetailIndex];
+                        if(obj) {
+                            obj.padding = null;
+                            this.els.mPaddingSlider.value = this.els.padding.value;
+                            this.els.mResetPadding.style.display = "none";
+                            dRedrawModal();
+                        }
+                    };
+
+                    window.addEventListener("keydown", (e) => {
+                        if (this.activeDetailIndex !== null && this.els.mOverlay.classList.contains("active")) {
+                            if (e.key === "ArrowLeft") this.goDetail(-1);
+                            if (e.key === "ArrowRight") this.goDetail(1);
+                            if (e.key === "Escape") this.closeDetail();
+                        }
+                    });
                 },
                 destroy() {
                     this.cards.forEach(c => URL.revokeObjectURL(c.img.src));
@@ -1422,6 +1749,7 @@
                     this.els.grid.appendChild(this.els.empty);
                     UI.toggleEmptyState(this.els.grid, true);
                     this.els.exportBtn.disabled = true;
+                    this.closeDetail();
                 },
                 handleFiles(files) {
                     if (files.length > 0) { UI.toggleEmptyState(this.els.grid, false); this.els.exportBtn.disabled = false; }
@@ -1429,53 +1757,230 @@
                 },
                 getGlobalFont() { const v = parseInt(this.els.fontSize.value, 10); return isNaN(v) ? 28 : Math.max(8, Math.min(v, 200)); },
                 createCard(file) {
-                    const card = document.createElement('div'); card.className = "logo-card-item";
-                    card.innerHTML = `<div class="preview-box"><canvas></canvas></div><div class="card-controls"><textarea class="liquid-input card-text" rows="2" placeholder="Label"></textarea><div class="tiny-row"><input class="liquid-input card-fname" placeholder="Filename (opt)" style="flex:2"><input type="number" class="liquid-input card-font" placeholder="Size" style="flex:1"></div><div class="tiny-row"><div style="flex:1"><span class="label-header">Text Y</span><input type="range" class="range-slider card-txt-pos" min="0" max="100" value="90"></div><div style="flex:1"><span class="label-header">Image Y</span><input type="range" class="range-slider card-img-pos" min="-50" max="50" value="${this.els.pos.value}"></div></div><div class="tiny-row" style="margin-top:5px;"><button class="liquid-btn card-dl" style="flex:1"><i data-lucide="download"></i> Download</button><button class="liquid-btn card-rm danger-btn"><i data-lucide="trash-2"></i></button></div></div>`;
-                    const canvas = card.querySelector('canvas'), previewBox = card.querySelector('.preview-box');
-                    canvas.onclick = () => UI.openLightbox(canvas.toDataURL());
-                    const inputs = { text: card.querySelector('.card-text'), fname: card.querySelector('.card-fname'), font: card.querySelector('.card-font'), txtSlider: card.querySelector('.card-txt-pos'), imgSlider: card.querySelector('.card-img-pos'), download: card.querySelector('.card-dl'), remove: card.querySelector('.card-rm') };
+                    const card = document.createElement("div"); card.className = "logo-card-item";
+                    card.style.cssText = "background:var(--bg-panel); border:1px solid var(--border); display:flex; flex-direction:column; border-radius:8px; overflow:hidden; transition:border 0.3s; position:relative;";
+                    
+                    let baseName = file.name.replace(/\.[^/.]+$/, "").substring(0, 30);
+                    
+                    card.innerHTML = `
+                        <div style="display:flex; justify-content:space-between; align-items:center; padding:12px; border-bottom:1px solid var(--border);">
+                            <input class="card-fname-lbl liquid-input" style="font-size:0.75rem; color:var(--text-muted); font-weight:600; padding:2px 6px; height:24px; max-width:150px; background:transparent; outline:none;" value="${baseName}" />
+                            <button class="liquid-btn icon-only danger-btn card-rm" style="width:28px; height:28px; padding:0; display:flex; align-items:center; justify-content:center;"><i data-lucide="trash-2" style="width:14px; height:14px;"></i></button>
+                        </div>
+                        <div class="card-preview-area" style="background-image:radial-gradient(var(--border) 1px, transparent 1px); background-size:15px 15px; position:relative; display:flex; justify-content:center; align-items:center; padding:20px; cursor:pointer; height:200px; border-bottom:1px solid var(--border);">
+                            <canvas style="max-width:100%; max-height:100%; object-fit:contain; border:1px solid var(--border); background:#fff;"></canvas>
+                            <div class="hover-overlay" style="position:absolute; inset:0; background:rgba(0,0,0,0.5); opacity:0; display:flex; align-items:center; justify-content:center; transition:opacity 0.2s;">
+                                <span style="background:var(--bg-panel); border:1px solid var(--border); padding:6px 12px; border-radius:4px; font-size:0.75rem; text-transform:uppercase; letter-spacing:1px; font-weight:bold;">Focus Mode</span>
+                            </div>
+                        </div>
+                        <div style="padding:16px; display:flex; flex-direction:column; gap:12px;">
+                            <div style="display:flex; flex-direction:column; gap:6px;">
+                                <span style="font-size:0.8rem; font-weight:bold; color:var(--text-muted);">Overlay Label</span>
+                                <textarea class="liquid-input card-text" rows="1" placeholder="Type design label..." style="resize:none; padding:8px; font-size:0.75rem; height:34px;"></textarea>
+                            </div>
+                            <div style="display:flex; justify-content:space-between; align-items:center; gap:10px;">
+                                <div style="display:flex; align-items:center; gap:8px;">
+                                    <span style="font-size:0.8rem; font-weight:bold; color:var(--text-muted);">Size Override:</span>
+                                    <input type="number" class="liquid-input card-local-font-inp" placeholder="Auto" style="width:60px; height:26px; font-size:0.7rem; text-align:center; padding:4px;" />
+                                </div>
+                                <button class="liquid-btn icon-only active-mode card-dl" style="width:28px; height:28px; padding:0; display:flex; align-items:center; justify-content:center;"><i data-lucide="download" style="width:14px; height:14px;"></i></button>
+                            </div>
+                        </div>
+                    `;
+                    
+                    const canvas = card.querySelector("canvas");
+                    const hoverOverlay = card.querySelector(".hover-overlay");
+                    const textInput = card.querySelector(".card-text");
+                    const localFontInp = card.querySelector(".card-local-font-inp");
+                    const dlBtn = card.querySelector(".card-dl");
+                    const rmBtn = card.querySelector(".card-rm");
+                    const fnameLbl = card.querySelector(".card-fname-lbl");
+                    
                     lucide.createIcons({ root: card });
+                    
                     const img = new Image(); img.src = Core.BlobRegistry.create(file);
-                    const obj = { img, canvas, previewBox, inputs, fontVal: this.getGlobalFont(), hasLocalFont: false };
-                    this.cards.push(obj);
-                    img.onload = () => this.draw(obj);
+                    
+                    const obj = { 
+                        file, img, canvas, 
+                        fname: baseName, text: "", fontValOverride: null,
+                        padding: null, imgSlider: 0, txtSlider: 90,
+                        card, els: { fname: fnameLbl, textInput, localFontInp }
+                    };
+                    
+                    this.cards.unshift(obj);
+                    img.onload = () => { this.draw(obj); if(this.activeDetailIndex !== null) this.draw(this.cards[this.activeDetailIndex]); };
 
-                    inputs.text.oninput = Core.Utils.debounce(() => this.draw(obj), 50);
-                    inputs.fname.oninput = () => inputs.fname.value = Core.Utils.sanitize(inputs.fname.value);
-                    inputs.txtSlider.oninput = Core.Utils.debounce(() => this.draw(obj), 10);
-                    inputs.imgSlider.oninput = Core.Utils.debounce(() => this.draw(obj), 10);
-                    inputs.font.oninput = Core.Utils.debounce(() => { const v = parseInt(inputs.font.value, 10); if (!isNaN(v)) { obj.hasLocalFont = true; obj.fontVal = Math.max(8, Math.min(v, 200)); } else { obj.hasLocalFont = false; obj.fontVal = this.getGlobalFont(); } this.draw(obj); }, 50);
-                    inputs.download.onclick = () => this.downloadSingle(obj);
-                    inputs.remove.onclick = () => { card.remove(); URL.revokeObjectURL(obj.img.src); this.cards = this.cards.filter(c => c !== obj); if (!this.cards.length) { UI.toggleEmptyState(this.els.grid, true); this.els.exportBtn.disabled = true; } };
+                    fnameLbl.oninput = () => {
+                        obj.fname = Core.Utils.sanitize(fnameLbl.value);
+                        if(this.activeDetailIndex === this.cards.indexOf(obj)) { this.els.mFname.value = obj.fname; }
+                    };
+
+                    textInput.oninput = Core.Utils.debounce(() => { 
+                        obj.text = textInput.value; 
+                        
+                        if (this.els.syncFilename.checked && obj.text.trim()) {
+                            obj.fname = Core.Utils.sanitize(obj.text.trim().substring(0, 30));
+                            obj.els.fname.value = obj.fname;
+                            if(this.activeDetailIndex === this.cards.indexOf(obj)) { this.els.mFname.value = obj.fname; }
+                        }
+
+                        if(this.activeDetailIndex === this.cards.indexOf(obj)) { this.els.mText.value = obj.text; } 
+                        this.draw(obj); 
+                    }, 50);
+                    
+                    localFontInp.oninput = () => {
+                        const val = parseInt(localFontInp.value, 10);
+                        obj.fontValOverride = isNaN(val) ? null : val;
+                        if(this.activeDetailIndex === this.cards.indexOf(obj)) { this.els.mFontSize.value = obj.fontValOverride || ""; }
+                        this.draw(obj);
+                    };
+
+                    dlBtn.onclick = () => this.downloadSingle(obj);
+                    rmBtn.onclick = () => this.removeCard(obj);
+                    
+                    const previewArea = card.querySelector(".card-preview-area");
+                    previewArea.onmouseenter = () => hoverOverlay.style.opacity = "1";
+                    previewArea.onmouseleave = () => hoverOverlay.style.opacity = "0";
+                    previewArea.onclick = () => this.openDetail(this.cards.indexOf(obj));
+
                     this.els.grid.prepend(card);
+                },
+                removeCard(obj) {
+                    const idx = this.cards.indexOf(obj);
+                    if (idx > -1) {
+                        obj.card.remove();
+                        URL.revokeObjectURL(obj.img.src);
+                        this.cards.splice(idx, 1);
+                        if (!this.cards.length) { UI.toggleEmptyState(this.els.grid, true); this.els.exportBtn.disabled = true; this.closeDetail(); }
+                        else if (this.activeDetailIndex === idx) {
+                            if (idx >= this.cards.length) this.goDetail(-1);
+                            else this.openDetail(idx);
+                        } else if (this.activeDetailIndex > idx) {
+                            this.activeDetailIndex--;
+                            this.els.mIndex.innerText = `${this.activeDetailIndex + 1} of ${this.cards.length}`;
+                        }
+                    }
                 },
                 draw(c) {
                     if (!c.img.complete) return;
                     requestAnimationFrame(() => {
                         let tW = parseInt(this.els.width.value, 10) || 300, tH = parseInt(this.els.height.value, 10) || 400;
-                        c.canvas.width = tW; c.canvas.height = tH; c.previewBox.style.aspectRatio = `${tW}/${tH}`;
-                        const ctx = c.canvas.getContext("2d"); ctx.fillStyle = "#ffffff"; ctx.fillRect(0, 0, tW, tH);
-                        const pad = 20, aW = tW - (pad * 2), aH = tH - (pad * 2);
-                        const scale = Math.min(aW / c.img.naturalWidth, aH / c.img.naturalHeight);
-                        const rW = c.img.naturalWidth * scale, rH = c.img.naturalHeight * scale;
-                        const x = (tW - rW) / 2, y = (tH - rH) / 2 + (parseFloat(c.inputs.imgSlider.value) / 100) * tH;
-                        ctx.drawImage(c.img, x, y, rW, rH);
-                        if (c.inputs.text.value) {
-                            ctx.fillStyle = this.els.color.value; ctx.textAlign = "center"; ctx.textBaseline = "middle";
-                            ctx.font = `${this.els.bold.checked ? "700" : "400"} ${c.fontVal}px Inter`;
-                            const lines = c.inputs.text.value.split("\n"), lh = c.fontVal * 1.25;
-                            const yS = (tH * parseFloat(c.inputs.txtSlider.value)) / 100 - (lh * lines.length) / 2 + lh / 2;
-                            lines.forEach((l, i) => ctx.fillText(l, tW / 2, yS + i * lh));
+                        
+                        const globFont = this.getGlobalFont();
+                        c.els.localFontInp.placeholder = `Auto (${globFont}px)`;
+                        
+                        c.canvas.width = tW; c.canvas.height = tH; 
+                        this.performDraw(c.canvas, c, tW, tH);
+
+                        if (this.activeDetailIndex === this.cards.indexOf(c) && this.els.mOverlay.classList.contains("active")) {
+                            this.els.mFontSize.placeholder = `Auto (${globFont}px)`;
+                            this.els.mCanvas.width = tW; this.els.mCanvas.height = tH;
+                            this.performDraw(this.els.mCanvas, c, tW, tH);
                         }
                     });
                 },
-                async downloadSingle(c) { const blob = await new Promise(r => c.canvas.toBlob(r, "image/png")); const name = Core.Utils.sanitize(c.inputs.fname.value.trim() || "card"); const a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = `${name}.png`; a.click(); },
+                performDraw(canvas, c, tW, tH) {
+                    const ctx = canvas.getContext("2d"); 
+                    ctx.fillStyle = "#ffffff"; ctx.fillRect(0, 0, tW, tH);
+                        
+                    const pad = c.padding !== null ? c.padding : (parseInt(this.els.padding.value, 10) || 0);
+                    const aW = Math.max(1, tW - (pad * 2)), aH = Math.max(1, tH - (pad * 2));
+                    const scale = Math.min(aW / c.img.naturalWidth, aH / c.img.naturalHeight);
+                    const rW = c.img.naturalWidth * scale, rH = c.img.naturalHeight * scale;
+                    
+                    const gPos = c.imgSlider !== 0 ? c.imgSlider : (parseInt(this.els.pos.value,10) || 0);
+                    const x = (tW - rW) / 2, y = (tH - rH) / 2 + (gPos / 100) * tH;
+                    ctx.drawImage(c.img, x, y, rW, rH);
+                    
+                    if (c.text) {
+                        ctx.fillStyle = this.els.color.value; ctx.textAlign = "center"; ctx.textBaseline = "middle";
+                        const fontFam = this.els.fontFamily.value || "Arial";
+                        const fontSize = c.fontValOverride !== null ? c.fontValOverride : this.getGlobalFont();
+                        ctx.font = `${this.els.bold.checked ? "700" : "400"} ${fontSize}px "${fontFam}"`;
+                        
+                        const lines = c.text.split("\n"), lh = fontSize * 1.25;
+                        const yS = (tH * (c.txtSlider || 90)) / 100 - (lh * lines.length) / 2 + lh / 2;
+                        lines.forEach((l, i) => ctx.fillText(l, tW / 2, yS + i * lh));
+                    }
+                },
+                openDetail(index) {
+                    if (index < 0 || index >= this.cards.length) return;
+                    this.activeDetailIndex = index;
+                    const obj = this.cards[index];
+                    
+                    this.els.mOverlay.classList.add("active");
+                    this.els.mIndex.innerText = `${index + 1} of ${this.cards.length}`;
+                    
+                    this.els.mFname.value = obj.fname;
+                    this.els.mText.value = obj.text;
+                    this.els.mFontSize.value = obj.fontValOverride || "";
+                    this.els.mImgSlider.value = obj.imgSlider;
+                    this.els.mTxtSlider.value = obj.txtSlider;
+                    
+                    if (obj.padding !== null) {
+                        this.els.mPaddingSlider.value = obj.padding;
+                        this.els.mResetPadding.style.display = "block";
+                    } else {
+                        this.els.mPaddingSlider.value = parseInt(this.els.padding.value, 10) || 0;
+                        this.els.mResetPadding.style.display = "none";
+                    }
+                    
+                    this.draw(obj);
+                },
+                closeDetail() {
+                    this.activeDetailIndex = null;
+                    this.els.mOverlay.classList.remove("active");
+                },
+                goDetail(dir) {
+                    if (this.activeDetailIndex === null || !this.cards.length) return;
+                    let next = this.activeDetailIndex + dir;
+                    if (next < 0) next = this.cards.length - 1;
+                    if (next >= this.cards.length) next = 0;
+                    this.openDetail(next);
+                },
+                async downloadSingle(c) { 
+                    const blob = await new Promise(r => c.canvas.toBlob(r, "image/png")); 
+                    const name = Core.Utils.sanitize(c.fname || "logo") || "logo"; 
+                    const a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = `${name}.png`; a.click(); 
+                },
+                async downloadActiveDetail() {
+                    if(this.activeDetailIndex !== null && this.cards[this.activeDetailIndex]) {
+                        await this.downloadSingle(this.cards[this.activeDetailIndex]);
+                    }
+                },
                 async exportAll() {
                     if (!this.cards.length) return;
                     this.els.exportBtn.innerText = "Processing..."; this.els.exportBtn.disabled = true;
+                    
+                    const toast = document.getElementById("errorToast");
+                    toast.innerText = "Generating high-fidelity ZIP archive...";
+                    toast.style.borderColor = "var(--accent)";
+                    toast.classList.add("visible");
+
                     const zip = new JSZip();
-                    for (let i = 0; i < this.cards.length; i++) { const c = this.cards[i]; const b = await new Promise(r => c.canvas.toBlob(r, "image/png")); const name = Core.Utils.sanitize(c.inputs.fname.value.trim() || `card_${i + 1}`); zip.file(`${name}.png`, b); }
-                    zip.generateAsync({ type: "blob" }).then(c => { const a = document.createElement("a"); a.href = URL.createObjectURL(c); a.download = "cards.zip"; a.click(); this.els.exportBtn.innerText = "Download Zip"; this.els.exportBtn.disabled = false; UI.showSuccess(this.els.exportBtn); });
+                    for (let i = 0; i < this.cards.length; i++) { 
+                        const c = this.cards[i]; 
+                        const canvas = document.createElement("canvas");
+                        let tW = parseInt(this.els.width.value, 10) || 300, tH = parseInt(this.els.height.value, 10) || 400;
+                        canvas.width = tW; canvas.height = tH;
+                        this.performDraw(canvas, c, tW, tH);
+
+                        const b = await new Promise(r => canvas.toBlob(r, "image/png")); 
+                        const name = Core.Utils.sanitize(c.fname || `logo_${i + 1}`); 
+                        zip.file(`${name}.png`, b); 
+                    }
+                    zip.generateAsync({ type: "blob" }).then(c => { 
+                        const a = document.createElement("a"); a.href = URL.createObjectURL(c); a.download = "batch_logos.zip"; a.click(); 
+                        this.els.exportBtn.innerText = "Download Zip"; this.els.exportBtn.disabled = false; 
+                        UI.showSuccess(this.els.exportBtn); 
+                        toast.classList.remove("visible");
+                        toast.style.borderColor = "";
+                    }).catch(err => {
+                        toast.classList.remove("visible");
+                        toast.style.borderColor = "";
+                        UI.showError("Export failed: " + err);
+                        this.els.exportBtn.innerText = "Download Zip"; this.els.exportBtn.disabled = false; 
+                    });
                 }
             },
 
@@ -1647,7 +2152,7 @@
                         this.renderTabs();
                     };
 
-                    ['storyGap', 'storyWidth', 'storyAutoWidth'].forEach(id => {
+                    ['storyGap', 'storyWidth', 'storyAutoWidth', 'storyCols'].forEach(id => {
                         document.getElementById(id).addEventListener('change', Core.Utils.debounce(() => {
                             if (id === 'storyAutoWidth') {
                                 document.getElementById('storyWidth').disabled = document.getElementById('storyAutoWidth').checked;
@@ -1664,7 +2169,7 @@
                     this.addNewProject();
                 },
                 destroy() { this.active.images.forEach(i => URL.revokeObjectURL(i.img.src)); this.active.images = []; this.updateList(); this.els.preview.innerHTML = '<span class="text-muted">Preview</span>'; },
-                addNewProject() { const id = Date.now(); this.projects.push({ id, name: `Board_${this.projects.length + 1}`, images: [], settings: { gap: 0, width: 1920, autoWidth: true } }); this.switchProject(id); },
+                addNewProject() { const id = Date.now(); this.projects.push({ id, name: `Board_${this.projects.length + 1}`, images: [], settings: { gap: 0, width: 1920, autoWidth: true, cols: 0 } }); this.switchProject(id); },
                 switchProject(id) {
                     if (this.active) this.saveSettings();
                     this.active = this.projects.find(p => p.id === id);
@@ -1673,9 +2178,9 @@
                     this.updateList();
                     if (this.active.images.length > 0) { this.draw(); } else { this.els.preview.innerHTML = '<span class="text-muted">Preview</span>'; }
                 },
-                saveSettings() { if (!this.active) return; const s = this.active.settings; s.gap = parseInt(document.getElementById('storyGap').value) || 0; s.width = parseInt(document.getElementById('storyWidth').value) || 1920; s.autoWidth = document.getElementById('storyAutoWidth').checked; this.active.name = this.els.name.value; },
-                loadSettings() { if (!this.active) return; const s = this.active.settings; document.getElementById('storyGap').value = s.gap; document.getElementById('storyWidth').value = s.width; document.getElementById('storyAutoWidth').checked = s.autoWidth; this.els.name.value = this.active.name; document.getElementById('storyWidth').disabled = s.autoWidth; },
-                renderTabs() { this.els.tabs.innerHTML = ''; this.projects.forEach(p => { const tab = document.createElement('div'); tab.style.cssText = `padding:6px 12px; background:${p.id === this.active.id ? 'var(--accent)' : '#333'}; color:white; border-radius:4px; font-size:0.75rem; cursor:pointer; display:flex; gap:6px; align-items:center; transition: background 0.2s;`; tab.innerHTML = `<span>${p.name}</span><span style="opacity:0.5;" title="Delete">&times;</span>`; tab.querySelector('span:last-child').onclick = (e) => { e.stopPropagation(); this.deleteProject(p.id); }; tab.onclick = () => this.switchProject(p.id); this.els.tabs.appendChild(tab); }); },
+                saveSettings() { if (!this.active) return; const s = this.active.settings; s.gap = parseInt(document.getElementById('storyGap').value) || 0; s.width = parseInt(document.getElementById('storyWidth').value) || 1920; s.autoWidth = document.getElementById('storyAutoWidth').checked; s.cols = parseInt(document.getElementById('storyCols').value) || 0; this.active.name = this.els.name.value; },
+                loadSettings() { if (!this.active) return; const s = this.active.settings; document.getElementById('storyGap').value = s.gap; document.getElementById('storyWidth').value = s.width; document.getElementById('storyCols').value = s.cols || 0; document.getElementById('storyAutoWidth').checked = s.autoWidth; this.els.name.value = this.active.name; document.getElementById('storyWidth').disabled = s.autoWidth; },
+                renderTabs() { this.els.tabs.innerHTML = ''; this.projects.forEach(p => { const tab = document.createElement('div'); tab.style.cssText = `padding:6px 12px; background:${p.id === this.active.id ? 'var(--text-main)' : 'var(--border)'}; color:${p.id === this.active.id ? '#000' : 'var(--text-main)'}; border-radius:4px; font-size:0.75rem; cursor:pointer; display:flex; gap:6px; align-items:center; transition: background 0.2s;`; tab.innerHTML = `<span>${p.name}</span><span style="opacity:0.5;" title="Delete">&times;</span>`; tab.querySelector('span:last-child').onclick = (e) => { e.stopPropagation(); this.deleteProject(p.id); }; tab.onclick = () => this.switchProject(p.id); this.els.tabs.appendChild(tab); }); },
                 deleteProject(id) { if (!confirm("Delete?")) return; const idx = this.projects.findIndex(p => p.id === id); this.projects.splice(idx, 1); if (this.projects.length === 0) this.addNewProject(); else this.switchProject(this.projects[Math.max(0, idx - 1)].id); },
                 async handleFiles(files) {
                     for (const file of files) {
@@ -1691,7 +2196,13 @@
                 draw() {
                     if (!this.active || !this.active.images.length) return;
                     const imgs = this.active.images; if (!imgs[0].img.complete) return; const s = this.active.settings;
-                    const count = imgs.length; let cols, rows; if (count === 4) { cols = 2; rows = 2; } else if (count === 9) { cols = 3; rows = 3; } else if (count === 16) { cols = 4; rows = 4; } else { cols = Math.ceil(Math.sqrt(count)); rows = Math.ceil(count / cols); }
+                    const count = imgs.length; let cols, rows; 
+                    if (s.cols && s.cols > 0) {
+                        cols = s.cols; 
+                        rows = Math.ceil(count / cols);
+                    } else {
+                        if (count === 4) { cols = 2; rows = 2; } else if (count === 9) { cols = 3; rows = 3; } else if (count === 16) { cols = 4; rows = 4; } else { cols = Math.ceil(Math.sqrt(count)); rows = Math.ceil(count / cols); }
+                    }
                     let fW = s.autoWidth ? (imgs[0].img.naturalWidth * cols) : s.width; if (fW > 8192) fW = 8192;
                     const baseAspect = imgs[0].img.naturalWidth / imgs[0].img.naturalHeight; let fH = fW * (rows / cols) / baseAspect;
                     const c = document.createElement('canvas'); c.width = fW; c.height = fH; const ctx = c.getContext('2d'); ctx.fillStyle = '#ffffff'; ctx.fillRect(0, 0, fW, fH);
@@ -1752,6 +2263,255 @@
                 normFolder(v) { return v.trim().replace(/\s+/g, "/").replace(/\/+/g, "/").replace(/^\/|\/$/g, "") + "/"; },
                 generate() { const server = document.getElementById("alg-server").value; const folder = this.normFolder(document.getElementById("alg-folder").value); const lines = document.getElementById("alg-input").value.split("\n").map(l => l.trim()).filter(Boolean); let ads = [], story = []; lines.forEach(name => { const ext = name.split(".").pop().toLowerCase(); const url = this.base[server] + folder + name; if (ext === "jpg" || ext === "png") { ads.push(`<img src="${url}" class="zoomImage" style="max-width:80%">`); story.push(`<img src="${url}" class="zoomImage" style="max-height:280px">`); } else if (ext === "mp4") { ads.push(url); story.push(`<img src="${this.base[server] + folder + name.replace(".mp4", ".jpg")}" class="zoomImage" style="max-height:280px">`); } else if (ext === "mp3") { ads.push(url); story.push(name); } }); document.getElementById("alg-out-ads").value = ads.join("\n\n"); document.getElementById("alg-out-story").value = story.join("\n"); },
                 copy(id, btn) { const el = document.getElementById(id); el.select(); el.setSelectionRange(0, 99999); navigator.clipboard.writeText(el.value).then(() => { UI.showSuccess(btn, "Copied"); }); }
+            },
+            AdDownloader: {
+                workbookData: null,
+                allNames: [],
+                adTypeMap: {},
+                init() {
+                    document.getElementById('adDlInput').addEventListener('change', (e) => {
+                        const file = e.target.files[0];
+                        if (file) {
+                            document.getElementById('adDlFileNameDisplay').innerText = file.name;
+                        } else {
+                            document.getElementById('adDlFileNameDisplay').innerText = 'Select Excel (.xlsx)';
+                        }
+                    });
+                },
+                normalize(text) {
+                    return text.toString().replace(/\s+/g, '').replace(/_/g, '').toUpperCase();
+                },
+                loadExcel() {
+                    const file = document.getElementById('adDlInput').files[0];
+                    if (!file) {
+                        alert("Please upload an Excel file first.");
+                        return;
+                    }
+                    const reader = new FileReader();
+                    reader.onload = (e) => {
+                        const data = new Uint8Array(e.target.result);
+                        this.workbookData = window.XLSX.read(data, { type: "array" });
+                        this.generateDashboard();
+                    };
+                    reader.readAsArrayBuffer(file);
+                },
+                generateDashboard() {
+                    const sheet = this.workbookData.Sheets[this.workbookData.SheetNames[0]];
+                    const range = window.XLSX.utils.decode_range(sheet["!ref"]);
+                    const tbody = document.getElementById("adDlTableBody");
+                    const downloadedBody = document.getElementById("adDlDownloadedBody");
+                    const downloadedHeaderRow = document.getElementById("adDlDownloadedHeaderRow");
+                    
+                    tbody.innerHTML = "";
+                    Array.from(downloadedBody.children).forEach(child => {
+                        if (child.id !== "adDlDownloadedHeaderRow") {
+                            downloadedBody.removeChild(child);
+                        }
+                    });
+                    downloadedHeaderRow.style.display = "none";
+                    this.allNames = [];
+                    this.adTypeMap = {};
+                    let fragment = document.createDocumentFragment();
+
+                    for (let r = 1; r <= range.e.r; r++) {
+                        let adCell = sheet[window.XLSX.utils.encode_cell({ r: r, c: 0 })];
+                        let linkCell = sheet[window.XLSX.utils.encode_cell({ r: r, c: 1 })];
+                        let typeCell = sheet[window.XLSX.utils.encode_cell({ r: r, c: 2 })];
+
+                        if (!typeCell) continue;
+                        let adNo = adCell.v;
+                        let adType = typeCell.v;
+                        this.adTypeMap[this.normalize(adType)] = adNo;
+
+                        let link = "";
+                        if (linkCell && linkCell.l) link = linkCell.l.Target;
+                        else if (linkCell) link = linkCell.v;
+                        let linkString = link ? link.toString().trim() : "";
+                        let displayText = (linkCell && linkCell.v || "").toString().trim();
+                        
+                        let extRegex = /\.(mp4|mov|avi|mkv|webm|flv|wmv|mp3|wav|ogg|m4a|aac|flac|jpg|jpeg|png|gif|webp|svg|bmp)\b/i;
+                        let extMatch = displayText.match(extRegex) || linkString.match(extRegex);
+                        if (!extMatch) {
+                            extMatch = displayText.match(/\.([a-zA-Z0-9]{2,4})$/i);
+                            if (!extMatch) {
+                                try {
+                                    let urlObj = new URL(linkString);
+                                    extMatch = urlObj.pathname.match(/\.([a-zA-Z0-9]{2,4})$/i);
+                                } catch (e) {
+                                    extMatch = linkString.match(/\.([a-zA-Z0-9]{2,4})$/i);
+                                }
+                            }
+                        }
+                        let ext = extMatch ? extMatch[0].toLowerCase() : "";
+                        const ignoredExts = ['.com', '.org', '.net', '.co', '.io', '.de', '.uk', '.us', '.info', '.biz', '.html', '.htm', '.php', '.asp', '.aspx', '.jsp'];
+                        if (ignoredExts.includes(ext)) { ext = ""; }
+
+                        let clean = displayText.normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/ß/g, "ss");
+                        if (ext) {
+                            if (clean.toLowerCase().endsWith(ext)) {
+                                clean = clean.substring(0, clean.length - ext.length);
+                            }
+                        } else {
+                            let typeLower = adType.toLowerCase();
+                            if (typeLower.includes('print') || typeLower.includes('ooh') || typeLower.includes('img') || typeLower.includes('pic')) {
+                                ext = '.jpg';
+                            } else if (typeLower.includes('radio') || typeLower.includes('audio') || typeLower.includes('podcast')) {
+                                ext = '.mp3';
+                            } else {
+                                ext = '.mp4';
+                            }
+                        }
+                        clean = clean.replace(/[^a-zA-Z0-9]/g, "_").replace(/_+/g, "_").replace(/^_|_$/g, "");
+                        let typeNumberMatch = adType.match(/\d+/);
+                        let typeNumber = typeNumberMatch ? typeNumberMatch[0] : "";
+                        let typeBase = adType.replace(/\d+/g, "").trim();
+                        let typeBaseClean = typeBase.normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-zA-Z0-9]/g, "_").replace(/_+/g, "_").replace(/^_|_$/g, "");
+
+                        if (typeNumber) {
+                            let regex = new RegExp(typeBaseClean, "i");
+                            clean = clean.replace(regex, typeBaseClean + typeNumber);
+                        }
+                        let finalName = `AD${adNo}_${clean}${ext}`;
+                        this.allNames.push(finalName);
+
+                        let tr = document.createElement("tr");
+                        tr.id = `adDl-row-${adNo}`;
+                        tr.innerHTML = `
+                            <td style="padding: 16px; border-bottom: 1px solid var(--border); font-family: monospace;">${adNo}</td>
+                            <td style="padding: 16px; border-bottom: 1px solid var(--border); font-family: monospace; color: #10b981;">AD${adNo}_${clean}<span style="color: var(--text-muted); opacity: 0.7;">${ext}</span></td>
+                            <td style="padding: 16px; border-bottom: 1px solid var(--border); text-align: right;">
+                                <div style="display:flex; gap:8px; justify-content:flex-end;">
+                                    <button class="liquid-btn" style="padding:4px 8px; font-size:0.75rem;" onclick="Tools.AdDownloader.copySingleName('${finalName}')"><i data-lucide="copy" style="width:14px; height:14px; margin-right:4px;"></i>Copy</button>
+                                    <button class="liquid-btn active-mode" style="padding:4px 8px; font-size:0.75rem;" onclick="Tools.AdDownloader.downloadPopup('${link}', '${adNo}', '${finalName}')"><i data-lucide="download" style="width:14px; height:14px; margin-right:4px;"></i>Download</button>
+                                </div>
+                            </td>
+                        `;
+                        tr.style.transition = "background 0.2s";
+                        tr.onmouseover = () => { if(!tr.classList.contains('downloaded')) tr.style.background = "rgba(255,255,255,0.02)"; };
+                        tr.onmouseout = () => { if(!tr.classList.contains('downloaded')) tr.style.background = "transparent"; };
+                        fragment.appendChild(tr);
+                    }
+                    tbody.appendChild(fragment);
+
+                    document.getElementById("adDlTableContainer").style.display = "block";
+                    document.getElementById("adDlSummaryBar").style.display = "block";
+                    document.getElementById("adDlCountText").innerText = this.allNames.length + " Ads Detected";
+                    document.getElementById("adDlEmptyState").style.display = "none";
+                    if (window.lucide) { window.lucide.createIcons(); }
+                },
+                copyToClipboardFallback(text) {
+                    const textArea = document.createElement("textarea");
+                    textArea.value = text;
+                    textArea.style.position = "fixed";
+                    textArea.style.top = "-9999px";
+                    textArea.style.left = "-9999px";
+                    textArea.style.width = "2em";
+                    textArea.style.height = "2em";
+                    textArea.style.padding = "0";
+                    textArea.style.border = "none";
+                    textArea.style.outline = "none";
+                    textArea.style.boxShadow = "none";
+                    textArea.style.background = "transparent";
+                    document.body.appendChild(textArea);
+                    textArea.focus();
+                    textArea.select();
+                    try { document.execCommand('copy'); } catch (err) {}
+                    document.body.removeChild(textArea);
+                },
+                copySingleName(name) {
+                    if (navigator.clipboard && window.isSecureContext) {
+                        navigator.clipboard.writeText(name).catch(() => { this.copyToClipboardFallback(name); });
+                    } else {
+                        this.copyToClipboardFallback(name);
+                    }
+                    alert("Copied: " + name);
+                },
+                copyAllNames() {
+                    if (this.allNames.length === 0) return;
+                    const text = this.allNames.join("\n");
+                    if (navigator.clipboard && window.isSecureContext) {
+                        navigator.clipboard.writeText(text).catch(() => { this.copyToClipboardFallback(text); });
+                    } else {
+                        this.copyToClipboardFallback(text);
+                    }
+                    alert("All " + this.allNames.length + " names copied!");
+                },
+                downloadPopup(url, adNo, finalName) {
+                    let downloadUrl = url;
+                    if (downloadUrl && !downloadUrl.includes("download=")) {
+                        if (downloadUrl.includes("?")) { downloadUrl = downloadUrl.split("?")[0] + "?download=1"; } 
+                        else { downloadUrl += "?download=1"; }
+                    }
+                    if (finalName) {
+                        if (navigator.clipboard && window.isSecureContext) {
+                            navigator.clipboard.writeText(finalName).catch(() => { this.copyToClipboardFallback(finalName); });
+                        } else {
+                            this.copyToClipboardFallback(finalName);
+                        }
+                    }
+                    if (downloadUrl) { window.open(downloadUrl, "downloadWindow", "width=900,height=700,left=200,top=100"); }
+                    if (adNo) {
+                        const row = document.getElementById(`adDl-row-${adNo}`);
+                        if (row) {
+                            const downloadedBody = document.getElementById("adDlDownloadedBody");
+                            const downloadedHeaderRow = document.getElementById("adDlDownloadedHeaderRow");
+                            row.classList.add('downloaded');
+                            row.style.opacity = "0.6";
+                            row.style.background = "rgba(255,255,255,0.01)";
+                            const nameCell = row.querySelector("td:nth-child(2)");
+                            if (nameCell) nameCell.style.textDecoration = "line-through";
+                            downloadedHeaderRow.style.display = "table-row";
+                            downloadedBody.appendChild(row);
+                        }
+                    }
+                },
+                getBucketData() {
+                    if (this.workbookData.SheetNames.length < 2) return [];
+                    const sheet = this.workbookData.Sheets[this.workbookData.SheetNames[1]];
+                    if (!sheet) return [];
+                    const range = window.XLSX.utils.decode_range(sheet["!ref"]);
+                    let rows = [];
+                    for (let r = 1; r <= range.e.r; r++) {
+                        let bucketCell = sheet[window.XLSX.utils.encode_cell({ r: r, c: 0 })];
+                        if (!bucketCell) continue;
+                        let bucket = bucketCell.v.toString().trim();
+                        let ads = [];
+                        for (let c = 1; c <= range.e.c; c++) {
+                            let adCell = sheet[window.XLSX.utils.encode_cell({ r: r, c: c })];
+                            if (!adCell || !adCell.v) continue;
+                            let name = this.normalize(adCell.v);
+                            let adNo = this.adTypeMap[name];
+                            if (adNo) ads.push(adNo);
+                        }
+                        if (ads.length > 0) rows.push({ bucket: bucket, ads: ads });
+                    }
+                    return rows;
+                },
+                copyBucketTable() {
+                    let rows = this.getBucketData();
+                    if (rows.length === 0) { alert("No bucket data found on Sheet 2."); return; }
+                    let output = "Bucket\tAds\n";
+                    rows.forEach(r => { output += r.bucket + "\t" + r.ads.map(a => "'" + a + "'").join(",") + "\n"; });
+                    if (navigator.clipboard && window.isSecureContext) {
+                        navigator.clipboard.writeText(output).catch(() => { this.copyToClipboardFallback(output); });
+                    } else { this.copyToClipboardFallback(output); }
+                    alert("Bucket table copied!");
+                },
+                copyForstaScript() {
+                    let rows = this.getBucketData();
+                    if (rows.length === 0) { alert("No bucket data found on Sheet 2."); return; }
+                    let script = "var s = set()\n\n";
+                    rows.forEach(r => {
+                        script += "// Bucket " + r.bucket + "\n";
+                        script += "if (f('cq42000').any('" + r.bucket + "')) {\n";
+                        script += "    s = s.union(set(" + r.ads.map(a => "'" + a + "'").join(",") + "))\n";
+                        script += "}\n\n";
+                    });
+                    if (navigator.clipboard && window.isSecureContext) {
+                        navigator.clipboard.writeText(script).catch(() => { this.copyToClipboardFallback(script); });
+                    } else { this.copyToClipboardFallback(script); }
+                    alert("Script copied!");
+                }
             }
         };
 
