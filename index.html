@@ -9,6 +9,7 @@
     <link
         href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Space+Grotesk:wght@300;400;500;600&display=swap"
         rel="stylesheet" />
+    <link href="https://api.fontshare.com/v2/css?f[]=general-sans@200,300,400,500,600,700,800&f[]=panchang@200,300,400,500,600,700,800&display=swap" rel="stylesheet">
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
     <script>pdfjsLib.GlobalWorkerOptions.workerSrc = "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";</script>
@@ -36,6 +37,7 @@
         input[type=number]::-webkit-inner-spin-button, input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
         input[type=number] { -moz-appearance: textfield; appearance: textfield; }
         body { margin: 0; padding: 0; background-color: var(--bg-main); color: var(--text-main); font-family: 'Inter', sans-serif; height: 100vh; display: flex; flex-direction: column; overflow: hidden; transition: --accent 0.3s ease; }
+        body::before { content: ''; position: fixed; inset: 0; pointer-events: none; background: radial-gradient(400px circle at var(--mouse-x, 50vw) var(--mouse-y, -200vh), rgba(255,255,255,0.03), transparent 60%); z-index: 0; }
         ::-webkit-scrollbar { width: 6px; height: 6px; }
         ::-webkit-scrollbar-track { background: var(--bg-main); }
         ::-webkit-scrollbar-thumb { background: #333; border-radius: 3px; }
@@ -48,7 +50,7 @@
         .nav-sidebar.visible { display: flex; }
         .nav-item { width: 44px; height: 44px; background: transparent; border: none; color: var(--text-muted); cursor: pointer; border-radius: 8px; display: flex; align-items: center; justify-content: center; padding: 0; margin: 0 auto; transition: all 0.2s ease; flex-shrink: 0; }
         .nav-item:hover { background: rgba(255, 255, 255, 0.05); color: var(--text-main); }
-        .nav-item.active { background: rgba(255, 255, 255, 0.08); color: var(--accent) !important; font-weight: 500; }
+        .nav-item.active { background: rgba(255, 255, 255, 0.08); transform: translateX(4px); transition: all 0.35s cubic-bezier(0.22, 1, 0.36, 1); color: var(--accent) !important; font-weight: 500; }
         .nav-item i, .nav-item svg { transition: color 0.3s; flex-shrink: 0 !important; width: 22px !important; height: 22px !important; min-width: 22px !important; display: block; margin: 0; }
         .nav-item-text { display: none; }
         .view-container { flex: 1; position: relative; overflow: hidden; display: flex; flex-direction: column; }
@@ -62,13 +64,13 @@
         .home-card:hover i { transform: scale(1.1); color: var(--card-color); }
         .card-title { font-family: 'Inter', sans-serif; font-weight: 600; font-size: 1.1rem; margin-top: 5px; color: var(--text-main); letter-spacing: -0.3px; }
         .card-desc { font-size: 0.85rem; color: var(--text-muted); line-height: 1.4; margin-top: 4px; }
-        .liquid-input { background: rgba(0, 0, 0, 0.4); border: 1px solid var(--border); color: var(--text-main); height: 40px; padding: 0 12px; width: 100%; font-family: 'Inter', sans-serif; font-size: 0.9rem; border-radius: 6px; transition: all 0.2s cubic-bezier(0.2, 0, 0, 1); box-shadow: inset 0 2px 4px rgba(0,0,0,0.1); }
-        .liquid-input:focus { border-color: var(--accent); background: #000; box-shadow: inset 0 2px 4px rgba(0,0,0,0.1), 0 0 0 2px rgba(255,255,255,0.1); outline: none; }
+        .liquid-input { background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.08); color: var(--text-main); height: 40px; padding: 0 12px; width: 100%; font-family: 'Inter', sans-serif; font-size: 13px; font-weight: 400; border-radius: 6px; transition: all 0.25s ease; box-shadow: inset 0 2px 4px rgba(0,0,0,0.1); }
+        .liquid-input:focus { border-color: rgba(255, 255, 255, 0.25); box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.04); background: rgba(255, 255, 255, 0.05); outline: none; }
         textarea.liquid-input { height: auto; min-height: 100px; padding-top: 12px; resize: vertical; }
         select.liquid-input { cursor: pointer; }
         select.liquid-input option { background-color: var(--bg-panel); color: var(--text-main); }
-        .liquid-btn { background: #1a1a1a; border: 1px solid var(--border); color: var(--text-main); height: 40px; padding: 0 16px; cursor: pointer; font-size: 0.9rem; font-weight: 500; border-radius: 6px; display: inline-flex; align-items: center; justify-content: center; gap: 8px; white-space: nowrap; user-select: none; transition: all 0.2s; box-shadow: 0 1px 2px rgba(0,0,0,0.2); }
-        .liquid-btn:hover:not(:disabled) { background: #222; border-color: #555; }
+        .liquid-btn { background: rgba(255, 255, 255, 0.08); border: 1px solid rgba(255, 255, 255, 0.08); color: var(--text-main); height: 40px; padding: 0 16px; cursor: pointer; font-size: 14px; font-weight: 500; border-radius: 6px; display: inline-flex; align-items: center; justify-content: center; gap: 8px; white-space: nowrap; user-select: none; transition: all 0.2s cubic-bezier(0.22, 1, 0.36, 1); box-shadow: 0 1px 2px rgba(0,0,0,0.2); }
+        .liquid-btn:hover:not(:disabled) { transform: translateY(-1px); background: rgba(255, 255, 255, 0.12); border-color: rgba(255, 255, 255, 0.12); }
         .liquid-btn:active:not(:disabled) { transform: scale(0.98); }
         .liquid-btn:disabled { opacity: 0.5; cursor: not-allowed; }
         .liquid-btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
@@ -78,10 +80,12 @@
         .liquid-btn.danger-btn:hover { background: var(--danger); color: #000; border-color: var(--danger); }
         .liquid-btn.icon-only { width: 36px; height: 36px; padding: 0; }
         .tool-section { display: none; max-width: 100%; margin: 0; height: 100%; }
-        .tool-section.active { display: flex; flex-direction: column; animation: fadeIn 0.3s ease-out; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .tool-section.active { display: flex; flex-direction: column; animation: workspaceReveal 0.6s cubic-bezier(0.22, 1, 0.36, 1) forwards; }
+        @keyframes workspaceReveal { from { opacity: 0; transform: translateY(16px); filter: blur(10px); } to { opacity: 1; transform: translateY(0); filter: blur(0); } }
+        @keyframes pulse { 0%, 100% { opacity: 0.4; } 50% { opacity: 1; } }
+        .processing-pulse { animation: pulse 1.5s infinite ease-in-out; }
         .tool-header { display: flex; align-items: center; gap: 10px; margin-bottom: 25px; padding-bottom: 15px; border-bottom: 1px solid var(--border); }
-        .tool-header h2 { margin: 0; font-family: 'Inter', sans-serif; font-size: 1.5rem; font-weight: 600; flex: 1; line-height: 1; color: var(--text-main); letter-spacing: -0.5px; }
+        .tool-header h2 { margin: 0; font-family: 'General Sans', sans-serif; font-size: 30px; font-weight: 500; flex: 1; line-height: 1; color: var(--text-main); letter-spacing: -0.04em; }
         .tool-icon { width: 22px; height: 22px; color: var(--text-muted); }
         .editor-layout { display: grid; grid-template-columns: 320px 1fr; gap: 30px; align-items: flex-start; height: 100%; }
         #stillsTabContentStory .editor-layout { grid-template-columns: 320px 1fr 300px; }
@@ -90,10 +94,11 @@
         #storyPreview canvas { max-width: 100%; max-height: 100%; width: auto; height: auto; object-fit: contain; box-shadow: 0 10px 40px rgba(0, 0, 0, 0.6); border-radius: 4px; }
         .sidebar-panel { display: flex; flex-direction: column; gap: 20px; position: sticky; top: 0; overflow-y: auto; max-height: calc(100vh - 60px); padding-right: 5px; scrollbar-width: none; }
         .sidebar-panel::-webkit-scrollbar { display: none; }
-        .glass-panel { background: rgba(17, 17, 17, 0.4); backdrop-filter: blur(12px); border: none; border-radius: 12px; padding: 24px; box-shadow: 0 8px 32px rgba(0,0,0,0.4); }
+        .glass-panel { background: rgba(255, 255, 255, 0.02); border: 1px solid rgba(255, 255, 255, 0.05); border-radius: 20px; padding: 24px; backdrop-filter: blur(12px); transition: transform 0.3s cubic-bezier(0.22, 1, 0.36, 1), border-color 0.3s ease; }
+        .glass-panel:hover { transform: translateY(-2px); border-color: rgba(255, 255, 255, 0.12); }
         .control-group { display: flex; flex-direction: column; gap: 12px; }
         .actions-group { display: flex; flex-direction: column; gap: 8px; margin-top: 10px; }
-        .label-header { font-size: 0.75rem; color: var(--text-muted); font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 4px; display: block; }
+        .label-header { font-size: 11px; text-transform: uppercase; letter-spacing: 0.12em; opacity: 0.65; color: var(--text-muted); font-weight: 600; margin-bottom: 4px; display: block; }
         .drop-zone { border: none; background: #000000; text-align: center; padding: 30px 20px; border-radius: 8px; cursor: pointer; transition: all 0.2s; }
         .drop-zone:hover, .drop-zone.drag-over { background: rgba(255, 255, 255, 0.05); }
         .canvas-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: var(--spacing); align-content: start; }
@@ -181,33 +186,156 @@
             </button>
         </nav>
         <div class="view-container">
-            <div id="view-home" style="display: flex; align-items: center; justify-content: center; height: 100%; padding: 40px; background: radial-gradient(circle at center, rgba(30,30,30,0.4) 0%, transparent 60%);">
+            <div id="view-home">
                 <style>
-                    .home-text-link {
-                        font-family: 'Space Grotesk', sans-serif;
-                        font-size: 3rem;
-                        font-weight: 400;
-                        color: var(--text-main);
-                        text-decoration: none;
-                        opacity: 0.5;
-                        transition: all 0.4s cubic-bezier(0.2, 0, 0, 1);
-                        letter-spacing: -2px;
-                        display: block;
-                        text-transform: lowercase;
-                    }
-                    .home-text-link:hover {
+                #view-home {
+                    background: #050505;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    height: 100%;
+                    width: 100%;
+                    position: relative;
+                    overflow: hidden;
+                    margin: 0;
+                    padding: 0;
+                }
+                .home-bg-gradient {
+                    position: absolute;
+                    inset: -50%;
+                    background: radial-gradient(circle at 50% 50%, rgba(20, 20, 25, 0.4) 0%, transparent 50%),
+                                radial-gradient(circle at 80% 20%, rgba(15, 15, 20, 0.3) 0%, transparent 40%);
+                    animation: drift-bg 20s infinite alternate ease-in-out;
+                    pointer-events: none;
+                    z-index: 1;
+                }
+                .home-ambient-light {
+                    position: absolute;
+                    width: 60vw;
+                    height: 60vw;
+                    background: radial-gradient(circle at center, rgba(255,255,255,0.06) 0%, transparent 50%);
+                    border-radius: 50%;
+                    filter: blur(80px);
+                    pointer-events: none;
+                    z-index: 1;
+                    transition: transform 0.2s cubic-bezier(0.2, 0, 0, 1);
+                }
+                @keyframes drift-bg {
+                    0% { transform: translate(0, 0) scale(1); }
+                    100% { transform: translate(-2%, 5%) scale(1.05); }
+                }
+                .home-content {
+                    display: flex;
+                    flex-direction: column;
+                    gap: 30px;
+                    z-index: 10;
+                    text-align: center;
+                    align-items: center;
+                }
+                .home-item {
+                    font-family: 'Panchang', sans-serif;
+                    font-size: 2.5rem;
+                    font-weight: 300;
+                    letter-spacing: -0.04em;
+                    color: #b8b8b8;
+                    text-decoration: none;
+                    opacity: 0;
+                    transform: translateY(30px);
+                    filter: blur(12px);
+                    animation: home-stagger-in 0.9s cubic-bezier(.22, 1, .36, 1) forwards;
+                    transition: color 0.4s ease, text-shadow 0.4s ease, transform 0.6s cubic-bezier(.25, 1, .5, 1), filter 0.4s ease;
+                    will-change: transform, opacity, filter, color;
+                    display: inline-block;
+                    cursor: pointer;
+                    pointer-events: auto;
+                }
+                .home-item:nth-child(1) { animation-delay: 0.1s; }
+                .home-item:nth-child(2) { animation-delay: 0.2s; }
+                .home-item:nth-child(3) { animation-delay: 0.3s; }
+                .home-item:nth-child(4) { animation-delay: 0.4s; }
+                @keyframes home-stagger-in {
+                    to {
                         opacity: 1;
-                        transform: scale(1.05) translateY(-2px);
-                        color: white;
-                        text-shadow: 0 10px 30px rgba(255,255,255,0.2);
+                        transform: translateY(0);
+                        filter: blur(0);
                     }
+                }
+                .home-content:hover .home-item:not(:hover) {
+                    color: #333;
+                    filter: blur(3px);
+                }
+                .home-item:hover {
+                    color: #ffffff;
+                    text-shadow: 0 0 20px rgba(255, 255, 255, 0.4);
+                }
+                @media (max-width: 768px) {
+                    .home-item {
+                        font-size: 1.5rem;
+                    }
+                }
                 </style>
-                <div style="display: flex; flex-direction: column; gap: 24px; text-align: center;">
-                    <a href="#" onclick="UI.openTool('section-logo'); return false;" class="home-text-link">Logo Resizer</a>
-                    <a href="#" onclick="UI.openTool('section-pdf'); return false;" class="home-text-link">PDF Tools</a>
-                    <a href="#" onclick="UI.openTool('section-stills-boards'); return false;" class="home-text-link">Stills & Boards</a>
-                    <a href="#" onclick="UI.openTool('section-adlinks'); return false;" class="home-text-link">Ad Links</a>
+                <div class="home-bg-gradient"></div>
+                <div class="home-ambient-light" id="homeLight"></div>
+                <div class="home-content" id="homeContent">
+                    <a href="#" onclick="document.startViewTransition ? document.startViewTransition(() => UI.openTool('section-logo')) : UI.openTool('section-logo'); return false;" class="home-item">Logo Resizer</a>
+                    <a href="#" onclick="document.startViewTransition ? document.startViewTransition(() => UI.openTool('section-pdf')) : UI.openTool('section-pdf'); return false;" class="home-item">PDF Tools</a>
+                    <a href="#" onclick="document.startViewTransition ? document.startViewTransition(() => UI.openTool('section-stills-boards')) : UI.openTool('section-stills-boards'); return false;" class="home-item">Stills & Boards</a>
+                    <a href="#" onclick="document.startViewTransition ? document.startViewTransition(() => UI.openTool('section-adlinks')) : UI.openTool('section-adlinks'); return false;" class="home-item">Ad Links</a>
                 </div>
+                <script>
+                    (function() {
+                        const items = document.querySelectorAll('.home-item');
+                        const light = document.getElementById('homeLight');
+                        let time = 0;
+                        let mouseX = window.innerWidth / 2;
+                        let mouseY = window.innerHeight / 2;
+                        const isReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+                        window.addEventListener('mousemove', (e) => {
+                            mouseX = e.clientX;
+                            mouseY = e.clientY;
+                            document.documentElement.style.setProperty('--mouse-x', `${mouseX}px`);
+                            document.documentElement.style.setProperty('--mouse-y', `${mouseY}px`);
+                            if (!isReducedMotion && light) {
+                                light.style.transform = `translate(${mouseX - window.innerWidth / 2}px, ${mouseY - window.innerHeight / 2}px)`;
+                            }
+                        });
+
+                        function render() {
+                            if (!isReducedMotion) {
+                                time += 0.016;
+                                items.forEach((item, index) => {
+                                    if(time < 1.0) return; // wait for entrance animation
+                                    
+                                    const rect = item.getBoundingClientRect();
+                                    const itemCenterX = rect.left + rect.width / 2;
+                                    const itemCenterY = rect.top + rect.height / 2;
+                                    const distX = mouseX - itemCenterX;
+                                    const distY = mouseY - itemCenterY;
+                                    const distance = Math.hypot(distX, distY);
+                                    const floatOffset = Math.sin(time * 2 + index) * 3; 
+
+                                    let tx = 0;
+                                    let ty = floatOffset;
+
+                                    if (distance < 150 && item.matches(':hover')) {
+                                        const pullX = (distX / distance) * Math.min(8, 150 / distance);
+                                        const pullY = (distY / distance) * Math.min(8, 150 / distance);
+                                        tx = pullX + 12;
+                                        ty += pullY;
+                                        item.style.transition = 'transform 0.1s ease'; 
+                                    } else {
+                                        item.style.transition = 'color 0.4s ease, text-shadow 0.4s ease, transform 0.6s cubic-bezier(0.25, 1, 0.5, 1), filter 0.4s ease'; 
+                                    }
+                                    
+                                    item.style.transform = `translate(${tx}px, ${ty}px)`;
+                                });
+                            }
+                            requestAnimationFrame(render);
+                        }
+                        render();
+                    })();
+                </script>
             </div>
             <div id="view-app">
                 <div class="tool-section" id="section-logo">
@@ -781,7 +909,7 @@
                 async processSinglePdf(file, format, signal) {
                     const pdfId = `pdf-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`; this.els.status.innerText = `Loading ${file.name}...`; this.els.bar.style.width = '0%';
                     try {
-                        const arrayBuffer = await file.arrayBuffer(); const pdf = await pdfjsLib.getDocument(arrayBuffer).promise; const stack = document.createElement('div'); stack.className = 'pdf-stack-wrapper'; stack.innerHTML = `<div style="width:100%; height:200px; background:#111; display:flex; align-items:center; justify-content:center; color:#555;">Processing...</div><div class="stack-meta"><div class="stack-title">${file.name}</div><div class="stack-count">0/${pdf.numPages}</div></div>`; stack.onclick = () => this.openDetail(pdfId); this.els.stacks.prepend(stack); this.collection[pdfId] = { name: file.name, total: pdf.numPages, pages: [], format: format };
+                        const arrayBuffer = await file.arrayBuffer(); const pdf = await pdfjsLib.getDocument(arrayBuffer).promise; const stack = document.createElement('div'); stack.className = 'pdf-stack-wrapper'; stack.innerHTML = `<div class="processing-pulse" style="width:100%; height:200px; background:#111; display:flex; align-items:center; justify-content:center; color:#555;">Processing...</div><div class="stack-meta"><div class="stack-title">${file.name}</div><div class="stack-count">0/${pdf.numPages}</div></div>`; stack.onclick = () => this.openDetail(pdfId); this.els.stacks.prepend(stack); this.collection[pdfId] = { name: file.name, total: pdf.numPages, pages: [], format: format };
                         for (let i = 1; i <= pdf.numPages; i++) {
                             if (signal.aborted) throw new DOMException("Aborted", "AbortError"); await new Promise(resolve => setTimeout(resolve, 0)); this.els.status.innerText = `Rendering ${file.name} (Page ${i}/${pdf.numPages})`; const pct = Math.round((i / pdf.numPages) * 100) + '%'; this.els.percent.innerText = pct; this.els.bar.style.width = pct; stack.querySelector('.stack-count').innerText = `${i}/${pdf.numPages}`; const page = await pdf.getPage(i); const viewport = page.getViewport({ scale: 2.0 }); const canvas = document.createElement('canvas'); canvas.width = viewport.width; canvas.height = viewport.height; await page.render({ canvasContext: canvas.getContext('2d'), viewport }).promise; if (i === 1) { stack.querySelector('div').replaceWith(Object.assign(new Image(), { src: canvas.toDataURL(format, 0.5) })); } const blob = await new Promise(r => canvas.toBlob(r, format, 0.9)); const url = Core.BlobRegistry.create(blob); this.collection[pdfId].pages.push({ num: i, blob, url, checked: true });
                         }
