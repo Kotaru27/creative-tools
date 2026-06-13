@@ -21,9 +21,9 @@
         /* ================= AMOLED THEME VARIABLES ================= */
         :root {
             --bg-main: #000000;
-            --bg-panel: #111111;
-            --bg-input: #080808;
-            --border: #333333;
+            --bg-panel: #000000;
+            --bg-input: #000000;
+            --border: #1a1a1a;
             --accent: #ffffff;
             --accent-hover: #dddddd;
             --text-main: #ffffff;
@@ -37,7 +37,6 @@
         input[type=number]::-webkit-inner-spin-button, input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
         input[type=number] { -moz-appearance: textfield; appearance: textfield; }
         body { margin: 0; padding: 0; background-color: var(--bg-main); color: var(--text-main); font-family: 'Inter', sans-serif; height: 100vh; display: flex; flex-direction: column; overflow: hidden; transition: --accent 0.3s ease; }
-        body::before { content: ''; position: fixed; inset: 0; pointer-events: none; background: radial-gradient(400px circle at var(--mouse-x, 50vw) var(--mouse-y, -200vh), rgba(255,255,255,0.03), transparent 60%); z-index: 0; }
         ::-webkit-scrollbar { width: 6px; height: 6px; }
         ::-webkit-scrollbar-track { background: var(--bg-main); }
         ::-webkit-scrollbar-thumb { background: #333; border-radius: 3px; }
@@ -89,7 +88,7 @@
         .tool-icon { width: 22px; height: 22px; color: var(--text-muted); }
         .editor-layout { display: grid; grid-template-columns: 320px 1fr; gap: 30px; align-items: flex-start; height: 100%; }
         #stillsTabContentStory .editor-layout { grid-template-columns: 320px 1fr 300px; }
-        .story-center-panel { background: #050505; border: none; box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4); border-radius: var(--radius); height: calc(100vh - 150px); display: flex; align-items: center; justify-content: center; overflow: hidden; position: relative; padding: 30px; }
+        .story-center-panel { background: #000000; border: none; box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4); border-radius: var(--radius); height: calc(100vh - 150px); display: flex; align-items: center; justify-content: center; overflow: hidden; position: relative; padding: 30px; }
         #storyPreview { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; overflow: hidden; }
         #storyPreview canvas { max-width: 100%; max-height: 100%; width: auto; height: auto; object-fit: contain; box-shadow: 0 10px 40px rgba(0, 0, 0, 0.6); border-radius: 4px; }
         .sidebar-panel { display: flex; flex-direction: column; gap: 20px; position: sticky; top: 0; overflow-y: auto; max-height: calc(100vh - 60px); padding-right: 5px; scrollbar-width: none; }
@@ -104,7 +103,7 @@
         .canvas-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: var(--spacing); align-content: start; }
         .logo-card-item { background: #000000; border: none; box-shadow: none; display: flex; flex-direction: column; border-radius: var(--radius); overflow: hidden; transition: none; }
         .logo-card-item:hover { box-shadow: none; }
-        .preview-box { background-color: #050505; background-image: linear-gradient(45deg, #111 25%, transparent 25%), linear-gradient(-45deg, #111 25%, transparent 25%), linear-gradient(45deg, transparent 75%, #111 75%), linear-gradient(-45deg, transparent 75%, #111 75%); background-size: 20px 20px; display: flex; align-items: center; justify-content: center; aspect-ratio: 1; overflow: hidden; padding: 15px; position: relative; }
+        .preview-box { background-color: #000000; background-image: linear-gradient(45deg, #0a0a0a 25%, transparent 25%), linear-gradient(-45deg, #0a0a0a 25%, transparent 25%), linear-gradient(45deg, transparent 75%, #0a0a0a 75%), linear-gradient(-45deg, transparent 75%, #0a0a0a 75%); background-size: 20px 20px; display: flex; align-items: center; justify-content: center; aspect-ratio: 1; overflow: hidden; padding: 15px; position: relative; }
         .preview-box img, .preview-box canvas { max-width: 100%; max-height: 100%; object-fit: contain; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5); }
         .card-controls { padding: 15px; display: flex; flex-direction: column; gap: 12px; border-top: 1px solid var(--border); background: #000000; }
         .split-preview-overlay { position: absolute; inset: 0; display: grid; grid-template-columns: repeat(var(--cols, 1), 1fr); grid-template-rows: repeat(var(--rows, 1), 1fr); pointer-events: none; z-index: 10; }
@@ -189,7 +188,7 @@
             <div id="view-home">
                 <style>
                 #view-home {
-                    background: #050505;
+                    background: transparent;
                     display: flex;
                     align-items: center;
                     justify-content: center;
@@ -203,8 +202,6 @@
                 .home-bg-gradient {
                     position: absolute;
                     inset: -50%;
-                    background: radial-gradient(circle at 50% 50%, rgba(20, 20, 25, 0.4) 0%, transparent 50%),
-                                radial-gradient(circle at 80% 20%, rgba(15, 15, 20, 0.3) 0%, transparent 40%);
                     animation: drift-bg 20s infinite alternate ease-in-out;
                     pointer-events: none;
                     z-index: 1;
@@ -213,7 +210,6 @@
                     position: absolute;
                     width: 60vw;
                     height: 60vw;
-                    background: radial-gradient(circle at center, rgba(255,255,255,0.06) 0%, transparent 50%);
                     border-radius: 50%;
                     filter: blur(80px);
                     pointer-events: none;
