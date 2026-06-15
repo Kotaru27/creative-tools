@@ -16,6 +16,8 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
 
     <style>
         /* ================= AMOLED THEME VARIABLES ================= */
@@ -199,6 +201,16 @@
                     margin: 0;
                     padding: 0;
                 }
+                @keyframes blink-cursor {
+                    0%, 100% { opacity: 1; }
+                    50% { opacity: 0; }
+                }
+                .tw-cursor {
+                    animation: blink-cursor 1s step-end infinite;
+                    font-weight: 200;
+                    opacity: 0.7;
+                    margin-left: 2px;
+                }
                 .home-bg-gradient {
                     position: absolute;
                     inset: -50%;
@@ -223,64 +235,374 @@
                 .home-content {
                     display: flex;
                     flex-direction: column;
-                    gap: 30px;
                     z-index: 10;
                     text-align: center;
+                    align-items: center;
+                    padding: 80px 0;
+                    cursor: pointer;
+                }
+                .layered-list {
+                    list-style: none;
+                    padding: 0;
+                    margin: 0;
+                    display: flex;
+                    flex-direction: column;
                     align-items: center;
                 }
                 .home-item {
                     font-family: 'Panchang', sans-serif;
-                    font-size: 2.5rem;
-                    font-weight: 300;
-                    letter-spacing: -0.04em;
-                    color: #b8b8b8;
+                    font-size: 60px;
+                    font-weight: 800;
+                    letter-spacing: -2px;
+                    text-transform: uppercase;
+                    color: white;
                     text-decoration: none;
+                    position: relative;
+                    overflow: hidden;
+                    height: 60px;
                     opacity: 0;
-                    transform: translateY(30px);
                     filter: blur(12px);
                     animation: home-stagger-in 0.9s cubic-bezier(.22, 1, .36, 1) forwards;
-                    transition: color 0.4s ease, text-shadow 0.4s ease, transform 0.6s cubic-bezier(.25, 1, .5, 1), filter 0.4s ease;
                     will-change: transform, opacity, filter, color;
-                    display: inline-block;
-                    cursor: pointer;
+                    display: block;
                     pointer-events: auto;
                 }
-                .home-item:nth-child(1) { animation-delay: 0.1s; }
-                .home-item:nth-child(2) { animation-delay: 0.2s; }
-                .home-item:nth-child(3) { animation-delay: 0.3s; }
-                .home-item:nth-child(4) { animation-delay: 0.4s; }
+                .home-item:nth-child(1) { animation-delay: 0.1s; transform: translateX(-35px) skew(60deg, -30deg) scaleY(0.66667); }
+                .home-item:nth-child(2) { animation-delay: 0.2s; transform: translateX(0px) skew(0deg, -30deg) scaleY(1.33333); }
+                .home-item:nth-child(3) { animation-delay: 0.3s; transform: translateX(35px) skew(60deg, -30deg) scaleY(0.66667); }
+                .home-item:nth-child(4) { animation-delay: 0.4s; transform: translateX(70px) skew(0deg, -30deg) scaleY(1.33333); }
+                
                 @keyframes home-stagger-in {
                     to {
                         opacity: 1;
-                        transform: translateY(0);
                         filter: blur(0);
                     }
                 }
-                .home-content:hover .home-item:not(:hover) {
-                    color: #333;
-                    filter: blur(3px);
+                
+                .home-item p {
+                    margin: 0;
+                    padding: 0 15px;
+                    height: 60px;
+                    line-height: 55px;
+                    white-space: nowrap;
+                    color: #fff;
+                    transition: color 0.3s;
                 }
-                .home-item:hover {
+                .home-item .top-text {
+                    color: #b8b8b8;
+                }
+                .home-item .bottom-text {
                     color: #ffffff;
-                    text-shadow: 0 0 20px rgba(255, 255, 255, 0.4);
+                }
+                .home-content:hover .home-item:not(:hover) p {
+                    color: #333;
                 }
                 @media (max-width: 768px) {
                     .home-item {
-                        font-size: 1.5rem;
+                        font-size: 30px;
+                        height: 35px;
                     }
+                    .home-item p {
+                        height: 35px;
+                        line-height: 30px;
+                    }
+                    .home-item:nth-child(1) { transform: translateX(-20px) skew(60deg, -30deg) scaleY(0.66667); }
+                    .home-item:nth-child(2) { transform: translateX(0px) skew(0deg, -30deg) scaleY(1.33333); }
+                    .home-item:nth-child(3) { transform: translateX(20px) skew(60deg, -30deg) scaleY(0.66667); }
+                    .home-item:nth-child(4) { transform: translateX(40px) skew(0deg, -30deg) scaleY(1.33333); }
                 }
                 </style>
                 <div class="home-bg-gradient"></div>
                 <div class="home-ambient-light" id="homeLight"></div>
                 <div class="home-content" id="homeContent">
-                    <a href="#" onclick="document.startViewTransition ? document.startViewTransition(() => UI.openTool('section-logo')) : UI.openTool('section-logo'); return false;" class="home-item">Logo Resizer</a>
-                    <a href="#" onclick="document.startViewTransition ? document.startViewTransition(() => UI.openTool('section-pdf')) : UI.openTool('section-pdf'); return false;" class="home-item">PDF Tools</a>
-                    <a href="#" onclick="document.startViewTransition ? document.startViewTransition(() => UI.openTool('section-stills-boards')) : UI.openTool('section-stills-boards'); return false;" class="home-item">Stills & Boards</a>
-                    <a href="#" onclick="document.startViewTransition ? document.startViewTransition(() => UI.openTool('section-adlinks')) : UI.openTool('section-adlinks'); return false;" class="home-item">Ad Links</a>
+                    <ul class="layered-list" id="layeredList">
+                        <a href="#" onclick="openToolAnimated('section-logo'); return false;" class="home-item" data-text="Logo Resizer">
+                            <p class="top-text"></p>
+                            <p class="bottom-text"></p>
+                        </a>
+                        <a href="#" onclick="openToolAnimated('section-pdf'); return false;" class="home-item" data-text="PDF Tools">
+                            <p class="top-text"></p>
+                            <p class="bottom-text"></p>
+                        </a>
+                        <a href="#" onclick="openToolAnimated('section-stills-boards'); return false;" class="home-item" data-text="Stills & Boards">
+                            <p class="top-text"></p>
+                            <p class="bottom-text"></p>
+                        </a>
+                        <a href="#" onclick="openToolAnimated('section-adlinks'); return false;" class="home-item" data-text="Ad Links">
+                            <p class="top-text"></p>
+                            <p class="bottom-text"></p>
+                        </a>
+                    </ul>
                 </div>
                 <script>
                     (function() {
+                        class SneakEffect {
+                            constructor(el, text) {
+                                this.container = el;
+                                this.text = text;
+                                this.canvasContainer = document.createElement('div');
+                                this.canvasContainer.style.position = 'absolute';
+                                this.canvasContainer.style.top = '50%';
+                                this.canvasContainer.style.left = '50%';
+                                this.canvasContainer.style.width = '600px';
+                                this.canvasContainer.style.height = '300px';
+                                this.canvasContainer.style.transform = 'translate(-50%, -50%)';
+                                this.canvasContainer.style.pointerEvents = 'none';
+                                this.canvasContainer.style.opacity = '0';
+                                this.canvasContainer.style.transition = 'opacity 0.4s ease';
+                                this.canvasContainer.style.zIndex = '10';
+                                this.container.appendChild(this.canvasContainer);
+                                
+                                this.container.addEventListener('mouseenter', () => {
+                                    this.canvasContainer.style.opacity = '1';
+                                    const tw = this.container.querySelector('.tw-text');
+                                    if (tw) tw.style.opacity = '0';
+                                });
+                                this.container.addEventListener('mouseleave', () => {
+                                    this.canvasContainer.style.opacity = '0';
+                                    const tw = this.container.querySelector('.tw-text');
+                                    if (tw) tw.style.opacity = '1';
+                                });
+
+                                setTimeout(() => this.init(), 100);
+                            }
+
+                            init() {
+                                this.scene = new THREE.Scene();
+                                let aspect = this.canvasContainer.clientWidth / this.canvasContainer.clientHeight;
+                                const cameraDistance = 3.5;
+                                
+                                this.camera = new THREE.OrthographicCamera(
+                                    -cameraDistance * aspect,
+                                    cameraDistance * aspect,
+                                    cameraDistance,
+                                    -cameraDistance,
+                                    0.01,
+                                    1000
+                                );
+                                this.camera.position.set(0, -10, 4);
+                                this.camera.lookAt(0, 0, 0);
+                                
+                                this.renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+                                this.renderer.setSize(this.canvasContainer.clientWidth, this.canvasContainer.clientHeight);
+                                this.renderer.setClearColor(0x000000, 0);
+                                this.canvasContainer.appendChild(this.renderer.domElement);
+                                
+                                this.shaderMaterial = new THREE.ShaderMaterial({
+                                    uniforms: {
+                                        uTexture: { value: null },
+                                        uDisplacement: { value: new THREE.Vector3(1000, 1000, 1000) }
+                                    },
+                                    vertexShader: `
+                                        varying vec2 vUv;
+                                        uniform vec3 uDisplacement;
+                                        float easeInOutCubic(float x) {
+                                            return x < 0.5 ? 4. * x * x * x : 1. - pow(-2. * x + 2., 3.) / 2.;
+                                        }
+                                        float map(float value, float min1, float max1, float min2, float max2) {
+                                            return min2 + (value - min1) * (max2 - min2) / (max1 - min1);
+                                        }
+                                        void main() {
+                                            vUv = uv;
+                                            vec3 new_position = position;
+                                            vec4 localPosition = vec4(position, 1.);
+                                            vec4 worldPosition = modelMatrix * localPosition;
+                                            float dist = length(uDisplacement - worldPosition.xyz);
+                                            float min_distance = 3.;
+                                            if (dist < min_distance) {
+                                                float distance_mapped = map(dist, 0., min_distance, 1., 0.);
+                                                float val = easeInOutCubic(distance_mapped) * 1.5;
+                                                new_position.z += val;
+                                            }
+                                            gl_Position = projectionMatrix * modelViewMatrix * vec4(new_position, 1.0);
+                                        }
+                                    `,
+                                    fragmentShader: `
+                                        varying vec2 vUv;
+                                        uniform sampler2D uTexture;
+                                        void main() {
+                                            vec4 color = texture2D(uTexture, vUv);
+                                            if (color.a < 0.1) discard;
+                                            gl_FragColor = vec4(color.rgb, 1.0);
+                                        }
+                                    `,
+                                    transparent: true,
+                                    depthWrite: false,
+                                    side: THREE.FrontSide
+                                });
+                                
+                                const canvas = document.createElement("canvas");
+                                canvas.width = 2048;
+                                canvas.height = 512;
+                                const ctx = canvas.getContext("2d");
+                                ctx.font = "300 200px 'Space Grotesk', system-ui, sans-serif";
+                                ctx.fillStyle = "#ffffff";
+                                ctx.textAlign = "center";
+                                ctx.textBaseline = "middle";
+                                ctx.fillText(this.text, 1024, 256);
+                                
+                                const texture = new THREE.CanvasTexture(canvas);
+                                texture.generateMipmaps = false;
+                                texture.minFilter = THREE.LinearFilter;
+                                texture.magFilter = THREE.LinearFilter;
+                                this.shaderMaterial.uniforms.uTexture.value = texture;
+                                
+                                const geometry = new THREE.PlaneGeometry(15, 15, 100, 100);
+                                this.plane = new THREE.Mesh(geometry, this.shaderMaterial);
+                                this.plane.rotation.z = Math.PI / 4;
+                                this.scene.add(this.plane);
+                                
+                                this.raycaster = new THREE.Raycaster();
+                                this.pointer = new THREE.Vector2();
+                                
+                                this.onPointerMove = (event) => {
+                                    const bounds = this.canvasContainer.getBoundingClientRect();
+                                    this.pointer.x = ((event.clientX - bounds.left) / bounds.width) * 2 - 1;
+                                    this.pointer.y = -((event.clientY - bounds.top) / bounds.height) * 2 + 1;
+                                    
+                                    this.raycaster.setFromCamera(this.pointer, this.camera);
+                                    const intersects = this.raycaster.intersectObject(this.plane);
+                                    if (intersects.length > 0) {
+                                        this.shaderMaterial.uniforms.uDisplacement.value.copy(intersects[0].point);
+                                    } else {
+                                        this.shaderMaterial.uniforms.uDisplacement.value.set(1000, 1000, 1000);
+                                    }
+                                };
+                                
+                                this.container.addEventListener("mousemove", this.onPointerMove);
+                                this.container.addEventListener("mouseleave", () => {
+                                    this.shaderMaterial.uniforms.uDisplacement.value.set(1000, 1000, 1000);
+                                });
+                                
+                                this.animate = () => {
+                                    requestAnimationFrame(this.animate);
+                                    this.renderer.render(this.scene, this.camera);
+                                };
+                                this.animate();
+                            }
+                        }
+
+                        class TypewriterEffect {
+                            constructor(el, delay = 0) {
+                                this.el = el;
+                                this.fullText = el.getAttribute('data-text') || "";
+                                this.delay = delay;
+                                this.timeout = null;
+                                
+                                this.topP = this.el.querySelector('.top-text');
+                                this.bottomP = this.el.querySelector('.bottom-text');
+                                
+                                this.topP.innerHTML = '<span class="tw-text"></span><span class="tw-cursor">|</span>';
+                                this.bottomP.innerHTML = '<span class="tw-text"></span><span class="tw-cursor">|</span>';
+                                
+                                this.topTextSpan = this.topP.querySelector('.tw-text');
+                                this.topCursor = this.topP.querySelector('.tw-cursor');
+                                this.bottomTextSpan = this.bottomP.querySelector('.tw-text');
+                                this.bottomCursor = this.bottomP.querySelector('.tw-cursor');
+                            }
+                            
+                            type() {
+                                return new Promise(resolve => {
+                                    clearTimeout(this.timeout);
+                                    this.el.style.opacity = '1';
+                                    this.topCursor.style.display = 'inline-block';
+                                    this.bottomCursor.style.display = 'inline-block';
+                                    this.topTextSpan.textContent = '';
+                                    this.bottomTextSpan.textContent = '';
+                                    this.timeout = setTimeout(() => {
+                                        let i = 0;
+                                        const speed = 80;
+                                        const step = () => {
+                                            if (i < this.fullText.length) {
+                                                const char = this.fullText.charAt(i);
+                                                this.topTextSpan.textContent += char;
+                                                this.bottomTextSpan.textContent += char;
+                                                i++;
+                                                this.timeout = setTimeout(step, speed + Math.random() * 50);
+                                            } else {
+                                                this.topCursor.style.display = 'none';
+                                                this.bottomCursor.style.display = 'none';
+                                                resolve();
+                                            }
+                                        };
+                                        step();
+                                    }, this.delay);
+                                });
+                            }
+
+                            erase() {
+                                return new Promise(resolve => {
+                                    clearTimeout(this.timeout);
+                                    this.topCursor.style.display = 'inline-block';
+                                    this.bottomCursor.style.display = 'inline-block';
+                                    let i = this.topTextSpan.textContent.length;
+                                    const deleteSpeed = 20;
+                                    const step = () => {
+                                        if (i > 0) {
+                                            this.topTextSpan.textContent = this.topTextSpan.textContent.slice(0, -1);
+                                            this.bottomTextSpan.textContent = this.bottomTextSpan.textContent.slice(0, -1);
+                                            i--;
+                                            this.timeout = setTimeout(step, deleteSpeed);
+                                        } else {
+                                            this.topCursor.style.display = 'none';
+                                            this.bottomCursor.style.display = 'none';
+                                            resolve();
+                                        }
+                                    };
+                                    step();
+                                });
+                            }
+                        }
+
                         const items = document.querySelectorAll('.home-item');
+                        window.HomeTypewriters = Array.from(items).map((item, index) => {
+                            return new TypewriterEffect(item, index * 150);
+                        });
+
+                        // Setup GSAP Hover effect for LayeredText
+                        const homeContent = document.getElementById('homeContent');
+                        const paragraphs = homeContent.querySelectorAll('p');
+                        
+                        window.hoverTimeline = gsap.timeline({ paused: true });
+                        window.hoverTimeline.to(paragraphs, {
+                            y: window.innerWidth >= 768 ? -60 : -35,
+                            duration: 0.8,
+                            ease: "power2.out",
+                            stagger: 0.08,
+                        });
+                        
+                        homeContent.addEventListener('mouseenter', () => window.hoverTimeline.play());
+                        homeContent.addEventListener('mouseleave', () => window.hoverTimeline.reverse());
+
+                        // Default entry
+                        window.HomeTypewriters.forEach(tw => tw.type());
+
+                        window.openToolAnimated = function(id) {
+                            document.getElementById('homeContent').style.pointerEvents = 'none';
+                            items.forEach(item => item.style.transition = 'none');
+                            
+                            // Immediately reset the layered effect so erase happens on the top text cleanly
+                            if(window.hoverTimeline) window.hoverTimeline.progress(0).pause();
+                            
+                            const animPromises = window.HomeTypewriters.map(tw => {
+                                if (tw.el.getAttribute('onclick').includes(id)) {
+                                    return tw.erase();
+                                } else {
+                                    tw.el.style.transition = 'opacity 0.3s ease';
+                                    tw.el.style.opacity = '0';
+                                    return new Promise(resolve => setTimeout(resolve, 300));
+                                }
+                            });
+
+                            Promise.all(animPromises).then(() => {
+                                if (document.startViewTransition) {
+                                    document.startViewTransition(() => UI.openTool(id));
+                                } else {
+                                    UI.openTool(id);
+                                }
+                            });
+                        };
+
                         const light = document.getElementById('homeLight');
                         let time = 0;
                         let mouseX = window.innerWidth / 2;
@@ -299,37 +621,12 @@
 
                         function render() {
                             if (!isReducedMotion) {
-                                time += 0.016;
-                                items.forEach((item, index) => {
-                                    if(time < 1.0) return; // wait for entrance animation
-                                    
-                                    const rect = item.getBoundingClientRect();
-                                    const itemCenterX = rect.left + rect.width / 2;
-                                    const itemCenterY = rect.top + rect.height / 2;
-                                    const distX = mouseX - itemCenterX;
-                                    const distY = mouseY - itemCenterY;
-                                    const distance = Math.hypot(distX, distY);
-                                    const floatOffset = Math.sin(time * 2 + index) * 3; 
-
-                                    let tx = 0;
-                                    let ty = floatOffset;
-
-                                    if (distance < 150 && item.matches(':hover')) {
-                                        const pullX = (distX / distance) * Math.min(8, 150 / distance);
-                                        const pullY = (distY / distance) * Math.min(8, 150 / distance);
-                                        tx = pullX + 12;
-                                        ty += pullY;
-                                        item.style.transition = 'transform 0.1s ease'; 
-                                    } else {
-                                        item.style.transition = 'color 0.4s ease, text-shadow 0.4s ease, transform 0.6s cubic-bezier(0.25, 1, 0.5, 1), filter 0.4s ease'; 
-                                    }
-                                    
-                                    item.style.transform = `translate(${tx}px, ${ty}px)`;
-                                });
+                                // Empty render loop for now to avoid breaking LayeredText
+                                // The LayeredText doesn't cleanly support random floats because of skewed containers
                             }
-                            requestAnimationFrame(render);
+                            // requestAnimationFrame(render);
                         }
-                        render();
+                        // render();
                     })();
                 </script>
             </div>
@@ -742,6 +1039,13 @@
             showHome() {
                 document.body.classList.remove('tool-active'); this.els.sidebar.classList.remove('visible'); this.els.viewApp.classList.remove('active'); this.els.viewHome.classList.remove('hidden'); this.updateNav('nav-home'); this.applyTheme('home'); Core.AppState.save('activeTool', 'home');
                 Object.values(Tools).forEach(tool => { if (tool.destroy) tool.destroy(); });
+                if (window.HomeTypewriters) {
+                    window.HomeTypewriters.forEach(tw => tw.type());
+                    document.getElementById('homeContent').style.pointerEvents = 'all';
+                    document.querySelectorAll('.home-item').forEach((item) => {
+                        item.style.transition = 'color 0.4s ease, text-shadow 0.4s ease, transform 0.6s cubic-bezier(0.25, 1, 0.5, 1), filter 0.4s ease'; 
+                    });
+                }
             },
             openTool(id) {
                 document.body.classList.add('tool-active'); this.els.sidebar.classList.add('visible'); this.els.viewHome.classList.add('hidden'); document.querySelectorAll('.tool-section').forEach(e => e.classList.remove('active')); document.getElementById(id).classList.add('active'); this.els.viewApp.classList.add('active');
