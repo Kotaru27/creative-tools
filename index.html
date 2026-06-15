@@ -1488,6 +1488,159 @@
             }
         });
 
+        // ================= ORIGIN BUTTON EFFECT (VANILLA JS PORT) =================
+        (function() {
+            function getCoverDiameter(width, height, x, y) {
+                return Math.ceil(
+                    2 * Math.max(
+                        Math.hypot(x, y),
+                        Math.hypot(width - x, y),
+                        Math.hypot(x, height - y),
+                        Math.hypot(width - x, height - y)
+                    )
+                );
+            }
+
+            function setupOriginButton(btn) {
+                if (btn.hasAttribute('data-origin-setup')) return;
+                btn.setAttribute('data-origin-setup', 'true');
+                btn.style.position = 'relative';
+                btn.style.overflow = 'hidden';
+                btn.style.zIndex = '1';
+
+                const isLightText = !btn.classList.contains('active-mode');
+
+                btn.style.transition = 'color 0.4s cubic-bezier(0.16,1,0.3,1), transform 0.2s cubic-bezier(0.22, 1, 0.36, 1), background 0.2s, border-color 0.2s';
+                
+                let contentWrap = document.createElement('span');
+                contentWrap.style.position = 'relative';
+                contentWrap.style.zIndex = '10';
+                contentWrap.style.display = 'inline-flex';
+                contentWrap.style.alignItems = 'center';
+                contentWrap.style.justifyContent = 'center';
+                contentWrap.style.gap = '8px';
+                contentWrap.style.pointerEvents = 'none';
+
+                while (btn.firstChild) {
+                    contentWrap.appendChild(btn.firstChild);
+                }
+
+                let fillElement = document.createElement('span');
+                fillElement.className = 'origin-fill';
+                fillElement.style.position = 'absolute';
+                fillElement.style.borderRadius = '50%';
+                
+                if (btn.classList.contains('active-mode')) {
+                    fillElement.style.backgroundColor = '#000000'; 
+                } else if (btn.classList.contains('danger-btn')) {
+                    fillElement.style.backgroundColor = '#2a0a0a'; 
+                } else {
+                    fillElement.style.backgroundColor = '#ffffff'; 
+                }
+                
+                fillElement.style.pointerEvents = 'none';
+                fillElement.style.transformOrigin = 'center';
+                fillElement.style.transform = 'translate(-50%, -50%) scale(0)';
+                fillElement.style.transition = 'transform 0.85s cubic-bezier(0.16,1,0.3,1)';
+                fillElement.style.zIndex = '0';
+                fillElement.style.left = '50%';
+                fillElement.style.top = '50%';
+                fillElement.style.width = '0px';
+                fillElement.style.height = '0px';
+
+                btn.appendChild(fillElement);
+                btn.appendChild(contentWrap);
+
+                btn._originState = {
+                    hovered: false,
+                    pressed: false,
+                    fillElement: fillElement,
+                    contentWrap: contentWrap,
+                    originalColor: window.getComputedStyle(btn).color
+                };
+            }
+
+            function updateFillState(btn) {
+                let state = btn._originState;
+                let showFill = !btn.disabled && (state.hovered || state.pressed);
+                
+                if (showFill) {
+                    state.fillElement.style.transform = `translate(-50%, -50%) scale(1)`;
+                    if (btn.classList.contains('active-mode')) {
+                        btn.style.color = '#ffffff';
+                    } else if (btn.classList.contains('danger-btn')) {
+                        btn.style.color = 'var(--danger)';
+                    } else {
+                        btn.style.color = '#000000';
+                    }
+                } else {
+                    state.fillElement.style.transform = `translate(-50%, -50%) scale(0)`;
+                    btn.style.color = ''; // reset
+                }
+            }
+
+            function updateOriginPosition(btn, clientX, clientY) {
+                let rect = btn.getBoundingClientRect();
+                let x = clientX - rect.left;
+                let y = clientY - rect.top;
+                if (clientX === undefined) {
+                    x = rect.width / 2;
+                    y = rect.height / 2;
+                }
+                
+                let coverSize = getCoverDiameter(rect.width, rect.height, x, y);
+                let state = btn._originState;
+                
+                if (state.fillElement.style.transform.includes('scale(0)')) {
+                    state.fillElement.style.transition = 'none';
+                    state.fillElement.style.left = x + 'px';
+                    state.fillElement.style.top = y + 'px';
+                    state.fillElement.style.width = coverSize + 'px';
+                    state.fillElement.style.height = coverSize + 'px';
+                    void state.fillElement.offsetWidth; // force reflow
+                    state.fillElement.style.transition = 'transform 0.85s cubic-bezier(0.16,1,0.3,1)';
+                }
+            }
+
+            document.addEventListener('pointerover', (e) => {
+                let btn = e.target.closest('.liquid-btn');
+                if (!btn || btn.disabled) return;
+                setupOriginButton(btn);
+                
+                btn._originState.hovered = true;
+                updateOriginPosition(btn, e.clientX, e.clientY);
+                updateFillState(btn);
+            });
+
+            document.addEventListener('pointerout', (e) => {
+                let btn = e.target.closest('.liquid-btn');
+                if (!btn || !btn._originState) return;
+                if(e.relatedTarget && btn.contains(e.relatedTarget)) return;
+
+                btn._originState.hovered = false;
+                btn._originState.pressed = false;
+                updateFillState(btn);
+            });
+
+            document.addEventListener('pointerdown', (e) => {
+                let btn = e.target.closest('.liquid-btn');
+                if (!btn || btn.disabled) return;
+                setupOriginButton(btn);
+                
+                btn._originState.pressed = true;
+                updateOriginPosition(btn, e.clientX, e.clientY);
+                updateFillState(btn);
+            });
+
+            document.addEventListener('pointerup', (e) => {
+                let btn = e.target.closest('.liquid-btn');
+                if (!btn || !btn._originState) return;
+                
+                btn._originState.pressed = false;
+                updateFillState(btn);
+            });
+        })();
+
         lucide.createIcons();
         window.addEventListener('beforeunload', (e) => { if (Core.BlobRegistry.urls.length > 0) e.preventDefault(); });
     </script>
