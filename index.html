@@ -186,6 +186,9 @@
             <button class="nav-item" id="nav-adlinks" onclick="UI.openTool('section-adlinks')" title="Ad Links">
                 <i data-lucide="link-2" style="color: #bbbbbb;"></i><span class="nav-item-text">Ad Links</span>
             </button>
+            <button class="nav-item" id="nav-yt-helper" onclick="UI.openTool('section-yt-helper')" title="YT DOWN">
+                <i data-lucide="play-square" style="color: #999999;"></i><span class="nav-item-text">YT DOWN</span>
+            </button>
         </nav>
         <div class="view-container">
             <div id="view-home">
@@ -272,6 +275,7 @@
                 .home-item:nth-child(2) { animation-delay: 0.2s; transform: translateX(0px) skew(0deg, -30deg) scaleY(1.33333); }
                 .home-item:nth-child(3) { animation-delay: 0.3s; transform: translateX(35px) skew(60deg, -30deg) scaleY(0.66667); }
                 .home-item:nth-child(4) { animation-delay: 0.4s; transform: translateX(70px) skew(0deg, -30deg) scaleY(1.33333); }
+                .home-item:nth-child(5) { animation-delay: 0.5s; transform: translateX(105px) skew(60deg, -30deg) scaleY(0.66667); }
                 
                 @keyframes home-stagger-in {
                     to {
@@ -311,6 +315,7 @@
                     .home-item:nth-child(2) { transform: translateX(0px) skew(0deg, -30deg) scaleY(1.33333); }
                     .home-item:nth-child(3) { transform: translateX(20px) skew(60deg, -30deg) scaleY(0.66667); }
                     .home-item:nth-child(4) { transform: translateX(40px) skew(0deg, -30deg) scaleY(1.33333); }
+                    .home-item:nth-child(5) { transform: translateX(60px) skew(60deg, -30deg) scaleY(0.66667); }
                 }
                 </style>
                 <div class="home-bg-gradient"></div>
@@ -330,6 +335,10 @@
                             <p class="bottom-text"></p>
                         </a>
                         <a href="#" onclick="openToolAnimated('section-adlinks'); return false;" class="home-item" data-text="Ad Links">
+                            <p class="top-text"></p>
+                            <p class="bottom-text"></p>
+                        </a>
+                        <a href="#" onclick="openToolAnimated('section-yt-helper'); return false;" class="home-item" data-text="YT DOWN">
                             <p class="top-text"></p>
                             <p class="bottom-text"></p>
                         </a>
@@ -893,6 +902,35 @@
                         </div>
                     </div>
                 </div>
+
+                <div class="tool-section" id="section-yt-helper">
+                    <div class="tool-header">
+                        <i data-lucide="play-square" class="tool-icon"></i>
+                        <h2>YT DOWN</h2>
+                    </div>
+                    <div class="editor-layout">
+                        <div class="sidebar-panel">
+                            <div class="glass-panel control-group">
+                                <span class="label-header">YouTube URL</span>
+                                <textarea class="liquid-input" id="ytUrlInput" rows="4" placeholder="Paste YouTube URLs separated by newlines or spaces" onpaste="YouTubeHelperUI.handlePaste(event)"></textarea>
+                                <button class="liquid-btn active-mode" onclick="YouTubeHelperUI.analyze()" style="width:100%; margin-top:10px;"><i data-lucide="search"></i> Analyze</button>
+                            </div>
+                            <div class="glass-panel control-group" id="ytResult" style="display:none; margin-top:15px;"></div>
+                            <div class="glass-panel control-group" style="margin-top:15px; font-size:0.8rem; color:var(--text-muted);">
+                                <p style="margin:0 0 8px;"><strong>Install yt-dlp:</strong></p>
+                                <code style="background:rgba(255,255,255,0.05); padding:8px; border-radius:4px; display:block; font-size:0.75rem; font-family:monospace; cursor:pointer;" onclick="navigator.clipboard.writeText('winget install yt-dlp.yt-dlp'); UI.showSuccess(this, 'Copied!')">winget install yt-dlp.yt-dlp  (Windows)</code>
+                                <p style="margin:10px 0 0;"><strong>Downloads path:</strong> Videos save to <code>~/Downloads</code> natively.</p>
+                            </div>
+                        </div>
+                        <div class="right-panel" style="display:flex; flex-direction:column; gap:var(--spacing);">
+                            <div class="glass-panel control-group" id="ytMetadataPanel" style="display:none;">
+                                <span class="label-header">Video Info</span>
+                                <div id="ytMetadataContent"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
             </div>
         </div>
     </div>
@@ -921,6 +959,11 @@
                 <div class="cmd-item" onclick="UI.openTool('section-adlinks'); UI.closeCommandPalette()" style="padding:12px 20px; cursor:pointer; display:flex; align-items:center; gap:15px;">
                     <i data-lucide="link-2" style="color:#bbbbbb; width:18px;"></i>
                     <span style="flex:1;">Ad Links & Downloader</span>
+                    <span style="font-size:0.75rem; color:var(--text-muted); background:var(--bg-input); padding:2px 6px; border-radius:4px;">Tool</span>
+                </div>
+                <div class="cmd-item" onclick="UI.openTool('section-yt-helper'); UI.closeCommandPalette()" style="padding:12px 20px; cursor:pointer; display:flex; align-items:center; gap:15px;">
+                    <i data-lucide="play-square" style="color:#999999; width:18px;"></i>
+                    <span style="flex:1;">YT DOWN</span>
                     <span style="font-size:0.75rem; color:var(--text-muted); background:var(--bg-input); padding:2px 6px; border-radius:4px;">Tool</span>
                 </div>
                 <div class="cmd-item" onclick="UI.showHome(); UI.closeCommandPalette()" style="padding:12px 20px; cursor:pointer; display:flex; align-items:center; gap:15px;">
@@ -1039,7 +1082,7 @@
         };
 
         const UI = {
-            ToolColors: { 'home': '#ffffff', 'section-logo': '#ffffff', 'section-pdf': '#cccccc', 'section-stills-boards': '#eeeeee', 'section-adlinks': '#bbbbbb' },
+            ToolColors: { 'home': '#ffffff', 'section-logo': '#ffffff', 'section-pdf': '#cccccc', 'section-stills-boards': '#eeeeee', 'section-adlinks': '#bbbbbb', 'section-yt-helper': '#999999' },
             els: { sidebar: document.getElementById('mainSidebar'), viewApp: document.getElementById('view-app'), viewHome: document.getElementById('view-home'), lightbox: document.getElementById('lightbox'), lightboxImg: document.getElementById('lightboxImg'), toast: document.getElementById('errorToast') },
             showHome() {
                 document.body.classList.remove('tool-active'); this.els.sidebar.classList.remove('visible'); this.els.viewApp.classList.remove('active'); this.els.viewHome.classList.remove('hidden'); this.updateNav('nav-home'); this.applyTheme('home'); Core.AppState.save('activeTool', 'home');
@@ -1054,7 +1097,7 @@
             },
             openTool(id) {
                 document.body.classList.add('tool-active'); this.els.sidebar.classList.add('visible'); this.els.viewHome.classList.add('hidden'); document.querySelectorAll('.tool-section').forEach(e => e.classList.remove('active')); document.getElementById(id).classList.add('active'); this.els.viewApp.classList.add('active');
-                const navMap = { 'section-logo': 'nav-logo', 'section-pdf': 'nav-pdf', 'section-stills-boards': 'nav-stills-boards', 'section-adlinks': 'nav-adlinks' };
+                const navMap = { 'section-logo': 'nav-logo', 'section-pdf': 'nav-pdf', 'section-stills-boards': 'nav-stills-boards', 'section-adlinks': 'nav-adlinks', 'section-yt-helper': 'nav-yt-helper' };
                 this.updateNav(navMap[id]); this.applyTheme(id); Core.AppState.save('activeTool', id);
             },
             switchPdfTab(tabId) {
@@ -1471,6 +1514,186 @@
                 copyBucketTable() { let rows = this.getBucketData(); if (rows.length === 0) { alert("No bucket data found on Sheet 2."); return; } let output = "Bucket\tAds\n"; rows.forEach(r => { output += r.bucket + "\t" + r.ads.map(a => "'" + a + "'").join(",") + "\n"; }); if (navigator.clipboard && window.isSecureContext) { navigator.clipboard.writeText(output).catch(() => { this.copyToClipboardFallback(output); }); } else { this.copyToClipboardFallback(output); } alert("Bucket table copied!"); },
                 copyForstaScript() { let rows = this.getBucketData(); if (rows.length === 0) { alert("No bucket data found on Sheet 2."); return; } let script = "var s = set()\n\n"; rows.forEach(r => { script += "// Bucket " + r.bucket + "\n"; script += "if (f('cq42000').any('" + r.bucket + "')) {\n"; script += "    s = s.union(set(" + r.ads.map(a => "'" + a + "'").join(",") + "))\n"; script += "}\n\n"; }); if (navigator.clipboard && window.isSecureContext) { navigator.clipboard.writeText(script).catch(() => { this.copyToClipboardFallback(script); }); } else { this.copyToClipboardFallback(script); } alert("Script copied!"); }
             }
+        };
+
+        const YouTubeHelper = {
+            parseUrl(url) {
+                const patterns = {
+                    video: [
+                        /(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/shorts\/|youtube\.com\/embed\/)([^&\n?#]+)/,
+                        /youtube\.com\/live\/([^&\n?#]+)/
+                    ],
+                    playlist: [
+                        /youtube\.com\/playlist\?list=([^&\n#]+)/,
+                        /youtube\.com\/watch\?.*[&?]list=([^&\n#]+)/
+                    ],
+                    channel: [
+                        /youtube\.com\/(?:c\/|channel\/|user\/|@)([^&\n?#\/]+)/
+                    ]
+                };
+                for (const [type, regexes] of Object.entries(patterns)) {
+                    for (const re of regexes) {
+                        const match = url.match(re);
+                        if (match) return { type, id: match[1], originalUrl: url };
+                    }
+                }
+                return null;
+            },
+            async fetchMetadata(id, type = 'video') {
+                const endpoints = {
+                    video: `https://noembed.com/embed?url=https://youtube.com/watch?v=${id}`,
+                    playlist: `https://yewtu.be/api/v1/playlists/${id}`
+                };
+                try {
+                    const res = await fetch(endpoints[type] || endpoints.video);
+                    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+                    const data = await res.json();
+                    return {
+                        title: data.title || data.name || 'Unknown',
+                        author: data.author_name || data.uploader || 'Unknown',
+                        authorUrl: data.author_url || data.uploader_url || '',
+                        thumbnail: data.thumbnail_url || data.thumbnail || `https://i.ytimg.com/vi/${id}/hqdefault.jpg`,
+                        duration: data.duration ? this.formatDuration(data.duration) : null,
+                        type,
+                        id
+                    };
+                } catch (e) {
+                    return { title: 'Unknown', author: 'Unknown', type, id, thumbnail: `https://i.ytimg.com/vi/${id}/hqdefault.jpg`, error: e.message };
+                }
+            },
+            generateCommands(parsed, options = {}) {
+                const { format = 'mp4', embedSubs = false, metadata = true, outputPath = '' } = options;
+                const quality = 'bestvideo[ext=mp4][height<=1080]+bestaudio[ext=m4a]/best[ext=mp4][height<=1080]/best[ext=mp4]';
+                const base = 'yt-dlp';
+                
+                // Remove trailing backslashes to avoid escaping the closing quote
+                const safePath = outputPath.trim().replace(/\\+$/, '').replace(/"/g, '\\"');
+                const outPathArg = safePath ? `-P "${safePath}" ` : '';
+                
+                const commonFlags = [
+                    `--merge-output-format ${format}`,
+                    embedSubs ? '--embed-subs' : '',
+                    metadata ? '--embed-metadata' : '',
+                    '--no-playlist',
+                    '--restrict-filenames',
+                    '-o', `"%(title)s.%(ext)s"`,
+                    '-f', `"${quality}"`
+                ].filter(Boolean).join(' ');
+                
+                const baseCmd = `${base} ${outPathArg}`;
+                
+                return {
+                    video: `${baseCmd}${commonFlags} "${parsed.originalUrl}"`
+                };
+            },
+            formatDuration(seconds) {
+                if (!seconds) return null;
+                const h = Math.floor(seconds / 3600);
+                const m = Math.floor((seconds % 3600) / 60);
+                const s = seconds % 60;
+                return [h, m, s].map(v => v.toString().padStart(2, '0')).join(':');
+            }
+        };
+
+        const YouTubeHelperUI = {
+            handlePaste(e) {
+                const html = e.clipboardData.getData('text/html');
+                if (html) {
+                    const parser = new DOMParser();
+                    const doc = parser.parseFromString(html, 'text/html');
+                    const links = Array.from(doc.querySelectorAll('a'))
+                        .map(a => a.href)
+                        .filter(href => href.includes('youtube.com') || href.includes('youtu.be'));
+                    if (links.length > 0) {
+                        e.preventDefault();
+                        const target = e.target;
+                        const insertText = links.join('\n') + '\n';
+                        const start = target.selectionStart;
+                        const end = target.selectionEnd;
+                        target.value = target.value.substring(0, start) + insertText + target.value.substring(end);
+                        target.selectionStart = target.selectionEnd = start + insertText.length;
+                    }
+                }
+            },
+            async analyze() {
+                const urlText = document.getElementById('ytUrlInput').value.trim();
+                const resultEl = document.getElementById('ytResult');
+                const metadataPanel = document.getElementById('ytMetadataPanel');
+                if (!urlText) return UI.showError('Enter YouTube URLs');
+                const urls = urlText.split(/\s+/).filter(Boolean);
+                
+                resultEl.style.display = 'block';
+                resultEl.innerHTML = '<div style="padding:15px; text-align:center; color:var(--text-muted);"><span class="processing-pulse">Analyzing...</span></div>';
+                
+                try {
+                    let htmlContent = '';
+                    metadataPanel.style.display = 'block';
+                    
+                    for (const url of urls) {
+                        const parsed = YouTubeHelper.parseUrl(url);
+                        if (!parsed) {
+                            htmlContent += `<div class="glass-panel" style="padding:15px; border:1px solid rgba(255,255,255,0.08); margin-bottom:10px; color:var(--danger);">Invalid YouTube URL: ${url}</div>`;
+                            continue;
+                        }
+                        const meta = await YouTubeHelper.fetchMetadata(parsed.id, parsed.type);
+                        const cmds = YouTubeHelper.generateCommands(parsed, { outputPath: '~/Downloads' });
+                        
+                        htmlContent += `<div class="glass-panel" style="padding:15px; border:1px solid rgba(255,255,255,0.08); margin-bottom:10px;">
+                            <div style="display:flex; gap:12px; align-items:flex-start; flex-wrap:wrap;">
+                                <div style="flex:1; min-width:0;">
+                                    <h4 style="margin:0 0 6px; font-size:0.95rem; word-break:break-word;">${meta.title}</h4>
+                                    <div style="font-size:0.8rem; color:var(--text-muted); display:flex; flex-wrap:wrap; gap:10px; margin-bottom:12px;">
+                                        <span><i data-lucide="user" style="width:12px;height:12px;"></i> ${meta.author}</span>
+                                        ${meta.duration ? `<span><i data-lucide="clock" style="width:12px;height:12px;"></i> ${meta.duration}</span>` : ''}
+                                        <span style="text-transform:capitalize;">${parsed.type}</span>
+                                    </div>
+                                    <button class="liquid-btn copy-cmd-btn" data-cmd="${cmds.video.replace(/"/g, '&quot;')}" onclick="YouTubeHelperUI.copySpecificCommand(this)" style="padding:6px 12px; font-size:0.8rem;"><i data-lucide="copy" style="width:14px;height:14px;margin-right:6px;"></i> Copy Download Command</button>
+                                </div>
+                            </div>
+                        </div>`;
+                    }
+                    
+                    document.getElementById('ytMetadataContent').innerHTML = htmlContent;
+                    resultEl.style.display = 'none';
+                    window.lucide.createIcons({ root: document.getElementById('ytMetadataContent') });
+                } catch (e) { resultEl.innerHTML = `<div style="padding:15px; color:var(--danger);">Error: ${e.message}</div>`; }
+            },
+            copySpecificCommand(btn) {
+                const text = btn.getAttribute('data-cmd');
+                if (text) {
+                    if (navigator.clipboard && window.isSecureContext) { 
+                        navigator.clipboard.writeText(text).then(() => {
+                            UI.showSuccess(btn, "Copied!");
+                        }).catch(() => {
+                            this.copyToClipboardFallback(text);
+                            UI.showSuccess(btn, "Copied!");
+                        }); 
+                    } else { 
+                        this.copyToClipboardFallback(text);
+                        UI.showSuccess(btn, "Copied!");
+                    }
+                }
+            },
+            copyToClipboardFallback(text) { 
+                const textArea = document.createElement("textarea"); 
+                textArea.value = text; 
+                textArea.style.position = "fixed"; 
+                textArea.style.top = "-9999px"; 
+                textArea.style.left = "-9999px"; 
+                textArea.style.width = "2em"; 
+                textArea.style.height = "2em"; 
+                textArea.style.padding = "0"; 
+                textArea.style.border = "none"; 
+                textArea.style.outline = "none"; 
+                textArea.style.boxShadow = "none"; 
+                textArea.style.background = "transparent"; 
+                document.body.appendChild(textArea); 
+                textArea.focus(); 
+                textArea.select(); 
+                try { document.execCommand('copy'); } catch (err) {} 
+                document.body.removeChild(textArea); 
+            },
+
         };
 
         // Initialize All Tools
