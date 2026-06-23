@@ -329,7 +329,6 @@
     </style>
 
     <script crossorigin="anonymous" src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
-    <script>pdfjsLib.GlobalWorkerOptions.workerSrc = "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";</script>
     <script crossorigin="anonymous" src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
     <script crossorigin="anonymous" src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <script crossorigin="anonymous" src="https://unpkg.com/lucide@latest"></script>
@@ -1003,7 +1002,7 @@
                                     <div style="display:flex; gap:10px; align-items:center;">
                                         <div style="flex:1;" data-guide="Sets the text size in pixels. Leave blank to auto-size based on the image."><input class="liquid-input persist-val" id="fontSizeInput" placeholder="Font Size (px)" type="number" style="width:100%;" /></div>
                                         <div data-guide="Picks the color of the overlay text drawn on top of each logo." style="display:flex; flex-direction:column; align-items:center; justify-content:center; background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.08); border-radius:6px; height:40px; width:40px; padding:2px;">
-                                            <button id="fontColorPicker" class="persist-val custom-color-trigger" type="button" value="#000000" style="background-color: #000000; border:none; height:100%; width:100%; cursor:pointer; padding:0; border-radius: 4px;" title="Font Color"></button>
+                                            <input id="fontColorPicker" class="persist-val" type="color" value="#000000" style="border:none; height:100%; width:100%; cursor:pointer; padding:0; border-radius: 4px; background: transparent;" title="Font Color">
                                         </div>
                                     </div>
                                     <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:10px; margin-top:5px;"><label data-guide="Toggles bold font weight for the overlay text." style="display:flex; gap:10px; font-size:0.95rem; align-items:center;"><input class="toggle-switch small persist-chk" id="boldToggle" type="checkbox" /> Bold</label><label data-guide="Synchronizes the exported filename with the original filename." style="display:flex; gap:10px; font-size:0.95rem; align-items:center;"><input class="toggle-switch small persist-chk" id="syncFilenameToggle" type="checkbox" checked /> Sync Filename</label></div>
@@ -1108,7 +1107,7 @@
                                             <div class="dense-grid-3">
                                                 <div><span class="label-header">Cols</span><div data-guide="Forces the board to have a specific number of columns. Leave at Auto to calculate mathematically."><input class="liquid-input persist-val" id="storyCols" type="number" value="0" placeholder="Auto" /></div></div>
                                                 <div><span class="label-header">Fit</span><div data-guide="Choose whether images fill the frame exactly (Cover) or leave empty space to show the full image (Contain)."><select class="liquid-input persist-val" id="storyFitMode"><option value="cover">Cover</option><option value="contain">Contain</option></select></div></div>
-                                                <div><span class="label-header">BG Color</span><div data-guide="Sets the solid background color visible behind the images."><button class="liquid-input persist-val custom-color-trigger" id="storyBgColor" type="button" value="#ffffff" style="background-color: #ffffff; color: #000; border: 1px solid rgba(255,255,255,0.1); border-radius: 4px; height: 32px; width: 100%; cursor:pointer; padding:0; text-shadow: 0px 0px 2px rgba(255,255,255,0.5);">#ffffff</button></div></div>
+                                                <div><span class="label-header">BG Color</span><div data-guide="Sets the solid background color visible behind the images."><input class="liquid-input persist-val" id="storyBgColor" type="color" value="#ffffff" style="width: 100%; height: 32px; padding: 0; border: none; border-radius: 4px; cursor: pointer; background: transparent;"/></div></div>
                                             </div>
                                             <div class="dense-grid-3" style="margin-top: 10px;">
                                                 <div><span class="label-header">Gap</span><div data-guide="Sets the pixel spacing between each image frame."><input class="liquid-input persist-val" id="storyGap" type="number" value="0" /></div></div>
@@ -1544,19 +1543,13 @@
         const Core = {
             BlobRegistry: { urls: [], create(blob) { const url = URL.createObjectURL(blob); this.urls.push(url); return url; }, revokeAll() { this.urls.forEach(url => URL.revokeObjectURL(url)); this.urls = []; } },
             AppState: {
-                save(key, value) { localStorage.setItem('cts_' + key, value); },
-                load(key) { return localStorage.getItem('cts_' + key); },
+                save(key, value) { try { localStorage.setItem('cts_' + key, value); } catch(e){} },
+                load(key) { try { return localStorage.getItem('cts_' + key); } catch(e){ return null; } },
                 restoreInputs() {
                     document.querySelectorAll('.persist-val').forEach(el => { 
                         const saved = this.load(el.id); 
                         if (saved !== null) {
                             el.value = saved; 
-                            if(el.tagName === 'BUTTON' && el.classList.contains('custom-color-trigger')) {
-                                el.style.backgroundColor = saved;
-                                if(el.innerText && el.innerText.startsWith('#')) {
-                                    el.innerText = saved;
-                                }
-                            }
                         }
                         el.addEventListener('change', () => this.save(el.id, el.value)); 
                     });
@@ -2434,187 +2427,10 @@
             });
         };
 
-        lucide.createIcons();
+        if (window.lucide) {
+            lucide.createIcons();
+        }
         window.addEventListener('beforeunload', (e) => { if (Core.BlobRegistry.urls.length > 0) e.preventDefault(); });
     </script>
-    <script crossorigin="anonymous" src="https://cdnjs.cloudflare.com/ajax/libs/chroma-js/2.4.2/chroma.min.js"></script>
-    <script>
-        function initColorPickerOverlay() {
-            const defaultColorHTML = `
-            <div id="gsapWrapper" class="color-picker-viewport">
-                <div id="bgWrapper" class="bgWrapper">
-                    <div class="bgWrapper selectFrame div"></div>
-                    <div id="axis"></div>
-                </div>
-
-                <div id="customSelectWrapper">
-                    <select id="customSelect" name="customSelect">
-                        <!-- Group 0 -->
-                        <optgroup class="oG0"><option value="AliceBlue"></option><option value="AntiqueWhite"></option><option value="Aqua"></option><option value="Aquamarine"></option><option value="Azure"></option><option value="Beige"></option><option value="Bisque"></option><option value="Black"></option><option value="BlanchedAlmond"></option><option value="Blue"></option><option value="BlueViolet"></option><option value="Brown"></option><option value="BurlyWood"></option><option value="CadetBlue"></option><option value="Chartreuse"></option></optgroup>
-                        <optgroup class="oG1"><option value="Chocolate"></option><option value="Coral"></option><option value="CornflowerBlue"></option><option value="Cornsilk"></option><option value="Crimson"></option><option value="Cyan"></option><option value="DarkBlue"></option><option value="DarkCyan"></option><option value="DarkGoldenRod"></option><option value="DarkGray"></option><option value="DarkGrey"></option><option value="DarkGreen"></option><option value="DarkKhaki"></option><option value="DarkMagenta"></option><option value="DarkOliveGreen"></option><option value="DarkOrange"></option><option value="DarkOrchid"></option></optgroup>
-                        <optgroup class="oG2"><option value="DarkRed"></option><option value="DarkSalmon"></option><option value="DarkSeaGreen"></option><option value="DarkSlateBlue"></option><option value="DarkSlateGray"></option><option value="DarkSlateGrey"></option><option value="DarkTurquoise"></option><option value="DarkViolet"></option><option value="DeepPink"></option><option value="DeepSkyBlue"></option><option value="DimGray"></option><option value="DimGrey"></option><option value="DodgerBlue"></option><option value="FireBrick"></option><option value="FloralWhite"></option><option value="ForestGreen"></option><option value="Fuchsia"></option><option value="Gainsboro"></option><option value="GhostWhite"></option><option value="Gold"></option><option value="GoldenRod"></option><option value="Gray"></option></optgroup>
-                        <optgroup class="oG3"><option value="Grey"></option><option value="Green"></option><option value="GreenYellow"></option><option value="HoneyDew"></option><option value="HotPink"></option><option value="IndianRed"></option><option value="Indigo"></option><option value="Ivory"></option><option value="Khaki"></option><option value="Lavender"></option><option value="LavenderBlush"></option><option value="LawnGreen"></option><option value="LemonChiffon"></option><option value="LightBlue"></option><option value="LightCoral"></option><option value="LightCyan"></option><option value="LightGoldenRodYellow"></option><option value="LightGray"></option><option value="LightGrey"></option><option value="LightGreen"></option><option value="LightPink"></option><option value="LightSalmon"></option><option value="LightSeaGreen"></option><option value="LightSkyBlue"></option><option value="LightSlateGray"></option><option value="LightSlateGrey"></option><option value="LightSteelBlue"></option><option value="LightYellow"></option><option value="Lime"></option><option value="LimeGreen"></option></optgroup>
-                        <optgroup class="oG4"><option value="Linen"></option><option value="Magenta"></option><option value="Maroon"></option><option value="MediumAquaMarine"></option><option value="MediumBlue"></option><option value="MediumOrchid"></option><option value="MediumPurple"></option><option value="MediumSeaGreen"></option><option value="MediumSlateBlue"></option><option value="MediumSpringGreen"></option><option value="MediumTurquoise"></option><option value="MediumVioletRed"></option><option value="MidnightBlue"></option><option value="MintCream"></option><option value="MistyRose"></option><option value="Moccasin"></option><option value="NavajoWhite"></option><option value="Navy"></option><option value="OldLace"></option><option value="Olive"></option><option value="OliveDrab"></option><option value="Orange"></option><option value="OrangeRed"></option><option value="Orchid"></option><option value="PaleGoldenRod"></option><option value="PaleGreen"></option><option value="PaleTurquoise"></option><option value="PaleVioletRed"></option><option value="PapayaWhip"></option></optgroup>
-                        <optgroup class="oG5"><option value="PeachPuff"></option><option value="Peru"></option><option value="Pink"></option><option value="Plum"></option><option value="PowderBlue"></option><option value="Purple"></option><option value="RebeccaPurple"></option><option value="Red"></option><option value="RosyBrown"></option><option value="RoyalBlue"></option><option value="SaddleBrown"></option><option value="Salmon"></option><option value="SandyBrown"></option><option value="SeaGreen"></option><option value="SeaShell"></option><option value="Sienna"></option><option value="Silver"></option><option value="SkyBlue"></option><option value="SlateBlue"></option><option value="SlateGray"></option><option value="SlateGrey"></option><option value="Snow"></option><option value="SpringGreen"></option><option value="SteelBlue"></option><option value="Tan"></option><option value="Teal"></option><option value="Thistle"></option><option value="Tomato"></option><option value="Turquoise"></option><option value="Violet"></option><option value="Wheat"></option><option value="White"></option><option value="WhiteSmoke"></option><option value="Yellow"></option><option value="YellowGreen"></option></optgroup>
-                        <option class="bgWrapper selectFrame option" value=""></option>
-                        <div id="optionsCap" class="bgWrapper"><div id="axis2"></div></div>
-                    </select>
-                </div>
-
-                <svg id="axisSVG" width="98" height="98" viewBox="0 0 98 98" version="1.1" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns="http://www.w3.org/2000/svg">
-                    <path id="icon" fill="currentColor" stroke="none" d="M 37 26 C 34 26 32 28 32 31 L 32 59 C 32 64 37 67 40 67 C 45 67 48 63 48 59 L 48 31 C 48 28 46 26 42 26 L 37 26 z M 57 30 C 55 30 52 32 52 36 L 52 52 C 52 54 53 56 56 54 L 66 44 C 68 42 68 38 66 36 L 62 32 C 61 31 59 30 57 30 z M 68 48 C 67 48 66 49 65 50 L 53 63 C 51 65 53 67 55 67 L 70 67 C 72 67 75 65 74 63 L 71 53 C 70 50 69 48 68 48 z M 40 56 C 42 56 43 58 43 59 C 43 61 41 62 40 62 C 38 62 37 60 37 59 C 37 57 39 56 40 56 z" />
-                </svg>	
-            </div>
-            `;
-
-            document.getElementById('colorPaletteContainer').innerHTML = defaultColorHTML;
-
-            let selectType = (e) => document.querySelector(e);
-            let selectAllType = (e) => document.querySelectorAll(e);
-
-            const axis = selectType("#axis");
-            const axis2 = selectType("#axis2");
-            const axisSVG = selectType("#axisSVG");
-            const titleBorderWrapper = selectType("#titleBorderWrapper");
-            const titleBorder = selectType("#titleBorder");
-            const customSelect = selectType("#customSelect");
-            const options = selectAllType("#customSelect option");
-            const lineACLength = selectType("#lineAC") ? selectType("#lineAC").getTotalLength() : 0;
-            const dataCard = selectType("#dataCard");
-
-            let activeTriggerBtn = null;
-
-            document.querySelectorAll('.custom-color-trigger').forEach(btn => {
-                // init btn color UI based on its value
-                const val = btn.value || '#ffffff';
-                btn.style.backgroundColor = val;
-                btn.addEventListener('click', (e) => {
-                    e.preventDefault();
-                    activeTriggerBtn = btn;
-                    document.getElementById('colorPaletteModal').style.display = 'block';
-                    if (window.lucide && window.lucide.createIcons) window.lucide.createIcons({ root: document.getElementById('colorPaletteModal') });
-                    window.gsap.set("#gsapWrapper", { autoAlpha: 1 });
-                    
-                    // Immediately open the select dropdown
-                    if (customSelect && typeof customSelect.showPicker === 'function') {
-                        try {
-                            customSelect.showPicker();
-                        } catch(e) {
-                            // Ignore error if picker can't be shown
-                        }
-                    }
-                });
-            });
-
-            document.getElementById('closeColorPaletteBtn').addEventListener('click', () => {
-                document.getElementById('colorPaletteModal').style.display = 'none';
-                activeTriggerBtn = null;
-            });
-
-            const swatches = [selectType("#cS0"), selectType("#cS1"), selectType("#cS2"), selectType("#cS3")];
-            swatches.forEach(swatch => {
-                if (!swatch) return;
-                swatch.addEventListener('click', () => {
-                    if (!activeTriggerBtn) return;
-                    const clickedColor = swatch.style.getPropertyValue('--color').trim();
-                    if(!clickedColor) return;
-                    
-                    const hexColor = chroma(clickedColor).hex();
-                    
-                    activeTriggerBtn.value = hexColor;
-                    activeTriggerBtn.style.backgroundColor = hexColor;
-                    if (activeTriggerBtn.innerText && activeTriggerBtn.innerText.startsWith('#')) {
-                        activeTriggerBtn.innerText = hexColor;
-                        if(chroma(hexColor).luminance() < 0.4) {
-                            activeTriggerBtn.style.color = '#fff';
-                        } else {
-                            activeTriggerBtn.style.color = '#000';
-                        }
-                    }
-                    
-                    activeTriggerBtn.dispatchEvent(new Event('change', { bubbles: true }));
-                    
-                    document.getElementById('colorPaletteModal').style.display = 'none';
-                    activeTriggerBtn = null;
-                });
-            });
-
-
-            var optionValue = customSelect ? customSelect.value : "AliceBlue";
-            var optionValueText = optionValue.replace(/([A-Z])/g, ' $1').trim();
-
-            let appearanceBaseSelectEnabled = false;
-            if ( customSelect && window.getComputedStyle(customSelect).getPropertyValue("appearance") == "base-select" )
-                appearanceBaseSelectEnabled = true;
-
-            if (customSelect) {
-                customSelect.addEventListener('blur', () => {
-                     // Delay hiding in case change event fires
-                     setTimeout(() => {
-                         if (activeTriggerBtn) {
-                             document.getElementById('colorPaletteModal').style.display = 'none';
-                             activeTriggerBtn = null;
-                         }
-                     }, 100);
-                });
-                customSelect.addEventListener("change", function() {
-                    if( customSelect.value && ( optionValue != customSelect.value ) ) {
-                        optionValue = customSelect.value;
-                        optionValueText = optionValue.replace(/([A-Z])/g, ' $1').trim();
-
-                        document.getElementById('colorPaletteModal').style.setProperty("--selectColor", optionValue);
-                        document.getElementById('colorPaletteModal').style.setProperty("--selectColorText", optionValueText);
-
-                        if (activeTriggerBtn) {
-                           const hexColor = chroma(optionValue).hex();
-                           activeTriggerBtn.value = hexColor;
-                           activeTriggerBtn.style.backgroundColor = hexColor;
-                           if (activeTriggerBtn.innerText && activeTriggerBtn.innerText.startsWith('#')) {
-                               activeTriggerBtn.innerText = hexColor;
-                               if(chroma(hexColor).luminance() < 0.4) {
-                                   activeTriggerBtn.style.color = '#fff';
-                               } else {
-                                   activeTriggerBtn.style.color = '#000';
-                               }
-                           }
-                           activeTriggerBtn.dispatchEvent(new Event('change', { bubbles: true }));
-                           document.getElementById('colorPaletteModal').style.display = 'none';
-                           activeTriggerBtn = null;
-                        }
-                    }
-                });
-            }
-
-            document.getElementById('colorPaletteModal').style.setProperty("--selectColor", optionValue);
-            document.getElementById('colorPaletteModal').style.setProperty("--selectColorText", optionValueText);
-
-            options.forEach((option,i) => {
-                let optVal = option.getAttribute("value");
-                if( optVal ) {
-                    let optValText = optVal.replace(/([A-Z])/g, ' $1').trim();
-                    if( !appearanceBaseSelectEnabled ) {
-                        option.innerHTML = optValText;
-                        option.setAttribute("style", "background-color: "+optVal+"!important;");                
-                    } else {
-                        option.setAttribute("title", optValText);
-                    }
-                }
-            });
-
-            if(axis && axisSVG) axis.appendChild(axisSVG);
-            if( appearanceBaseSelectEnabled && axis2 && axisSVG ) {
-                let newSVG = axisSVG.cloneNode(true);
-                newSVG.id = "axisSVG2";
-                axis2.appendChild(newSVG);
-            }
-        }
-        document.addEventListener('DOMContentLoaded', initColorPickerOverlay);
-    </script>
-    <div id="colorPaletteModal" style="display:none; position:fixed; left:0; top:0; width:100vw; height:100vh; z-index:20000; background:var(--bg-main);">
-        <button id="closeColorPaletteBtn" style="position:absolute; top:20px; right:20px; z-index:20001; background:rgba(255,255,255,0.1); border:1px solid rgba(255,255,255,0.2); color:#fff; border-radius:50%; width:40px; height:40px; cursor:pointer;"><i data-lucide="x"></i></button>
-        <div id="colorPaletteContainer">
-            <!-- Appended by JS or inline -->
-        </div>
-    </div>
 </body>
 </html>
