@@ -1704,9 +1704,6 @@
                 document.body.classList.add('tool-active'); this.els.sidebar.classList.add('visible'); this.els.viewHome.classList.add('hidden'); document.querySelectorAll('.tool-section').forEach(e => e.classList.remove('active')); document.getElementById(id).classList.add('active'); this.els.viewApp.classList.add('active');
                 const navMap = { 'section-logo': 'nav-logo', 'section-pdf': 'nav-pdf', 'section-stills-boards': 'nav-stills-boards', 'section-adlinks': 'nav-adlinks', 'section-yt-helper': 'nav-yt-helper' };
                 this.updateNav(navMap[id]); this.applyTheme(id); Core.AppState.save('activeTool', id);
-                if (Core.AppState.load('hideKeywordGuide') !== true) {
-                    setTimeout(() => { this.openKeywordGuide(); }, 50);
-                }
             },
             switchPdfTab(tabId) {
                 const convertTab = document.getElementById('pdfTabConvert'); const splitTab = document.getElementById('pdfTabSplit'); const convertContent = document.getElementById('pdfTabContentConvert'); const splitContent = document.getElementById('pdfTabContentSplit');
