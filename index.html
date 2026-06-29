@@ -1775,7 +1775,7 @@
                 
                 if (window.lucide) window.lucide.createIcons({ root: grid });
                 
-                document.getElementById('dontShowKeywordGuide').checked = Core.AppState.load('hideKeywordGuide') === true;
+                document.getElementById('dontShowKeywordGuide').checked = Core.AppState.load('hideKeywordGuide') === 'true';
                 
                 overlay.classList.add('active');
             },
@@ -2406,7 +2406,7 @@
         Core.AppState.restoreInputs();
         UI.showHome();
 
-        if (Core.AppState.load('hideKeywordGuide') !== true) {
+        if (Core.AppState.load('hideKeywordGuide') !== 'true') {
             // Slight delay so the UI is ready
             setTimeout(() => {
                 UI.openKeywordGuide();
