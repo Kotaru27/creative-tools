@@ -703,7 +703,10 @@
                 }
                 </style>
                 <div class="home-search-container">
-                    <input type="text" id="homeSearchInput" class="home-search-input" placeholder="ENTER KEYWORD..." autocomplete="off">
+                    <div style="display: flex; gap: 10px; align-items: stretch; width: 100%;">
+                        <input type="text" id="homeSearchInput" class="home-search-input" placeholder="ENTER KEYWORD..." autocomplete="off" style="flex:1;">
+                        <button class="liquid-btn icon-only" onclick="UI.openKeywordGuide()" style="width: 50px; height: auto; flex-shrink: 0;" title="Keyword Guide"><i data-lucide="info"></i></button>
+                    </div>
                     <div class="home-tools-list" id="homeToolsList" style="display:none;"></div>
                 </div>
                 <script>
@@ -1501,6 +1504,25 @@
         <div class="pdf-grid-view" id="pdfOverlayGrid"></div>
     </div>
     
+    <div class="overlay-fixed" id="keywordGuideOverlay">
+        <div style="background:var(--bg-panel); border:2px solid var(--border); box-shadow:var(--shadow-block); max-width:600px; width:100%; margin:auto; display:flex; flex-direction:column; max-height:80vh;">
+            <div style="padding:15px 20px; border-bottom:2px solid var(--border); display:flex; justify-content:space-between; align-items:center;">
+                <h2 style="margin:0; font-family:'Press Start 2P', monospace; font-size:1rem; color:var(--text-main);">KEYWORD DIRECTORY</h2>
+                <button class="liquid-btn icon-only danger-btn" onclick="UI.closeKeywordGuide()"><i data-lucide="x"></i></button>
+            </div>
+            <div style="padding:20px; overflow-y:auto; flex:1;" id="keywordGuideList">
+                <p style="margin-top:0; color:var(--text-muted); line-height:1.4;">Enter these exact keywords in the search bar to jump to the tool:</p>
+                <!-- Populated dynamically -->
+            </div>
+            <div style="padding:15px 20px; border-top:2px solid var(--border); display:flex; justify-content:space-between; align-items:center; background:var(--bg-input);">
+                <label style="display:flex; align-items:center; gap:10px; cursor:pointer; font-size:0.9rem; color:var(--text-main);">
+                    <input type="checkbox" id="dontShowKeywordGuide" class="toggle-switch small">
+                    Don't show at start
+                </label>
+                <button class="liquid-btn active-mode" onclick="UI.closeKeywordGuide()">Got it</button>
+            </div>
+        </div>
+    </div>
     <div class="overlay-fixed" id="stillsDetailOverlay">
         <div style="display:flex; justify-content:space-between; margin-bottom:20px; border-bottom:1px solid var(--border); padding-bottom:15px; align-items:center;">
             <div><h3 id="stillsOverlayTitle" style="margin:0; font-family:'Press Start 2P', monospace; font-size:1.2rem; font-weight: 400; letter-spacing: -0.5px;">Video</h3><span id="stillsOverlayCount">0 Frames</span></div>
@@ -1682,6 +1704,9 @@
                 document.body.classList.add('tool-active'); this.els.sidebar.classList.add('visible'); this.els.viewHome.classList.add('hidden'); document.querySelectorAll('.tool-section').forEach(e => e.classList.remove('active')); document.getElementById(id).classList.add('active'); this.els.viewApp.classList.add('active');
                 const navMap = { 'section-logo': 'nav-logo', 'section-pdf': 'nav-pdf', 'section-stills-boards': 'nav-stills-boards', 'section-adlinks': 'nav-adlinks', 'section-yt-helper': 'nav-yt-helper' };
                 this.updateNav(navMap[id]); this.applyTheme(id); Core.AppState.save('activeTool', id);
+                if (Core.AppState.load('hideKeywordGuide') !== true) {
+                    setTimeout(() => { this.openKeywordGuide(); }, 50);
+                }
             },
             switchPdfTab(tabId) {
                 const convertTab = document.getElementById('pdfTabConvert'); const splitTab = document.getElementById('pdfTabSplit'); const convertContent = document.getElementById('pdfTabContentConvert'); const splitContent = document.getElementById('pdfTabContentSplit');
@@ -1703,6 +1728,66 @@
             toggleEmptyState(container, isEmpty) { if (container) container.querySelector('.empty-state-msg').style.display = isEmpty ? 'flex' : 'none'; },
             showSuccess(btn, text = "Done") { const old = btn.innerText; btn.innerText = text; btn.style.borderColor = "var(--success)"; setTimeout(() => { btn.innerText = old; btn.style.borderColor = "var(--border)"; }, 1500); },
             showError(msg) { this.els.toast.innerText = msg; this.els.toast.classList.add('visible'); setTimeout(() => this.els.toast.classList.remove('visible'), 4000); },
+            openKeywordGuide() {
+                const overlay = document.getElementById('keywordGuideOverlay');
+                const list = document.getElementById('keywordGuideList');
+                const tools = [
+                    { id: 'section-logo', keyword: 'logo', title: 'Logo Workspace', desc: 'Resize & Brand Images', icon: 'image' },
+                    { id: 'section-pdf', tab: 'convert', keyword: 'pdf', title: 'pdf to image', desc: 'Split & Convert PDFs', icon: 'file-text' },
+                    { id: 'section-pdf', tab: 'split', keyword: 'image', title: 'image splitter', desc: 'Slice images into grid files', icon: 'crop' },
+                    { id: 'section-stills-boards', tab: 'video', keyword: 'video', title: 'video stills', desc: 'Process Video Frames', icon: 'film' },
+                    { id: 'section-stills-boards', tab: 'story', keyword: 'story', title: 'storyboards', desc: 'Create custom layout boards', icon: 'clapperboard' },
+                    { id: 'section-adlinks', tab: 'gen', keyword: 'link', title: 'link gen', desc: 'Generate campaign tracking shortlinks', icon: 'link-2' },
+                    { id: 'section-adlinks', tab: 'downloader', keyword: 'downloader', title: 'ad link downloader', desc: 'Bulk download sheets media assets', icon: 'download' },
+                    { id: 'section-yt-helper', keyword: 'yt', title: 'yt Down', desc: 'Extract YouTube Visuals', icon: 'play-square' }
+                ];
+                
+                // Keep the introductory text if it exists
+                const p = list.querySelector('p');
+                list.innerHTML = '';
+                if (p) list.appendChild(p);
+
+                const grid = document.createElement('div');
+                grid.style.display = 'grid';
+                grid.style.gridTemplateColumns = '1fr';
+                grid.style.gap = '10px';
+
+                tools.forEach(t => {
+                    const item = document.createElement('div');
+                    item.style.display = 'flex';
+                    item.style.alignItems = 'center';
+                    item.style.padding = '12px';
+                    item.style.border = '2px solid var(--border)';
+                    item.style.background = 'var(--bg-panel)';
+                    
+                    item.innerHTML = `
+                        <div style="flex:1;">
+                            <div style="font-weight:bold; font-size:1.1rem; margin-bottom:4px; display:flex; align-items:center; gap:8px;">
+                                <i data-lucide="${t.icon}" style="width:16px; height:16px;"></i> ${t.title}
+                            </div>
+                            <div style="font-size:0.8rem; color:var(--text-muted);">${t.desc}</div>
+                        </div>
+                        <div style="background:var(--bg-input); padding:6px 12px; font-family:'Press Start 2P', monospace; font-size:0.7rem; border:1px solid var(--border);">
+                            ${t.keyword}
+                        </div>
+                    `;
+                    grid.appendChild(item);
+                });
+                
+                list.appendChild(grid);
+                
+                if (window.lucide) window.lucide.createIcons({ root: grid });
+                
+                document.getElementById('dontShowKeywordGuide').checked = Core.AppState.load('hideKeywordGuide') === true;
+                
+                overlay.classList.add('active');
+            },
+            closeKeywordGuide() {
+                const overlay = document.getElementById('keywordGuideOverlay');
+                const checked = document.getElementById('dontShowKeywordGuide').checked;
+                Core.AppState.save('hideKeywordGuide', checked);
+                overlay.classList.remove('active');
+            },
             openLightbox(src) { this.els.lightboxImg.src = src; this.els.lightbox.classList.add('active'); },
             closeLightbox() { this.els.lightbox.classList.remove('active'); },
             openCommandPalette() {
@@ -2323,6 +2408,13 @@
         UI.initTheme();
         Core.AppState.restoreInputs();
         UI.showHome();
+
+        if (Core.AppState.load('hideKeywordGuide') !== true) {
+            // Slight delay so the UI is ready
+            setTimeout(() => {
+                UI.openKeywordGuide();
+            }, 100);
+        }
 
         // Command Palette Listeners
         document.addEventListener('keydown', (e) => {
