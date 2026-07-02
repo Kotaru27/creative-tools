@@ -10,6 +10,7 @@
         href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323&display=swap"
         rel="stylesheet" />
     <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323&display=swap" rel="stylesheet">
+    <script crossorigin="anonymous" src="https://cdnjs.cloudflare.com/ajax/libs/pica/9.0.1/pica.min.js"></script>
     <style>
 @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323&display=swap');
 
@@ -438,6 +439,19 @@
         .canvas-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: var(--spacing); align-content: start; }
         .logo-card-item { background: var(--bg-panel); border: 2px solid var(--border); box-shadow: var(--shadow-block); display: flex; flex-direction: column; border-radius: 0px; overflow: hidden; transition: transform 0.1s; position: relative; }
         .logo-card-item:hover { transform: translate(-2px, -2px); box-shadow: var(--shadow-block-hover); }
+        .logo-card-item.low-res-source .card-preview-area::before {
+            content: "LOW-RES SOURCE";
+            position: absolute;
+            top: 6px;
+            left: 6px;
+            background: var(--danger);
+            color: #fff;
+            font-family: 'VT323', monospace;
+            font-size: 0.8rem;
+            padding: 2px 8px;
+            letter-spacing: 1px;
+            z-index: 5;
+        }
         .preview-box { background-color: var(--bg-panel); background-image: linear-gradient(45deg, var(--bg-input) 25%, transparent 25%), linear-gradient(-45deg, var(--bg-input) 25%, transparent 25%), linear-gradient(45deg, transparent 75%, var(--bg-input) 75%), linear-gradient(-45deg, transparent 75%, var(--bg-input) 75%); background-size: 20px 20px; display: flex; align-items: center; justify-content: center; aspect-ratio: 1; overflow: hidden; padding: 15px; position: relative; }
         .preview-box img, .preview-box canvas { max-width: 100%; max-height: 100%; object-fit: contain; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5); }
         .card-controls { padding: 15px; display: flex; flex-direction: column; gap: 12px; border-top: 1px solid var(--border); background: var(--bg-panel); }
@@ -1122,8 +1136,14 @@
                                         <div data-guide="Shifts the image vertically inside the canvas."><input class="range-slider persist-val" id="globalImgPos" max="50" min="-50" type="range" value="0" style="width:100%;" /></div>
                                     </div>
                                 </div>
-                                <div class="glass-panel control-group"><span class="label-header">Export Size</span>
+                                <div class="glass-panel control-group"><span class="label-header">Export Settings</span>
                                     <div class="tiny-row" data-guide="Sets the pixel dimensions every downloaded logo will be resized to."><input class="liquid-input persist-val" id="exportWidth" placeholder="W" type="number" value="300" /><input class="liquid-input persist-val" id="exportHeight" placeholder="H" type="number" value="" /></div>
+                                    <div data-guide="Select the image format for the exported logos." style="margin-top: 10px;">
+                                        <select id="exportFormat" class="liquid-input persist-val" style="width: 100%;">
+                                            <option value="png">PNG (.png)</option>
+                                            <option value="jpeg">JPG (.jpg)</option>
+                                        </select>
+                                    </div>
                                     <div class="actions-group"><div data-guide="Bundles every processed logo into a single .zip file and downloads it." style="width:100%;"><button class="liquid-btn active-mode" disabled id="exportAllBtn" style="width:100%">Download Zip</button></div><div data-guide="Clears every uploaded image and resets all settings back to default." style="width:100%;"><button class="liquid-btn danger-btn" id="clearLogoBtn" style="width:100%;">Reset</button></div></div>
                                 </div>
                             </div>
@@ -1883,6 +1903,7 @@
 
         const Tools = {
             Logo: {
+                picaRunner: window.pica ? window.pica() : null,
                 cards: [], activeDetailIndex: null, els: {},
                 init() {
                     this.els = {
@@ -1893,6 +1914,7 @@
                         height: document.getElementById("exportHeight"), pos: document.getElementById("globalImgPos"),
                         padding: document.getElementById("globalPadding"), fontFamily: document.getElementById("globalFontFamily"),
                         exportBtn: document.getElementById("exportAllBtn"), clearBtn: document.getElementById("clearLogoBtn"),
+                        format: document.getElementById("exportFormat"),
                         mOverlay: document.getElementById("logoDetailOverlay"), mCanvas: document.getElementById("logoDetailCanvas"),
                         mClose: document.getElementById("logoDetailClose"), mDown: document.getElementById("logoDetailDownload"),
                         mTitle: document.getElementById("logoDetailTitle"), mIndex: document.getElementById("logoDetailIndex"),
@@ -1943,14 +1965,103 @@
                     }, 0);
                 },
                 removeCard(obj) { const idx = this.cards.indexOf(obj); if (idx > -1) { obj.card.remove(); URL.revokeObjectURL(obj.img.src); this.cards.splice(idx, 1); if (!this.cards.length) { UI.toggleEmptyState(this.els.grid, true); this.els.exportBtn.disabled = true; this.closeDetail(); } else if (this.activeDetailIndex === idx) { if (idx >= this.cards.length) this.goDetail(-1); else this.openDetail(idx); } else if (this.activeDetailIndex > idx) { this.activeDetailIndex--; this.els.mIndex.innerText = `${this.activeDetailIndex + 1} of ${this.cards.length}`; } } },
-                draw(c) { if (!c.img.complete) return; requestAnimationFrame(() => { let tW = parseInt(this.els.width.value, 10) || 300, tH = parseInt(this.els.height.value, 10) || 400; const globFont = this.getGlobalFont(); c.els.localFontInp.placeholder = `Auto (${globFont}px)`; c.canvas.width = tW; c.canvas.height = tH; this.performDraw(c.canvas, c, tW, tH); if (this.activeDetailIndex === this.cards.indexOf(c) && this.els.mOverlay.classList.contains("active")) { this.els.mFontSize.placeholder = `Auto (${globFont}px)`; this.els.mCanvas.width = tW; this.els.mCanvas.height = tH; this.performDraw(this.els.mCanvas, c, tW, tH); } }); },
-                performDraw(canvas, c, tW, tH) { const ctx = canvas.getContext("2d"); ctx.fillStyle = "#ffffff"; ctx.fillRect(0, 0, tW, tH); const pad = c.padding !== null ? c.padding : (parseInt(this.els.padding.value, 10) || 0); const aW = Math.max(1, tW - (pad * 2)), aH = Math.max(1, tH - (pad * 2)); const scale = Math.min(aW / c.img.naturalWidth, aH / c.img.naturalHeight); const rW = c.img.naturalWidth * scale, rH = c.img.naturalHeight * scale; const gPos = c.imgSlider !== 0 ? c.imgSlider : (parseInt(this.els.pos.value,10) || 0); const x = (tW - rW) / 2, y = (tH - rH) / 2 + (gPos / 100) * tH; ctx.drawImage(c.img, x, y, rW, rH); if (c.text) { ctx.fillStyle = this.els.color.value; ctx.textAlign = "center"; ctx.textBaseline = "middle"; const fontFam = this.els.fontFamily.value || "Arial"; const fontSize = c.fontValOverride !== null ? c.fontValOverride : this.getGlobalFont(); ctx.font = `${this.els.bold.checked ? "700" : "400"} ${fontSize}px "${fontFam}"`; const lines = c.text.split("\n"), lh = fontSize * 1.25; const yS = (tH * (c.txtSlider || 90)) / 100 - (lh * lines.length) / 2 + lh / 2; lines.forEach((l, i) => ctx.fillText(l, tW / 2, yS + i * lh)); } },
+                draw(c) { if (!c.img.complete) return; requestAnimationFrame(() => { let tW = parseInt(this.els.width.value, 10) || 300, tH = parseInt(this.els.height.value, 10) || 400; const globFont = this.getGlobalFont(); c.els.localFontInp.placeholder = `Auto (${globFont}px)`; c.canvas.width = tW; c.canvas.height = tH; const isLowRes = this.performDraw(c.canvas, c, tW, tH); if (c.card) { c.card.classList.toggle('low-res-source', isLowRes); } if (this.activeDetailIndex === this.cards.indexOf(c) && this.els.mOverlay.classList.contains("active")) { this.els.mFontSize.placeholder = `Auto (${globFont}px)`; this.els.mCanvas.width = tW; this.els.mCanvas.height = tH; this.performDraw(this.els.mCanvas, c, tW, tH); } }); },
+                performDraw(canvas, c, tW, tH) { const ctx = canvas.getContext("2d"); ctx.imageSmoothingEnabled = true; ctx.imageSmoothingQuality = "high"; ctx.fillStyle = "#ffffff"; ctx.fillRect(0, 0, tW, tH); const pad = c.padding !== null ? c.padding : (parseInt(this.els.padding.value, 10) || 0); const aW = Math.max(1, tW - (pad * 2)), aH = Math.max(1, tH - (pad * 2)); const rawScale = Math.min(aW / c.img.naturalWidth, aH / c.img.naturalHeight); const isVector = c.file && c.file.type === "image/svg+xml"; const scale = isVector ? rawScale : Math.min(rawScale, 1); const rW = c.img.naturalWidth * scale, rH = c.img.naturalHeight * scale; const gPos = c.imgSlider !== 0 ? c.imgSlider : (parseInt(this.els.pos.value,10) || 0); const x = (tW - rW) / 2, y = (tH - rH) / 2 + (gPos / 100) * tH; 
+                
+                let sourceImg = c.img;
+                let sW = c.img.naturalWidth;
+                let sH = c.img.naturalHeight;
+                if (sW > 0 && sH > 0) {
+                    if (!isVector && scale < 0.5) {
+                        let curWidth = sW;
+                        let curHeight = sH;
+                        let tmpCanvas = document.createElement('canvas');
+                        tmpCanvas.width = curWidth;
+                        tmpCanvas.height = curHeight;
+                        tmpCanvas.getContext('2d').drawImage(c.img, 0, 0);
+                        while (curWidth * 0.5 > rW && curHeight * 0.5 > rH) {
+                            let nextWidth = Math.max(1, Math.floor(curWidth * 0.5));
+                            let nextHeight = Math.max(1, Math.floor(curHeight * 0.5));
+                            if (nextWidth >= curWidth && nextHeight >= curHeight) break;
+                            let nextCanvas = document.createElement('canvas');
+                            nextCanvas.width = nextWidth;
+                            nextCanvas.height = nextHeight;
+                            let nextCtx = nextCanvas.getContext('2d');
+                            nextCtx.imageSmoothingEnabled = true;
+                            nextCtx.imageSmoothingQuality = "high";
+                            nextCtx.drawImage(tmpCanvas, 0, 0, nextWidth, nextHeight);
+                            tmpCanvas = nextCanvas;
+                            curWidth = nextWidth;
+                            curHeight = nextHeight;
+                        }
+                        sourceImg = tmpCanvas;
+                        sW = curWidth;
+                        sH = curHeight;
+                    }
+                    ctx.drawImage(sourceImg, 0, 0, sW, sH, x, y, rW, rH); 
+                }
+                
+                if (c.text) { ctx.fillStyle = this.els.color.value; ctx.textAlign = "center"; ctx.textBaseline = "middle"; const fontFam = this.els.fontFamily.value || "Arial"; const fontSize = c.fontValOverride !== null ? c.fontValOverride : this.getGlobalFont(); ctx.font = `${this.els.bold.checked ? "700" : "400"} ${fontSize}px "${fontFam}"`; const lines = c.text.split("\n"), lh = fontSize * 1.25; const yS = (tH * (c.txtSlider || 90)) / 100 - (lh * lines.length) / 2 + lh / 2; lines.forEach((l, i) => ctx.fillText(l, tW / 2, yS + i * lh)); } return !isVector && rawScale > 1; },
+                async performHighQualityDraw(canvas, c, tW, tH) {
+                    const ctx = canvas.getContext("2d");
+                    ctx.fillStyle = "#ffffff";
+                    ctx.fillRect(0, 0, tW, tH);
+                    const pad = c.padding !== null ? c.padding : (parseInt(this.els.padding.value, 10) || 0);
+                    const aW = Math.max(1, tW - (pad * 2)), aH = Math.max(1, tH - (pad * 2));
+                    const rawScale = Math.min(aW / c.img.naturalWidth, aH / c.img.naturalHeight);
+                    const isVector = c.file && c.file.type === "image/svg+xml";
+                    const scale = isVector ? rawScale : Math.min(rawScale, 1);
+                    const rW = c.img.naturalWidth * scale, rH = c.img.naturalHeight * scale;
+                    const gPos = c.imgSlider !== 0 ? c.imgSlider : (parseInt(this.els.pos.value,10) || 0);
+                    const x = (tW - rW) / 2, y = (tH - rH) / 2 + (gPos / 100) * tH;
+                    
+                    if (rW > 0 && rH > 0 && c.img.naturalWidth > 0 && c.img.naturalHeight > 0) {
+                        const offscreenCanvas = document.createElement('canvas');
+                        offscreenCanvas.width = rW;
+                        offscreenCanvas.height = rH;
+                        
+                        if (this.picaRunner && !isVector) {
+                            await this.picaRunner.resize(c.img, offscreenCanvas, { unsharpAmount: 80, unsharpRadius: 0.6, unsharpThreshold: 2 });
+                        } else {
+                            offscreenCanvas.getContext("2d").drawImage(c.img, 0, 0, rW, rH);
+                        }
+                        
+                        ctx.drawImage(offscreenCanvas, x, y, rW, rH);
+                    }
+                    
+                    if (c.text) { 
+                        ctx.fillStyle = this.els.color.value; 
+                        ctx.textAlign = "center"; 
+                        ctx.textBaseline = "middle"; 
+                        const fontFam = this.els.fontFamily.value || "Arial"; 
+                        const fontSize = c.fontValOverride !== null ? c.fontValOverride : this.getGlobalFont(); 
+                        ctx.font = `${this.els.bold.checked ? "700" : "400"} ${fontSize}px "${fontFam}"`; 
+                        const lines = c.text.split("\n"), lh = fontSize * 1.25; 
+                        const yS = (tH * (c.txtSlider || 90)) / 100 - (lh * lines.length) / 2 + lh / 2; 
+                        lines.forEach((l, i) => ctx.fillText(l, tW / 2, yS + i * lh)); 
+                    } 
+                },
                 openDetail(index) { if (index < 0 || index >= this.cards.length) return; this.activeDetailIndex = index; const obj = this.cards[index]; this.els.mOverlay.classList.add("active"); this.els.mIndex.innerText = `${index + 1} of ${this.cards.length}`; this.els.mFname.value = obj.fname; this.els.mText.value = obj.text; this.els.mFontSize.value = obj.fontValOverride || ""; this.els.mImgSlider.value = obj.imgSlider; this.els.mTxtSlider.value = obj.txtSlider; if (obj.padding !== null) { this.els.mPaddingSlider.value = obj.padding; this.els.mResetPadding.style.display = "block"; } else { this.els.mPaddingSlider.value = parseInt(this.els.padding.value, 10) || 0; this.els.mResetPadding.style.display = "none"; } this.draw(obj); },
                 closeDetail() { this.activeDetailIndex = null; this.els.mOverlay.classList.remove("active"); },
                 goDetail(dir) { if (this.activeDetailIndex === null || !this.cards.length) return; let next = this.activeDetailIndex + dir; if (next < 0) next = this.cards.length - 1; if (next >= this.cards.length) next = 0; this.openDetail(next); },
-                async downloadSingle(c) { const blob = await new Promise(r => c.canvas.toBlob(r, "image/png")); const name = Core.Utils.sanitize(c.fname || "logo") || "logo"; const a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = `${name}.png`; a.click(); },
+                async downloadSingle(c) { 
+                    const canvas = document.createElement("canvas");
+                    let tW = parseInt(this.els.width.value, 10) || 300;
+                    let tH = parseInt(this.els.height.value, 10) || 400;
+                    canvas.width = tW; canvas.height = tH;
+                    await this.performHighQualityDraw(canvas, c, tW, tH);
+                    const format = this.els.format ? this.els.format.value : 'png';
+                    const mimeType = format === 'jpeg' ? 'image/jpeg' : 'image/png';
+                    const ext = format === 'jpeg' ? 'jpg' : 'png';
+                    const blob = await new Promise(r => canvas.toBlob(r, mimeType, 0.95)); 
+                    const name = Core.Utils.sanitize(c.fname || "logo") || "logo"; 
+                    const a = document.createElement("a"); 
+                    a.href = URL.createObjectURL(blob); 
+                    a.download = `${name}.${ext}`; 
+                    a.click(); 
+                },
                 async downloadActiveDetail() { if(this.activeDetailIndex !== null && this.cards[this.activeDetailIndex]) { await this.downloadSingle(this.cards[this.activeDetailIndex]); } },
-                async exportAll() { if (!this.cards.length) return; this.els.exportBtn.innerText = "Processing..."; this.els.exportBtn.disabled = true; const toast = document.getElementById("errorToast"); toast.innerText = "Generating high-fidelity ZIP archive..."; toast.style.borderColor = "var(--accent)"; toast.classList.add("visible"); const zip = new JSZip(); for (let i = 0; i < this.cards.length; i++) { const c = this.cards[i]; const canvas = document.createElement("canvas"); let tW = parseInt(this.els.width.value, 10) || 300, tH = parseInt(this.els.height.value, 10) || 400; canvas.width = tW; canvas.height = tH; this.performDraw(canvas, c, tW, tH); const b = await new Promise(r => canvas.toBlob(r, "image/png")); const name = Core.Utils.sanitize(c.fname || `logo_${i + 1}`); zip.file(`${name}.png`, b); } zip.generateAsync({ type: "blob" }).then(c => { const a = document.createElement("a"); a.href = URL.createObjectURL(c); a.download = "batch_logos.zip"; a.click(); this.els.exportBtn.innerText = "Download Zip"; this.els.exportBtn.disabled = false; UI.showSuccess(this.els.exportBtn); toast.classList.remove("visible"); toast.style.borderColor = ""; }).catch(err => { toast.classList.remove("visible"); toast.style.borderColor = ""; UI.showError("Export failed: " + err); this.els.exportBtn.innerText = "Download Zip"; this.els.exportBtn.disabled = false; }); }
+                async exportAll() { if (!this.cards.length) return; this.els.exportBtn.innerText = "Processing..."; this.els.exportBtn.disabled = true; const toast = document.getElementById("errorToast"); toast.innerText = "Generating high-fidelity ZIP archive..."; toast.style.borderColor = "var(--accent)"; toast.classList.add("visible"); const zip = new JSZip(); const format = this.els.format ? this.els.format.value : 'png'; const mimeType = format === 'jpeg' ? 'image/jpeg' : 'image/png'; const ext = format === 'jpeg' ? 'jpg' : 'png'; for (let i = 0; i < this.cards.length; i++) { const c = this.cards[i]; const canvas = document.createElement("canvas"); let tW = parseInt(this.els.width.value, 10) || 300, tH = parseInt(this.els.height.value, 10) || 400; canvas.width = tW; canvas.height = tH; await this.performHighQualityDraw(canvas, c, tW, tH); const b = await new Promise(r => canvas.toBlob(r, mimeType, 0.95)); const name = Core.Utils.sanitize(c.fname || `logo_${i + 1}`); zip.file(`${name}.${ext}`, b); } zip.generateAsync({ type: "blob" }).then(c => { const a = document.createElement("a"); a.href = URL.createObjectURL(c); a.download = "batch_logos.zip"; a.click(); this.els.exportBtn.innerText = "Download Zip"; this.els.exportBtn.disabled = false; UI.showSuccess(this.els.exportBtn); toast.classList.remove("visible"); toast.style.borderColor = ""; }).catch(err => { toast.classList.remove("visible"); toast.style.borderColor = ""; UI.showError("Export failed: " + err); this.els.exportBtn.innerText = "Download Zip"; this.els.exportBtn.disabled = false; }); }
             },
             Pdf: {
                 collection: {}, currentId: null, abortCtrl: null,
