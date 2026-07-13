@@ -2286,11 +2286,9 @@
                     const zip = new JSZip(); 
                     Object.values(this.collection).forEach(v => { 
                         const topFolder = zip.folder(v.name);
-                        const stillsFolder = topFolder.folder('Stills');
-                        const storyFolder = topFolder.folder('Storyboard');
                         v.frames.forEach(frame => {
-                            if (frame.type === 'storyboard') storyFolder.file(`storyboard.jpg`, frame.blob);
-                            else stillsFolder.file(`img${frame.num}.jpg`, frame.blob);
+                            if (frame.type === 'storyboard') topFolder.file(`storyboard.jpg`, frame.blob);
+                            else topFolder.file(`img${frame.num}.jpg`, frame.blob);
                         }); 
                     }); 
                     const a = document.createElement('a'); a.href = URL.createObjectURL(await zip.generateAsync({ type: "blob" })); a.download = "video_extras.zip"; a.click(); 
