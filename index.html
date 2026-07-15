@@ -719,6 +719,7 @@
                 <div class="home-search-container">
                     <div style="display: flex; gap: 10px; align-items: stretch; width: 100%;">
                         <input type="text" id="homeSearchInput" class="home-search-input" placeholder="ENTER KEYWORD..." autocomplete="off" style="flex:1;">
+                        <button class="liquid-btn icon-only" onclick="UI.openUpdatesOverlay()" style="width: 50px; height: auto; flex-shrink: 0;" title="What's New"><i data-lucide="bell"></i></button>
                         <button class="liquid-btn icon-only" onclick="UI.openKeywordGuide()" style="width: 50px; height: auto; flex-shrink: 0;" title="Keyword Guide"><i data-lucide="info"></i></button>
                     </div>
                     <div class="home-tools-list" id="homeToolsList" style="display:none;"></div>
@@ -1315,7 +1316,7 @@
                             <div class="sidebar-panel">
                                 <div class="glass-panel control-group"><span class="label-header">Server</span><div data-guide="Selects the target hosting infrastructure template for the URLs."><select class="liquid-input persist-val" id="alg-server"><option value="aldi">ALDI Blob</option><option value="s3">S3 Media</option></select></div></div>
                                 <div class="glass-panel control-group"><span class="label-header">Path</span><div data-guide="Sets the base directory or prefix for the generated links."><input class="liquid-input persist-val" id="alg-folder" placeholder="Folder/Path" /></div></div>
-                                <div class="glass-panel control-group"><span class="label-header">Filenames</span><textarea id="alg-input" class="liquid-input terminal-input" style="min-height:200px;"></textarea></div>
+                                <div class="glass-panel control-group"><span class="label-header" style="display:flex; justify-content:space-between; align-items:center;">Filenames <span style="font-weight:normal; font-size:10px; display:flex; align-items:center; gap:4px; opacity:0.8; text-transform:none;"><span style="opacity:0.8">Old</span><input type="checkbox" id="alg-mode-toggle" class="persist-val toggle-switch small"><span style="opacity:0.8">New</span></span></span><textarea id="alg-input" class="liquid-input terminal-input" style="min-height:200px;"></textarea></div>
                                 <div data-guide="Processes the inputs and outputs fully formatted URLs in the panels."><button class="liquid-btn active-mode" onclick="Tools.AdLinkGen.generate()" style="width:100%">Generate</button></div>
                             </div>
                             <div class="right-panel" style="display:flex; flex-direction:column; gap:var(--spacing);">
@@ -1524,6 +1525,34 @@
         <div class="pdf-grid-view" id="pdfOverlayGrid"></div>
     </div>
     
+    <div class="overlay-fixed" id="updatesOverlay">
+        <div style="background:var(--bg-panel); border:2px solid var(--border); box-shadow:var(--shadow-block); max-width:600px; width:100%; margin:auto; display:flex; flex-direction:column; max-height:80vh;">
+            <div style="padding:15px 20px; border-bottom:2px solid var(--border); display:flex; justify-content:space-between; align-items:center;">
+                <h2 style="margin:0; font-family:'Press Start 2P', monospace; font-size:1rem; color:var(--text-main);">WHAT'S NEW</h2>
+                <button class="liquid-btn icon-only danger-btn" onclick="UI.closeUpdatesOverlay()"><i data-lucide="x"></i></button>
+            </div>
+            <div style="padding:20px; overflow-y:auto; flex:1;" id="updatesList">
+                <ul style="color:var(--text-main); font-size:0.95rem; line-height:1.6; margin:0; padding-left:20px;">
+                    <li style="margin-bottom:10px;"><strong>Ad Links Generator:</strong> Added Old/New toggles for Server and Filenames to quickly adjust generated URL formats.</li>
+                    <li style="margin-bottom:0;"><strong>Video Stills Improvements:</strong>
+                        <ul style="margin-top:5px; margin-bottom:0; padding-left:20px;">
+                            <li style="margin-bottom:5px;">Added a live preview panel beside the thumbnail list to inspect extracted frames at full size.</li>
+                            <li style="margin-bottom:5px;">You can now use the Up, Down, Left, and Right arrow keys to navigate and preview frames quickly without clicking.</li>
+                            <li style="margin-bottom:0;">Downloaded images are now strictly sequentially numbered (e.g., 1.jpg, 2.jpg) without an "img" prefix.</li>
+                        </ul>
+                    </li>
+                </ul>
+            </div>
+            <div style="padding:15px 20px; border-top:2px solid var(--border); display:flex; justify-content:space-between; align-items:center; background:var(--bg-input);">
+                <label style="display:flex; align-items:center; gap:10px; cursor:pointer; font-size:0.9rem; color:var(--text-main);">
+                    <input type="checkbox" id="dontShowUpdatesOverlay" class="toggle-switch small">
+                    Don't show at start
+                </label>
+                <button class="liquid-btn active-mode" onclick="UI.closeUpdatesOverlay()">Got it</button>
+            </div>
+        </div>
+    </div>
+    
     <div class="overlay-fixed" id="keywordGuideOverlay">
         <div style="background:var(--bg-panel); border:2px solid var(--border); box-shadow:var(--shadow-block); max-width:600px; width:100%; margin:auto; display:flex; flex-direction:column; max-height:80vh;">
             <div style="padding:15px 20px; border-bottom:2px solid var(--border); display:flex; justify-content:space-between; align-items:center;">
@@ -1548,7 +1577,12 @@
             <div><h3 id="stillsOverlayTitle" style="margin:0; font-family:'Press Start 2P', monospace; font-size:1.2rem; font-weight: 400; letter-spacing: -0.5px;">Video</h3><span id="stillsOverlayCount">0 Frames</span></div>
             <div style="display:flex; gap:12px;"><label style="display:flex; align-items:center; gap:8px; cursor:pointer;"><input class="toggle-switch small" id="stillsSelectAll" type="checkbox" /> Select All (Ctrl+A)</label><button class="liquid-btn active-mode" id="stillsDownloadSelected">Download Selected (Ctrl+D)</button><button class="liquid-btn danger-btn" onclick="Tools.Stills.closeDetail()"><i data-lucide="x"></i></button></div>
         </div>
-        <div class="pdf-grid-view" id="stillsOverlayGrid"></div>
+        <div style="display:flex; gap:20px; flex:1; min-height:0;">
+            <div style="width:250px; display:flex; flex-direction:column; overflow-y:auto; padding-right:10px; border-right:1px solid var(--border);" id="stillsOverlayGrid"></div>
+            <div style="flex:1; display:flex; align-items:center; justify-content:center; background:var(--bg-panel); border-radius:12px; border:1px solid var(--border);" id="stillsOverlayPreview">
+                <span style="color:var(--text-muted); font-size:0.9rem;">Select a still to preview</span>
+            </div>
+        </div>
     </div>
     
     <div class="overlay-fixed" id="lightbox" onclick="UI.closeLightbox()" style="align-items:center; justify-content:center;"><img id="lightboxImg" style="max-width:90%; max-height:90%; border:1px solid #333; box-shadow:0 0 50px black;" /></div>
@@ -1745,6 +1779,15 @@
             toggleEmptyState(container, isEmpty) { if (container) container.querySelector('.empty-state-msg').style.display = isEmpty ? 'flex' : 'none'; },
             showSuccess(btn, text = "Done") { const old = btn.innerText; btn.innerText = text; btn.style.borderColor = "var(--success)"; setTimeout(() => { btn.innerText = old; btn.style.borderColor = "var(--border)"; }, 1500); },
             showError(msg) { this.els.toast.innerText = msg; this.els.toast.classList.add('visible'); setTimeout(() => this.els.toast.classList.remove('visible'), 4000); },
+            openUpdatesOverlay() {
+                document.getElementById('dontShowUpdatesOverlay').checked = Core.AppState.load('hideUpdatesOverlay') === 'true';
+                document.getElementById('updatesOverlay').classList.add('active');
+            },
+            closeUpdatesOverlay() {
+                const checked = document.getElementById('dontShowUpdatesOverlay').checked;
+                Core.AppState.save('hideUpdatesOverlay', checked);
+                document.getElementById('updatesOverlay').classList.remove('active');
+            },
             openKeywordGuide() {
                 const overlay = document.getElementById('keywordGuideOverlay');
                 const list = document.getElementById('keywordGuideList');
@@ -2167,6 +2210,23 @@
                         document.querySelectorAll('#stillsOverlayGrid .detail-check').forEach(cb => cb.checked = e.target.checked);
                     };
                     this.els.dlSel.onclick = () => this.downloadSelected(); this.els.dlBtn.onclick = () => this.downloadAll();
+                    document.addEventListener('keydown', (e) => {
+                        if (!this.currentId || !this.els.overlay.classList.contains('active')) return;
+                        if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
+                            const active = Array.from(this.els.grid.children).findIndex(el => el.style.background === 'var(--bg-input)');
+                            if (active > 0) {
+                                this.els.grid.children[active - 1].click();
+                                this.els.grid.children[active - 1].scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                            }
+                        }
+                        if (e.key === 'ArrowRight' || e.key === 'ArrowDown') {
+                            const active = Array.from(this.els.grid.children).findIndex(el => el.style.background === 'var(--bg-input)');
+                            if (active >= 0 && active < this.els.grid.children.length - 1) {
+                                this.els.grid.children[active + 1].click();
+                                this.els.grid.children[active + 1].scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                            }
+                        }
+                    });
                 },
                 destroy() { this.collection = {}; this.els.stacks.innerHTML = ""; this.els.stacks.appendChild(this.els.empty); UI.toggleEmptyState(this.els.stacks, true); },
                 handleFiles(files) { const valid = files.filter(f => f.type.startsWith("video/")); if (!valid.length) return; this.queue.push(...valid); this.els.empty.innerHTML = `${this.queue.length} video(s) queued.`; },
@@ -2264,31 +2324,58 @@
                     this.currentId = id; const data = this.collection[id]; 
                     this.els.title.innerText = data.name; this.els.count.innerText = `${data.frames.length} Items`; 
                     this.els.grid.innerHTML = ''; 
+                    const previewArea = document.getElementById('stillsOverlayPreview');
+                    previewArea.innerHTML = '<span style="color:var(--text-muted); font-size:0.9rem;">Select a still to preview</span>';
+                    
                     data.frames.forEach(f => {
-                        const card = document.createElement('div'); card.className = 'pdf-page-card'; 
-                        card.innerHTML = `<img data-guide="Click to open a high-resolution preview of this still frame or storyboard grid." src="${f.url}" class="pdf-thumb" onclick="UI.openLightbox('${f.url}')"><div style="padding:10px; display:flex; justify-content:space-between; align-items:center;"><span style="font-size:0.8rem; color:var(--text-muted);">${f.type==='storyboard'?'Storyboard':'#'+f.num}</span><input data-guide="Select or deselect this frame for batch downloading." type="checkbox" class="detail-check toggle-switch small" ${f.checked ? 'checked' : ''}></div>`; 
+                        const card = document.createElement('div'); 
+                        card.style.cssText = "display:flex; align-items:center; gap:10px; padding:10px; border-bottom:1px solid var(--border); cursor:pointer; transition:background 0.2s; border-radius:6px; margin-bottom:4px;";
+                        card.innerHTML = `<img src="${f.url}" style="width:50px; height:50px; object-fit:cover; border-radius:4px; flex-shrink:0;"><div style="flex:1; font-size:0.85rem; font-family:monospace; color:var(--text-main);">${f.type==='storyboard'?'Storyboard':'#'+f.num}</div><input data-guide="Select or deselect this frame for batch downloading." type="checkbox" class="detail-check toggle-switch small" ${f.checked ? 'checked' : ''}>`; 
+                        
+                        card.onclick = (e) => {
+                            if (e.target.tagName !== 'INPUT') {
+                                Array.from(this.els.grid.children).forEach(el => el.style.background = 'transparent');
+                                card.style.background = 'var(--bg-input)';
+                                previewArea.innerHTML = `<img src="${f.url}" style="max-width:100%; max-height:100%; object-fit:contain; border-radius:8px;">`;
+                            }
+                        };
                         card.querySelector('.detail-check').onchange = (e) => f.checked = e.target.checked; 
                         this.els.grid.appendChild(card); 
                     }); 
+                    
+                    if (data.frames.length > 0) {
+                        this.els.grid.firstChild.click();
+                    }
+                    
                     this.els.overlay.classList.add('active'); 
-                    gsap.fromTo(this.els.grid.children, { opacity: 0, scale: 0.95, y: 10 }, { opacity: 1, scale: 1, y: 0, duration: 0.3, stagger: 0.03, ease: "power2.out" }); 
+                    gsap.fromTo(this.els.grid.children, { opacity: 0, x: -10 }, { opacity: 1, x: 0, duration: 0.3, stagger: 0.02, ease: "power2.out" }); 
                 },
                 closeDetail() { this.els.overlay.classList.remove('active'); this.currentId = null; },
                 async downloadSelected() { 
                     if (!this.currentId) return; 
-                    const sel = this.collection[this.currentId].frames.filter(f => f.checked); 
+                    const data = this.collection[this.currentId];
+                    const sel = data.frames.filter(f => f.checked); 
                     const zip = new JSZip(); 
-                    sel.forEach(f => zip.file(f.type === 'storyboard' ? `storyboard.jpg` : `img${f.num}.jpg`, f.blob)); 
-                    const a = document.createElement('a'); a.href = URL.createObjectURL(await zip.generateAsync({ type: "blob" })); a.download = "frames.zip"; a.click(); 
+                    let imgIdx = 1;
+                    sel.forEach(f => {
+                        if (f.type === 'storyboard') {
+                            zip.file(`storyboard.jpg`, f.blob);
+                        } else {
+                            zip.file(`${imgIdx++}.jpg`, f.blob);
+                        }
+                    }); 
+                    const a = document.createElement('a'); a.href = URL.createObjectURL(await zip.generateAsync({ type: "blob" })); a.download = `${data.name.replace(/[^a-z0-9]/gi, '_')}_stills.zip`; a.click(); 
                 },
                 async downloadAll() { 
                     this.els.dlBtn.innerText = "Zipping..."; 
                     const zip = new JSZip(); 
                     Object.values(this.collection).forEach(v => { 
                         const topFolder = zip.folder(v.name);
-                        v.frames.forEach(frame => {
+                        const sel = v.frames.filter(f => f.checked);
+                        let imgIdx = 1;
+                        sel.forEach(frame => {
                             if (frame.type === 'storyboard') topFolder.file(`storyboard.jpg`, frame.blob);
-                            else topFolder.file(`img${frame.num}.jpg`, frame.blob);
+                            else topFolder.file(`${imgIdx++}.jpg`, frame.blob);
                         }); 
                     }); 
                     const a = document.createElement('a'); a.href = URL.createObjectURL(await zip.generateAsync({ type: "blob" })); a.download = "video_extras.zip"; a.click(); 
@@ -2298,7 +2385,7 @@
             AdLinkGen: {
                 base: { aldi: "https://aldimediaeu.blob.core.windows.net/aldimediaeu/", s3: "https://s3media-ml-eu.surveycenter.com/" },
                 normFolder(v) { return v.trim().replace(/\s+/g, "/").replace(/\/+/g, "/").replace(/^\/|\/$/g, "") + "/"; },
-                generate() { const server = document.getElementById("alg-server").value; const folder = this.normFolder(document.getElementById("alg-folder").value); const lines = document.getElementById("alg-input").value.split("\n").map(l => l.trim()).filter(Boolean); let ads = [], story = []; lines.forEach(name => { const ext = name.split(".").pop().toLowerCase(); const url = this.base[server] + folder + name; if (ext === "jpg" || ext === "png") { ads.push(`<img src="${url}" class="zoomImage" style="max-width:80%">`); story.push(`<img src="${url}" class="zoomImage" style="max-height:280px">`); } else if (ext === "mp4") { ads.push(url); story.push(`<img src="${this.base[server] + folder + name.replace(".mp4", ".jpg")}" class="zoomImage" style="max-height:280px">`); } else if (ext === "mp3") { ads.push(url); story.push(name); } }); document.getElementById("alg-out-ads").value = ads.join("\n\n"); document.getElementById("alg-out-story").value = story.join("\n"); },
+                generate() { const server = document.getElementById("alg-server").value; const modeNew = document.getElementById("alg-mode-toggle") ? document.getElementById("alg-mode-toggle").checked : false; const folder = this.normFolder(document.getElementById("alg-folder").value); const lines = document.getElementById("alg-input").value.split("\n").map(l => l.trim()).filter(Boolean); let ads = [], story = []; lines.forEach(name => { const ext = name.split(".").pop().toLowerCase(); const url = this.base[server] + folder + name; if (ext === "jpg" || ext === "png") { ads.push(`<img src="${url}" class="zoomImage" style="max-width:80%">`); story.push(`<img src="${url}" class="zoomImage" style="max-height:280px">`); } else if (ext === "mp4") { let outUrl = url; if (modeNew) { outUrl = outUrl.replace(/^https:/, '').replace(/\.mp4$/i, ''); } ads.push(outUrl); story.push(`<img src="${this.base[server] + folder + name.replace(".mp4", ".jpg")}" class="zoomImage" style="max-height:280px">`); } else if (ext === "mp3") { ads.push(url); story.push(name); } }); document.getElementById("alg-out-ads").value = ads.join("\n"); document.getElementById("alg-out-story").value = story.join("\n"); },
                 copy(id, btn) { const el = document.getElementById(id); el.select(); el.setSelectionRange(0, 99999); navigator.clipboard.writeText(el.value).then(() => { UI.showSuccess(btn, "Copied"); }); }
             },
             AdDownloader: {
@@ -2516,9 +2603,13 @@
         UI.showHome();
 
         if (Core.AppState.load('hideKeywordGuide') !== 'true') {
-            // Slight delay so the UI is ready
             setTimeout(() => {
                 UI.openKeywordGuide();
+            }, 50);
+        }
+        if (Core.AppState.load('hideUpdatesOverlay') !== 'true') {
+            setTimeout(() => {
+                UI.openUpdatesOverlay();
             }, 100);
         }
 
