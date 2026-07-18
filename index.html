@@ -1106,6 +1106,7 @@
                     <div class="tool-header">
                         <i data-lucide="image" class="tool-icon"></i>
                         <h2 style="flex:1;">Logo Workspace</h2>
+                        <button class="liquid-btn icon-only" title="Generate HTML Links" onclick="Tools.Logo.openLinkGen()"><i data-lucide="link" style="width:18px;"></i></button>
                         <button class="liquid-btn icon-only guide-trigger" onclick="GuideEngine.open(this)"><i data-lucide="info" style="width:18px;"></i></button>
                     </div>
                     <div class="editor-layout">
@@ -1513,6 +1514,68 @@
                         <button class="liquid-btn danger-btn" id="logoDetailDelete" style="width:100%; border:2px solid var(--danger);" data-guide="Remove this logo permanently from the workspace."><i data-lucide="trash-2"></i> Delete This Logo</button>
                     </div>
                 </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="overlay-fixed" id="logoLinkGenOverlay">
+        <div style="background:var(--bg-panel); border:2px solid var(--border); box-shadow:var(--shadow-block); max-width:1000px; width:100%; margin:auto; display:flex; flex-direction:column; max-height:90vh;">
+            <div style="padding:15px 20px; border-bottom:2px solid var(--border); display:flex; justify-content:space-between; align-items:center;">
+                <h2 style="margin:0; font-family:'Press Start 2P', monospace; font-size:1rem; color:var(--text-main);">GENERATE LOGO LINKS</h2>
+                <button class="liquid-btn icon-only danger-btn" onclick="Tools.Logo.closeLinkGen()"><i data-lucide="x"></i></button>
+            </div>
+            <div style="padding:20px; overflow-y:auto; flex:1;">
+                <div style="margin-bottom:15px; display:flex; gap:20px; flex-wrap:wrap;">
+                    <div style="flex:1; min-width:200px;">
+                        <label style="display:block; font-size:0.8rem; font-weight:bold; color:var(--text-muted); margin-bottom:5px;">Server Format</label>
+                        <div style="display:flex; gap:10px; padding:4px 0;">
+                            <label class="liquid-btn active-mode" id="serverS3Lbl" style="cursor:pointer; flex:1; justify-content:center; padding:8px;">
+                                <input type="radio" name="logoLinkServer" value="s3" style="display:none;" checked onchange="document.getElementById('serverS3Lbl').classList.add('active-mode'); document.getElementById('serverAldiLbl').classList.remove('active-mode');"> S3 Media
+                            </label>
+                            <label class="liquid-btn" id="serverAldiLbl" style="cursor:pointer; flex:1; justify-content:center; padding:8px;">
+                                <input type="radio" name="logoLinkServer" value="aldi" style="display:none;" onchange="document.getElementById('serverAldiLbl').classList.add('active-mode'); document.getElementById('serverS3Lbl').classList.remove('active-mode');"> Aldi Media
+                            </label>
+                        </div>
+                    </div>
+                    <div style="flex:2; min-width:300px;">
+                        <label style="display:block; font-size:0.8rem; font-weight:bold; color:var(--text-muted); margin-bottom:5px;">Folder Path</label>
+                        <input type="text" id="logoLinkFolder" class="liquid-input" placeholder="e.g. logos/2026/summer" style="width:100%;">
+                    </div>
+                </div>
+                <div style="margin-bottom:15px; display:flex; gap:20px;">
+                    <div style="flex:1;">
+                        <label style="display:block; font-size:0.8rem; font-weight:bold; color:var(--text-muted); margin-bottom:5px;">Brand Names (one per line)</label>
+                        <textarea id="logoLinkBrands" class="liquid-input" rows="8" style="width:100%; font-family:monospace; resize:vertical; padding:10px;" placeholder="Brand A&#10;Brand B&#10;Brand C"></textarea>
+                    </div>
+                </div>
+                <div style="margin-bottom:0;">
+                    <label style="display:block; font-size:0.8rem; font-weight:bold; color:var(--text-muted); margin-bottom:5px;">Generated Links</label>
+                    <textarea id="logoLinkOutput" class="liquid-input" rows="8" wrap="off" style="width:100%; font-family:monospace; resize:vertical; padding:10px; background:var(--bg-body); color:var(--text-main); white-space:nowrap; overflow-x:auto;" readonly placeholder="Generated links will appear here..."></textarea>
+                </div>
+            </div>
+            <div style="padding:15px 20px; border-top:2px solid var(--border); display:flex; justify-content:space-between; align-items:center; background:var(--bg-input);">
+                <span id="logoLinkStatus" style="font-size:0.85rem; color:var(--text-muted);"></span>
+                <div style="display:flex; gap:10px;">
+                    <button class="liquid-btn" onclick="Tools.Logo.closeLinkGen()">Cancel</button>
+                    <button class="liquid-btn active-mode" id="logoLinkGenerateBtn" onclick="Tools.Logo.generateLinks()">Generate</button>
+                    <button class="liquid-btn" id="logoLinkCopyBtn" onclick="Tools.Logo.copyLinks()">Copy HTML</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="overlay-fixed" id="logoLinkWarningOverlay" style="z-index: 10001;">
+        <div style="background:var(--bg-panel); border:2px solid var(--border); box-shadow:var(--shadow-block); max-width:400px; width:100%; margin:auto; display:flex; flex-direction:column;">
+            <div style="padding:15px 20px; border-bottom:2px solid var(--border);">
+                <h2 style="margin:0; font-family:'Press Start 2P', monospace; font-size:1rem; color:var(--text-main);">WARNING</h2>
+            </div>
+            <div style="padding:20px; color:var(--text-main); line-height:1.5;">
+                No logos are uploaded in the workspace.<br><br>
+                Do you want to proceed anyway? If you do, the generated links will use the brand names (formatted) as the logo filenames.
+            </div>
+            <div style="padding:15px 20px; border-top:2px solid var(--border); display:flex; justify-content:flex-end; gap:10px; background:var(--bg-input);">
+                <button class="liquid-btn" onclick="document.getElementById('logoLinkWarningOverlay').classList.remove('active')">Cancel</button>
+                <button class="liquid-btn danger-btn" onclick="document.getElementById('logoLinkWarningOverlay').classList.remove('active'); Tools.Logo.executeGenerateLinks(true);">Proceed Anyway</button>
             </div>
         </div>
     </div>
@@ -2104,6 +2167,137 @@
                     a.click(); 
                 },
                 async downloadActiveDetail() { if(this.activeDetailIndex !== null && this.cards[this.activeDetailIndex]) { await this.downloadSingle(this.cards[this.activeDetailIndex]); } },
+                openLinkGen() {
+                    document.getElementById('logoLinkGenOverlay').classList.add('active');
+                    document.getElementById('logoLinkBrands').value = '';
+                    document.getElementById('logoLinkOutput').value = '';
+                    document.getElementById('logoLinkStatus').innerText = `${this.cards.length} logos loaded.`;
+                },
+                closeLinkGen() {
+                    document.getElementById('logoLinkGenOverlay').classList.remove('active');
+                },
+                generateLinks() {
+                    const brandsText = document.getElementById('logoLinkBrands').value;
+                    const brands = brandsText.split('\n').map(b => b.trim()).filter(b => b);
+                    const logos = this.cards;
+                    
+                    if (brands.length === 0) {
+                        return UI.showError('Please provide at least one brand name.');
+                    }
+                    
+                    if (logos.length === 0) {
+                        document.getElementById('logoLinkWarningOverlay').classList.add('active');
+                        return;
+                    }
+                    
+                    this.executeGenerateLinks(false);
+                },
+                executeGenerateLinks(forceNoLogos) {
+                    const server = document.querySelector('input[name="logoLinkServer"]:checked').value;
+                    const folder = (document.getElementById('logoLinkFolder').value || '').trim();
+                    const brandsText = document.getElementById('logoLinkBrands').value;
+                    
+                    const baseUrl = server === 's3' 
+                        ? 'https://s3media-ml-eu.surveycenter.com/' 
+                        : 'https://aldimediaeu.blob.core.windows.net/aldimediaeu/';
+                        
+                    const cleanFolder = folder.replace(/^\/+|\/+$/g, '');
+                    const folderPath = cleanFolder ? `${cleanFolder}/` : '';
+                    
+                    const brands = brandsText.split('\n').map(b => b.trim()).filter(b => b);
+                    const logos = [...this.cards];
+                    
+                    const norm = (s) => s.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().replace(/[^a-z0-9]/g, '');
+                    const levenshtein = (a, b) => {
+                        const matrix = Array(a.length + 1).fill().map(() => Array(b.length + 1).fill(0));
+                        for (let i = 0; i <= a.length; i++) matrix[i][0] = i;
+                        for (let j = 0; j <= b.length; j++) matrix[0][j] = j;
+                        for (let i = 1; i <= a.length; i++) {
+                            for (let j = 1; j <= b.length; j++) {
+                                if (a[i - 1] === b[j - 1]) matrix[i][j] = matrix[i - 1][j - 1];
+                                else matrix[i][j] = Math.min(matrix[i - 1][j - 1], matrix[i][j - 1], matrix[i - 1][j]) + 1;
+                            }
+                        }
+                        return matrix[a.length][b.length];
+                    };
+                    
+                    let pairs = [];
+                    for (let i = 0; i < brands.length; i++) {
+                        for (let j = 0; j < logos.length; j++) {
+                            const bNorm = norm(brands[i]);
+                            const lNorm = norm(logos[j].fname || '');
+                            let score = 0;
+                            if (bNorm === lNorm) {
+                                score = 1;
+                            } else if (lNorm.includes(bNorm) || bNorm.includes(lNorm)) {
+                                score = 0.8 + (Math.min(lNorm.length, bNorm.length) / Math.max(lNorm.length, bNorm.length)) * 0.1;
+                            } else {
+                                const dist = levenshtein(bNorm, lNorm);
+                                const maxLen = Math.max(bNorm.length, lNorm.length);
+                                score = maxLen === 0 ? 0 : 1 - (dist / maxLen);
+                            }
+                            pairs.push({ brandIdx: i, logoIdx: j, score });
+                        }
+                    }
+                    
+                    pairs.sort((a, b) => b.score - a.score);
+                    
+                    let usedBrands = new Set();
+                    let usedLogos = new Set();
+                    let brandToLogo = {};
+                    
+                    for (const pair of pairs) {
+                        if (!usedBrands.has(pair.brandIdx) && !usedLogos.has(pair.logoIdx)) {
+                            brandToLogo[pair.brandIdx] = logos[pair.logoIdx];
+                            usedBrands.add(pair.brandIdx);
+                            usedLogos.add(pair.logoIdx);
+                        }
+                    }
+                    
+                    for (let i = 0; i < brands.length; i++) {
+                        if (!usedBrands.has(i)) {
+                            let fallback = null;
+                            for (let j = 0; j < logos.length; j++) {
+                                if (!usedLogos.has(j)) {
+                                    fallback = logos[j];
+                                    usedLogos.add(j);
+                                    break;
+                                }
+                            }
+                            brandToLogo[i] = fallback;
+                        }
+                    }
+                    
+                    let output = '';
+                    const format = this.els.format ? this.els.format.value : 'png';
+                    const ext = format === 'jpeg' ? 'jpg' : 'png';
+                    
+                    for (let i = 0; i < brands.length; i++) {
+                        const brand = brands[i];
+                        const logo = brandToLogo[i];
+                        let logoName = '';
+                        
+                        if (logo) {
+                            logoName = (logo.fname || `logo_${i+1}`) + "." + ext;
+                        } else {
+                            logoName = Core.Utils.sanitize(brand.substring(0, 30).replace(/-/g, '_')) + "." + ext;
+                        }
+                        
+                        const url = `${baseUrl}${folderPath}${logoName}`;
+                        const link = `<center><img src="${url}" style="max-width:100%" align ="center"></center><span style="display:none;">${brand}</span>`;
+                        output += link + '\n';
+                    }
+                    
+                    document.getElementById('logoLinkOutput').value = output.trim();
+                    document.getElementById('logoLinkStatus').innerText = `Generated ${brands.length} links.`;
+                },
+                copyLinks() {
+                    const text = document.getElementById('logoLinkOutput').value;
+                    if (!text) return UI.showError("Nothing to copy!");
+                    navigator.clipboard.writeText(text).then(() => {
+                        UI.showSuccess(document.getElementById('logoLinkCopyBtn'), "Copied HTML");
+                    }).catch(() => UI.showError("Failed to copy text."));
+                },
                 async exportAll() { if (!this.cards.length) return; this.els.exportBtn.innerText = "Processing..."; this.els.exportBtn.disabled = true; const toast = document.getElementById("errorToast"); toast.innerText = "Generating high-fidelity ZIP archive..."; toast.style.borderColor = "var(--accent)"; toast.classList.add("visible"); const zip = new JSZip(); const format = this.els.format ? this.els.format.value : 'png'; const mimeType = format === 'jpeg' ? 'image/jpeg' : 'image/png'; const ext = format === 'jpeg' ? 'jpg' : 'png'; for (let i = 0; i < this.cards.length; i++) { const c = this.cards[i]; const canvas = document.createElement("canvas"); let tW = parseInt(this.els.width.value, 10) || 300, tH = parseInt(this.els.height.value, 10) || 400; canvas.width = tW; canvas.height = tH; await this.performHighQualityDraw(canvas, c, tW, tH); const b = await new Promise(r => canvas.toBlob(r, mimeType, 0.95)); const name = Core.Utils.sanitize(c.fname || `logo_${i + 1}`); zip.file(`${name}.${ext}`, b); } zip.generateAsync({ type: "blob" }).then(c => { const a = document.createElement("a"); a.href = URL.createObjectURL(c); a.download = "batch_logos.zip"; a.click(); this.els.exportBtn.innerText = "Download Zip"; this.els.exportBtn.disabled = false; UI.showSuccess(this.els.exportBtn); toast.classList.remove("visible"); toast.style.borderColor = ""; }).catch(err => { toast.classList.remove("visible"); toast.style.borderColor = ""; UI.showError("Export failed: " + err); this.els.exportBtn.innerText = "Download Zip"; this.els.exportBtn.disabled = false; }); }
             },
             Pdf: {
@@ -2213,14 +2407,14 @@
                     document.addEventListener('keydown', (e) => {
                         if (!this.currentId || !this.els.overlay.classList.contains('active')) return;
                         if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
-                            const active = Array.from(this.els.grid.children).findIndex(el => el.style.background === 'var(--bg-input)');
+                            const active = Array.from(this.els.grid.children).findIndex(el => el.classList.contains('active-still'));
                             if (active > 0) {
                                 this.els.grid.children[active - 1].click();
                                 this.els.grid.children[active - 1].scrollIntoView({ behavior: 'smooth', block: 'nearest' });
                             }
                         }
                         if (e.key === 'ArrowRight' || e.key === 'ArrowDown') {
-                            const active = Array.from(this.els.grid.children).findIndex(el => el.style.background === 'var(--bg-input)');
+                            const active = Array.from(this.els.grid.children).findIndex(el => el.classList.contains('active-still'));
                             if (active >= 0 && active < this.els.grid.children.length - 1) {
                                 this.els.grid.children[active + 1].click();
                                 this.els.grid.children[active + 1].scrollIntoView({ behavior: 'smooth', block: 'nearest' });
@@ -2334,8 +2528,14 @@
                         
                         card.onclick = (e) => {
                             if (e.target.tagName !== 'INPUT') {
-                                Array.from(this.els.grid.children).forEach(el => el.style.background = 'transparent');
-                                card.style.background = 'var(--bg-input)';
+                                Array.from(this.els.grid.children).forEach(el => {
+                                    el.classList.remove('active-still');
+                                    el.style.background = 'transparent';
+                                    el.querySelector('div').style.color = 'var(--text-main)';
+                                });
+                                card.classList.add('active-still');
+                                card.style.background = 'var(--text-main)';
+                                card.querySelector('div').style.color = 'var(--bg-main)';
                                 previewArea.innerHTML = `<img src="${f.url}" style="max-width:100%; max-height:100%; object-fit:contain; border-radius:8px;">`;
                             }
                         };
