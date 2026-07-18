@@ -413,6 +413,9 @@
         .liquid-btn.danger-btn { border-color: var(--danger); color: var(--danger); background: transparent; }
         .liquid-btn.danger-btn:hover { background: var(--danger); color: var(--bg-main); border-color: var(--danger); }
         .liquid-btn.icon-only { width: 36px; height: 36px; padding: 0; }
+        @keyframes highlightPulse { 0% { box-shadow: 0 0 0 0 var(--text-main); } 70% { box-shadow: 0 0 0 8px transparent; } 100% { box-shadow: 0 0 0 0 transparent; } }
+        .whats-new-highlight { animation: highlightPulse 2s infinite; border-color: var(--text-main); color: var(--text-main); }
+        .whats-new-highlight i { color: var(--text-main); }
         .tool-section { display: none; max-width: 100%; margin: 0; height: 100%; }
         .tool-section.active { display: flex; flex-direction: column; animation: workspaceReveal 0.7s cubic-bezier(0.19, 1, 0.22, 1) forwards; }
         @keyframes workspaceReveal { from { opacity: 0; transform: translateY(20px) scale(0.98); filter: blur(12px); } to { opacity: 1; transform: translateY(0) scale(1); filter: blur(0); } }
@@ -719,7 +722,7 @@
                 <div class="home-search-container">
                     <div style="display: flex; gap: 10px; align-items: stretch; width: 100%;">
                         <input type="text" id="homeSearchInput" class="home-search-input" placeholder="ENTER KEYWORD..." autocomplete="off" style="flex:1;">
-                        <button class="liquid-btn icon-only" onclick="UI.openUpdatesOverlay()" style="width: 50px; height: auto; flex-shrink: 0;" title="What's New"><i data-lucide="bell"></i></button>
+                        <button id="whatsNewBtn" class="liquid-btn icon-only" onclick="UI.openUpdatesOverlay()" style="width: 50px; height: auto; flex-shrink: 0;" title="What's New"><i data-lucide="bell"></i></button>
                         <button class="liquid-btn icon-only" onclick="UI.openKeywordGuide()" style="width: 50px; height: auto; flex-shrink: 0;" title="Keyword Guide"><i data-lucide="info"></i></button>
                     </div>
                     <div class="home-tools-list" id="homeToolsList" style="display:none;"></div>
@@ -1596,6 +1599,7 @@
             </div>
             <div style="padding:20px; overflow-y:auto; flex:1;" id="updatesList">
                 <ul style="color:var(--text-main); font-size:0.95rem; line-height:1.6; margin:0; padding-left:20px;">
+                    <li style="margin-bottom:10px;"><strong>Logo Resizer:</strong> Added a "Generate Links" feature to instantly create server-ready S3 or Aldi Media links by matching uploaded logos or brand names.</li>
                     <li style="margin-bottom:10px;"><strong>Ad Links Generator:</strong> Added Old/New toggles for Server and Filenames to quickly adjust generated URL formats.</li>
                     <li style="margin-bottom:0;"><strong>Video Stills Improvements:</strong>
                         <ul style="margin-top:5px; margin-bottom:0; padding-left:20px;">
@@ -1845,6 +1849,9 @@
             openUpdatesOverlay() {
                 document.getElementById('dontShowUpdatesOverlay').checked = Core.AppState.load('hideUpdatesOverlay') === 'true';
                 document.getElementById('updatesOverlay').classList.add('active');
+                const btn = document.getElementById('whatsNewBtn');
+                if(btn) btn.classList.remove('whats-new-highlight');
+                Core.AppState.save('lastSeenUpdateVersion', window.CURRENT_APP_VERSION || 'v1');
             },
             closeUpdatesOverlay() {
                 const checked = document.getElementById('dontShowUpdatesOverlay').checked;
@@ -2795,6 +2802,8 @@
 
         };
 
+        window.CURRENT_APP_VERSION = "v1.1";
+
         // Initialize All Tools
         Object.values(Tools).forEach(tool => { if (tool.init) tool.init(); });
 
@@ -2807,10 +2816,14 @@
                 UI.openKeywordGuide();
             }, 50);
         }
+        
         if (Core.AppState.load('hideUpdatesOverlay') !== 'true') {
             setTimeout(() => {
                 UI.openUpdatesOverlay();
             }, 100);
+        } else if (Core.AppState.load('lastSeenUpdateVersion') !== window.CURRENT_APP_VERSION) {
+            const btn = document.getElementById('whatsNewBtn');
+            if(btn) btn.classList.add('whats-new-highlight');
         }
 
         // Command Palette Listeners
