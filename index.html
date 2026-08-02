@@ -1796,7 +1796,8 @@
                         id="globalFontFamily"
                         style="margin-bottom: 10px"
                       >
-                        <option value="Arial">Arial (Classic)</option>
+                        <option value="Arial">Arial</option>
+                        <option value="Century Gothic">Century Gothic (Body)</option>
                         <option value="Calibri">Calibri</option>
                         <option value="Comic Sans MS">Comic Sans MS</option>
                         <option value="Courier New">Courier New (Fixed)</option>
@@ -4087,206 +4088,9 @@
       <div class="pdf-grid-view" id="pdfOverlayGrid"></div>
     </div>
 
-    <div class="overlay-fixed" id="updatesOverlay">
-      <div
-        style="
-          background: var(--bg-panel);
-          border: 1px solid var(--border);
-          box-shadow: var(--shadow-block);
-          max-width: 600px;
-          width: 100%;
-          margin: auto;
-          display: flex;
-          flex-direction: column;
-          max-height: 80vh;
-        "
-      >
-        <div
-          style="
-            padding: 15px 20px;
-            border-bottom: 1px solid var(--border);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-          "
-        >
-          <h2
-            style="
-              margin: 0;
-              font-family: &quot;Inter&quot;, sans-serif;
-              font-size: 1rem;
-              color: var(--text-main);
-            "
-          >
-            WHAT'S NEW
-          </h2>
-          <button
-            class="liquid-btn icon-only danger-btn"
-            onclick="UI.closeUpdatesOverlay()"
-          >
-            <i data-lucide="x"></i>
-          </button>
-        </div>
-        <div style="padding: 20px; overflow-y: auto; flex: 1" id="updatesList">
-          <ul
-            style="
-              color: var(--text-main);
-              font-size: 0.95rem;
-              line-height: 1.6;
-              margin: 0;
-              padding-left: 20px;
-            "
-          >
-            <li style="margin-bottom: 10px">
-              <strong>Logo Resizer:</strong> Added a "Generate Links" feature to
-              instantly create server-ready S3 or Aldi Media links by matching
-              uploaded logos or brand names.
-            </li>
-            <li style="margin-bottom: 10px">
-              <strong>Ad Links Generator:</strong> Added Old/New toggles for
-              Server and Filenames to quickly adjust generated URL formats.
-            </li>
-            <li style="margin-bottom: 0">
-              <strong>Video Stills Improvements:</strong>
-              <ul style="margin-top: 5px; margin-bottom: 0; padding-left: 20px">
-                <li style="margin-bottom: 5px">
-                  Added a live preview panel beside the thumbnail list to
-                  inspect extracted frames at full size.
-                </li>
-                <li style="margin-bottom: 5px">
-                  You can now use the Up, Down, Left, and Right arrow keys to
-                  navigate and preview frames quickly without clicking.
-                </li>
-                <li style="margin-bottom: 0">
-                  Downloaded images are now strictly sequentially numbered
-                  (e.g., 1.jpg, 2.jpg) without an "img" prefix.
-                </li>
-              </ul>
-            </li>
-          </ul>
-        </div>
-        <div
-          style="
-            padding: 15px 20px;
-            border-top: 2px solid var(--border);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            background: var(--bg-input);
-          "
-        >
-          <label
-            style="
-              display: flex;
-              align-items: center;
-              gap: 10px;
-              cursor: pointer;
-              font-size: 0.9rem;
-              color: var(--text-main);
-            "
-          >
-            <input
-              type="checkbox"
-              id="dontShowUpdatesOverlay"
-              class="toggle-switch small"
-            />
-            Don't show at start
-          </label>
-          <button
-            class="liquid-btn active-mode"
-            onclick="UI.closeUpdatesOverlay()"
-          >
-            Got it
-          </button>
-        </div>
-      </div>
-    </div>
+    
 
-    <div class="overlay-fixed" id="keywordGuideOverlay">
-      <div
-        style="
-          background: var(--bg-panel);
-          border: 1px solid var(--border);
-          box-shadow: var(--shadow-block);
-          max-width: 600px;
-          width: 100%;
-          margin: auto;
-          display: flex;
-          flex-direction: column;
-          max-height: 80vh;
-        "
-      >
-        <div
-          style="
-            padding: 15px 20px;
-            border-bottom: 1px solid var(--border);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-          "
-        >
-          <h2
-            style="
-              margin: 0;
-              font-family: &quot;Inter&quot;, sans-serif;
-              font-size: 1rem;
-              color: var(--text-main);
-            "
-          >
-            KEYWORD DIRECTORY
-          </h2>
-          <button
-            class="liquid-btn icon-only danger-btn"
-            onclick="UI.closeKeywordGuide()"
-          >
-            <i data-lucide="x"></i>
-          </button>
-        </div>
-        <div
-          style="padding: 20px; overflow-y: auto; flex: 1"
-          id="keywordGuideList"
-        >
-          <p style="margin-top: 0; color: var(--text-muted); line-height: 1.4">
-            Enter these exact keywords in the search bar to jump to the tool:
-          </p>
-          <!-- Populated dynamically -->
-        </div>
-        <div
-          style="
-            padding: 15px 20px;
-            border-top: 2px solid var(--border);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            background: var(--bg-input);
-          "
-        >
-          <label
-            style="
-              display: flex;
-              align-items: center;
-              gap: 10px;
-              cursor: pointer;
-              font-size: 0.9rem;
-              color: var(--text-main);
-            "
-          >
-            <input
-              type="checkbox"
-              id="dontShowKeywordGuide"
-              class="toggle-switch small"
-            />
-            Don't show at start
-          </label>
-          <button
-            class="liquid-btn active-mode"
-            onclick="UI.closeKeywordGuide()"
-          >
-            Got it
-          </button>
-        </div>
-      </div>
-    </div>
+    
     <div class="overlay-fixed" id="stillsDetailOverlay">
       <div
         style="
@@ -7597,23 +7401,9 @@
       Core.AppState.restoreInputs();
       UI.showHome();
 
-      if (Core.AppState.load("hideKeywordGuide") !== "true") {
-        setTimeout(() => {
-          UI.openKeywordGuide();
-        }, 50);
-      }
+      
 
-      if (Core.AppState.load("hideUpdatesOverlay") !== "true") {
-        setTimeout(() => {
-          UI.openUpdatesOverlay();
-        }, 100);
-      } else if (
-        Core.AppState.load("lastSeenUpdateVersion") !==
-        window.CURRENT_APP_VERSION
-      ) {
-        const btn = document.getElementById("whatsNewBtn");
-        if (btn) btn.classList.add("whats-new-highlight");
-      }
+      
 
       // Command Palette Listeners
       document.addEventListener("keydown", (e) => {
