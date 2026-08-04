@@ -1115,19 +1115,6 @@
         transform: translateY(-2px);
         box-shadow: var(--shadow-block-hover);
       }
-      .logo-card-item.low-res-source .card-preview-area::before {
-        content: "LOW-RES SOURCE";
-        position: absolute;
-        top: 6px;
-        left: 6px;
-        background: var(--danger);
-        color: #fff;
-        font-family: "Inter", sans-serif;
-        font-size: 0.8rem;
-        padding: 2px 8px;
-        letter-spacing: 1px;
-        z-index: 5;
-      }
       .preview-box {
         background-color: var(--bg-panel);
         background-image:
@@ -1770,19 +1757,25 @@
                 <div
                   class="drop-zone"
                   id="dropZone"
-                  data-guide="Drag images here or click to upload one or more logos to resize and brand."
+                  data-guide="Drag images, PPTX, or Excel files here to upload and extract logos."
                 >
                   <label class="liquid-btn active-mode" style="width: 100%"
                     ><input
-                      accept="image/*"
+                      accept="image/*,.pptx,.xlsx,.xlsm"
                       hidden
                       id="logoInput"
                       multiple
                       type="file"
-                    /><i data-lucide="upload"></i> Add Images</label
+                    /><i data-lucide="upload"></i> Upload</label
                   >
+                  <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 12px; font-weight: 500;">Supported: Images, PPTX, XLSX</div>
                 </div>
-                <div
+                                <div class="progress-container glass-panel" id="logoProgress">
+                  <div class="progress-text">
+                    <span id="logoStatusText">Extracting...</span>
+                  </div>
+                </div>
+<div
                   id="logoControls"
                   style="display: flex; flex-direction: column; gap: 25px"
                 >
@@ -1962,13 +1955,13 @@
                       data-guide="Sets the pixel dimensions every downloaded logo will be resized to."
                     >
                       <input
-                        class="liquid-input persist-val"
+                        class="liquid-input"
                         id="exportWidth"
                         placeholder="W"
                         type="number"
-                        value="300"
+                        value=""
                       /><input
-                        class="liquid-input persist-val"
+                        class="liquid-input"
                         id="exportHeight"
                         placeholder="H"
                         type="number"
@@ -4597,6 +4590,9 @@
               }
               el.addEventListener("change", () => this.save(el.id, el.value));
             });
+            // Clear legacy local storage for dimensions
+            localStorage.removeItem("exportWidth");
+            localStorage.removeItem("exportHeight");
             document.querySelectorAll(".persist-chk").forEach((el) => {
               const saved = this.load(el.id);
               if (saved !== null) el.checked = saved === "true";
@@ -5214,14 +5210,261 @@
             this.els.exportBtn.disabled = true;
             this.closeDetail();
           },
-          handleFiles(files) {
+          async handleFiles(files) {
             if (files.length > 0) {
               UI.toggleEmptyState(this.els.grid, false);
               this.els.exportBtn.disabled = false;
             }
-            files.forEach((f) => {
-              if (f.type.startsWith("image/")) this.createCard(f);
-            });
+            for (const f of files) {
+              const nameLower = f.name.toLowerCase();
+              if (f.type.startsWith("image/")) {
+                this.createCard(f);
+              } else if (nameLower.endsWith(".pptx") || nameLower.endsWith(".xlsx") || nameLower.endsWith(".xlsm")) {
+                await this.extractMediaFromFile(f);
+              }
+            }
+          },
+          async extractMediaFromFile(file) {
+            const JSZip = window.JSZip;
+            if (!JSZip) return alert("JSZip library not found.");
+            
+            const progress = document.getElementById("logoProgress");
+            const statusText = document.getElementById("logoStatusText");
+            if (progress) progress.classList.add("active");
+            if (statusText) statusText.innerText = "Extracting images from " + file.name + "...";
+            
+            try {
+              const zip = await JSZip.loadAsync(file);
+              const ctx = { hashes: new Set(), dupes: 0 };
+              const nameLower = file.name.toLowerCase();
+              if (nameLower.endsWith(".pptx")) {
+                await this.extractPptx(zip, ctx, file.name);
+              } else if (nameLower.endsWith(".xlsx") || nameLower.endsWith(".xlsm")) {
+                await this.extractXlsx(zip, ctx, file.name);
+              }
+            } catch (err) {
+              console.error(err);
+              alert("Failed to extract images from " + file.name);
+            } finally {
+              if (progress) progress.classList.remove("active");
+            }
+          },
+          async processExtractedBlob(blob, filename, ctx) {
+            try {
+              const buf = await blob.arrayBuffer();
+              const dig = await crypto.subtle.digest('SHA-256', buf);
+              const hex = [...new Uint8Array(dig)].map(b => b.toString(16).padStart(2, '0')).join('');
+              if (ctx.hashes.has(hex)) {
+                ctx.dupes++;
+                return;
+              }
+              ctx.hashes.add(hex);
+            } catch(e) {}
+            
+            const extMatch = filename.match(/\.([a-zA-Z0-9]+)$/);
+            const ext = extMatch ? extMatch[1].toLowerCase() : 'png';
+            const type = ext === 'jpg' || ext === 'jpeg' ? 'image/jpeg' : 
+                         ext === 'svg' ? 'image/svg+xml' : 'image/png';
+            
+            const newFile = new File([blob], filename, { type: type });
+            this.createCard(newFile);
+          },
+          resolveZipPath(base, target) {
+            if(!target) return '';
+            if(target.startsWith('/')) return target.replace(/^\/+/, '');
+            const parts = (base + '/' + target).split('/'); 
+            const out = [];
+            for (const p of parts) { 
+              if (p === '..') out.pop(); 
+              else if (p !== '.' && p !== '') out.push(p); 
+            }
+            return out.join('/');
+          },
+          async extractPptx(zip, ctx, sourceFileName) {
+            const parser = new DOMParser();
+            const slideFiles = Object.keys(zip.files)
+              .filter(p => /^ppt\/slides\/slide\d+\.xml$/.test(p))
+              .sort((a,b) => parseInt(a.match(/\d+/g).pop()) - parseInt(b.match(/\d+/g).pop()));
+            
+            let imgCount = 1;
+            for (let si = 0; si < slideFiles.length; si++) {
+              const slidePath = slideFiles[si];
+              const slideNum = parseInt(slidePath.match(/slide(\d+)\.xml/)[1], 10);
+              const xmlText = await zip.file(slidePath).async('string');
+              const xml = parser.parseFromString(xmlText, 'application/xml');
+              
+              const relPath = `ppt/slides/_rels/slide${slideNum}.xml.rels`;
+              const rels = {};
+              if (zip.file(relPath)) {
+                const rx = parser.parseFromString(await zip.file(relPath).async('string'), 'application/xml');
+                for (const r of rx.getElementsByTagName('Relationship')) rels[r.getAttribute('Id')] = r.getAttribute('Target');
+              }
+              
+              const blips = xml.getElementsByTagNameNS('http://schemas.openxmlformats.org/drawingml/2006/main', 'blip');
+              for (let i = 0; i < blips.length; i++) {
+                const b = blips[i];
+                let rid = null;
+                
+                // Prioritize high-resolution SVGs over PNG fallbacks
+                const svgBlip = b.getElementsByTagNameNS('*', 'svgBlip')[0] || b.getElementsByTagName('asvg:svgBlip')[0];
+                if (svgBlip) {
+                  rid = svgBlip.getAttributeNS('http://schemas.openxmlformats.org/officeDocument/2006/relationships', 'embed') || svgBlip.getAttribute('r:embed');
+                }
+                
+                // Fallback to standard raster image
+                if (!rid) {
+                  rid = b.getAttributeNS('http://schemas.openxmlformats.org/officeDocument/2006/relationships', 'embed') || b.getAttribute('r:embed');
+                }
+                
+                if (!rid) continue;
+                const target = this.resolveZipPath('ppt/slides', rels[rid] || '');
+                if (!target || !zip.file(target)) continue;
+                const blob = await zip.file(target).async('blob');
+                const ext = (target.split('.').pop() || 'png').toLowerCase();
+                const filename = `Slide${slideNum}_IMG${imgCount++}.${ext}`;
+                await this.processExtractedBlob(blob, filename, ctx);
+              }
+            }
+          },
+          async extractXlsx(zip, ctx, sourceFileName) {
+            const parser = new DOMParser();
+            
+            const wbXmlText = await zip.file('xl/workbook.xml').async('string');
+            const wb = parser.parseFromString(wbXmlText, 'application/xml');
+            const wbrXmlText = await zip.file('xl/_rels/workbook.xml.rels').async('string');
+            const wbr = parser.parseFromString(wbrXmlText, 'application/xml');
+            
+            const wrel = {};
+            for (const r of wbr.getElementsByTagName('Relationship')) wrel[r.getAttribute('Id')] = r.getAttribute('Target');
+            
+            const sheets = [];
+            for (const s of wb.getElementsByTagName('sheet')) {
+              const rid = s.getAttributeNS('http://schemas.openxmlformats.org/officeDocument/2006/relationships', 'id') || s.getAttribute('r:id');
+              let t = (wrel[rid] || '').replace(/^\//, '');
+              if (t && !t.startsWith('xl/')) t = 'xl/' + t;
+              if (t && zip.file(t)) sheets.push({name: s.getAttribute('name') || t, path: t});
+            }
+            
+            const extractedMedia = new Set();
+            let imgCount = 1;
+            
+            for (const sh of sheets) {
+              const base = sh.path.substring(0, sh.path.lastIndexOf('/'));
+              const relPath = base + '/_rels/' + sh.path.split('/').pop() + '.rels';
+              if (!zip.file(relPath)) continue;
+              
+              const srels = parser.parseFromString(await zip.file(relPath).async('string'), 'application/xml');
+              let drawTarget = null;
+              for (const r of srels.getElementsByTagName('Relationship')) {
+                if ((r.getAttribute('Type') || '').endsWith('/drawing')) drawTarget = r.getAttribute('Target');
+              }
+              if (!drawTarget) continue;
+              
+              const drawPath = this.resolveZipPath(base, drawTarget);
+              if (!zip.file(drawPath)) continue;
+              
+              const dbase = drawPath.substring(0, drawPath.lastIndexOf('/'));
+              const drp = dbase + '/_rels/' + drawPath.split('/').pop() + '.rels';
+              const drel = {};
+              if (zip.file(drp)) {
+                const dx = parser.parseFromString(await zip.file(drp).async('string'), 'application/xml');
+                for (const r of dx.getElementsByTagName('Relationship')) drel[r.getAttribute('Id')] = r.getAttribute('Target');
+              }
+              
+              const dxml = parser.parseFromString(await zip.file(drawPath).async('string'), 'application/xml');
+              const blips = dxml.getElementsByTagNameNS('http://schemas.openxmlformats.org/drawingml/2006/main', 'blip');
+              for (let i = 0; i < blips.length; i++) {
+                const b = blips[i];
+                let rid = null;
+                
+                // Prioritize high-resolution SVGs over PNG fallbacks
+                const svgBlip = b.getElementsByTagNameNS('*', 'svgBlip')[0] || b.getElementsByTagName('asvg:svgBlip')[0];
+                if (svgBlip) {
+                  rid = svgBlip.getAttributeNS('http://schemas.openxmlformats.org/officeDocument/2006/relationships', 'embed') || svgBlip.getAttribute('r:embed');
+                }
+                
+                // Fallback to standard raster image
+                if (!rid) {
+                  rid = b.getAttributeNS('http://schemas.openxmlformats.org/officeDocument/2006/relationships', 'embed') || b.getAttribute('r:embed');
+                }
+                
+                if (!rid || !drel[rid]) continue;
+                const mediaPath = this.resolveZipPath(dbase, drel[rid]);
+                const mf = zip.file(mediaPath);
+                if (!mf) continue;
+                
+                const blob = await mf.async('blob');
+                extractedMedia.add(mediaPath);
+                
+                const ext = (mediaPath.split('.').pop() || 'png').toLowerCase();
+                const safeSheet = (sh.name || 'Sheet').replace(/[^a-zA-Z0-9]/g, '');
+                const filename = `${safeSheet}_IMG${imgCount++}.${ext}`;
+                await this.processExtractedBlob(blob, filename, ctx);
+              }
+            }
+            
+            if (zip.file('xl/richData/richValueRel.xml')) {
+              try {
+                const rvb = [];
+                if (zip.file('xl/metadata.xml')) {
+                  const md = await zip.file('xl/metadata.xml').async('string');
+                  const re1 = /<xlrd:rvb i="(\d+)"\/>/g; let m;
+                  while((m = re1.exec(md))) rvb.push(parseInt(m[1],10));
+                }
+                const rvLocalId = [];
+                if (zip.file('xl/richData/rdrichvalue.xml')) {
+                  const rv = await zip.file('xl/richData/rdrichvalue.xml').async('string');
+                  const re2 = /<rv\b[^>]*>\s*<v>(\d+)<\/v>/g; let m;
+                  while((m = re2.exec(rv))) rvLocalId.push(parseInt(m[1],10));
+                }
+                const relIds = [];
+                const rvr = await zip.file('xl/richData/richValueRel.xml').async('string');
+                const re3 = /<rel\s+r:id="(rId\d+)"/g; let m3;
+                while((m3 = re3.exec(rvr))) relIds.push(m3[1]);
+                const relMap = {};
+                if (zip.file('xl/richData/_rels/richValueRel.xml.rels')) {
+                  const rr = parser.parseFromString(await zip.file('xl/richData/_rels/richValueRel.xml.rels').async('string'), 'application/xml');
+                  for (const r of rr.getElementsByTagName('Relationship')) relMap[r.getAttribute('Id')] = r.getAttribute('Target');
+                }
+                
+                for (let i = 0; i < sheets.length; i++) {
+                  const sh = sheets[i];
+                  const sxml = parser.parseFromString(await zip.file(sh.path).async('string'), 'application/xml');
+                  for (const c of sxml.getElementsByTagName('c')) {
+                    const vm = c.getAttribute('vm');
+                    if (!vm) continue;
+                    const vmIdx = parseInt(vm, 10);
+                    if (vmIdx < 1 || vmIdx > rvb.length) continue;
+                    
+                    const rvIdx = rvb[vmIdx - 1];
+                    const localId = rvLocalId[rvIdx];
+                    if (localId == null) continue;
+                    
+                    const rid = relIds[localId];
+                    const target = relMap[rid];
+                    if (!target) continue;
+                    
+                    const mediaPath = this.resolveZipPath('xl/richData', target);
+                    if (!mediaPath || !zip.file(mediaPath)) continue;
+                    
+                    const blob = await zip.file(mediaPath).async('blob');
+                    extractedMedia.add(mediaPath);
+                    const ext = (mediaPath.split('.').pop() || 'png').toLowerCase();
+                    const safeSheet = (sh.name || 'Sheet').replace(/[^a-zA-Z0-9]/g, '');
+                    const filename = `${safeSheet}_CellIMG${imgCount++}.${ext}`;
+                    await this.processExtractedBlob(blob, filename, ctx);
+                  }
+                }
+              } catch(e) { console.error("Rich media extraction failed", e); }
+            }
+            
+            const leftovers = Object.keys(zip.files).filter(p => /^xl\/media\//.test(p) && !extractedMedia.has(p));
+            for (const p of leftovers) {
+              const blob = await zip.file(p).async('blob');
+              const ext = (p.split('.').pop() || 'png').toLowerCase();
+              const filename = `Unanchored_IMG${imgCount++}.${ext}`;
+              await this.processExtractedBlob(blob, filename, ctx);
+            }
           },
           getGlobalFont() {
             const v = parseInt(this.els.fontSize.value, 10);
@@ -5328,16 +5571,17 @@
           draw(c) {
             if (!c.img.complete) return;
             requestAnimationFrame(() => {
-              let tW = parseInt(this.els.width.value, 10) || 300,
-                tH = parseInt(this.els.height.value, 10) || 400;
+              let tW = parseInt(this.els.width.value, 10);
+              let tH = parseInt(this.els.height.value, 10);
+              
+              if (isNaN(tW) || tW <= 0) tW = c.img.naturalWidth || 300;
+              if (isNaN(tH) || tH <= 0) tH = c.img.naturalHeight || 400;
+              
               const globFont = this.getGlobalFont();
               c.els.localFontInp.placeholder = `Auto (${globFont}px)`;
               c.canvas.width = tW;
               c.canvas.height = tH;
-              const isLowRes = this.performDraw(c.canvas, c, tW, tH);
-              if (c.card) {
-                c.card.classList.toggle("low-res-source", isLowRes);
-              }
+              this.performDraw(c.canvas, c, tW, tH);
               if (
                 this.activeDetailIndex === this.cards.indexOf(c) &&
                 this.els.mOverlay.classList.contains("active")
@@ -5530,8 +5774,12 @@
           },
           async downloadSingle(c) {
             const canvas = document.createElement("canvas");
-            let tW = parseInt(this.els.width.value, 10) || 300;
-            let tH = parseInt(this.els.height.value, 10) || 400;
+            let tW = parseInt(this.els.width.value, 10);
+            let tH = parseInt(this.els.height.value, 10);
+            
+            if (isNaN(tW) || tW <= 0) tW = c.img.naturalWidth || 300;
+            if (isNaN(tH) || tH <= 0) tH = c.img.naturalHeight || 400;
+            
             canvas.width = tW;
             canvas.height = tH;
             await this.performHighQualityDraw(canvas, c, tW, tH);
@@ -5752,8 +6000,11 @@
             for (let i = 0; i < this.cards.length; i++) {
               const c = this.cards[i];
               const canvas = document.createElement("canvas");
-              let tW = parseInt(this.els.width.value, 10) || 300,
-                tH = parseInt(this.els.height.value, 10) || 400;
+              let tW = parseInt(this.els.width.value, 10);
+              let tH = parseInt(this.els.height.value, 10);
+              
+              if (isNaN(tW) || tW <= 0) tW = c.img.naturalWidth || 300;
+              if (isNaN(tH) || tH <= 0) tH = c.img.naturalHeight || 400;
               canvas.width = tW;
               canvas.height = tH;
               await this.performHighQualityDraw(canvas, c, tW, tH);
