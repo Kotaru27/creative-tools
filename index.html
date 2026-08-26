@@ -7191,25 +7191,53 @@
                 if (clean.toLowerCase().endsWith(ext)) {
                   clean = clean.substring(0, clean.length - ext.length);
                 }
-              } else {
-                let typeLower = adType.toLowerCase();
-                if (
-                  typeLower.includes("print") ||
-                  typeLower.includes("ooh") ||
-                  typeLower.includes("img") ||
-                  typeLower.includes("pic")
-                ) {
-                  ext = ".jpg";
-                } else if (
-                  typeLower.includes("radio") ||
-                  typeLower.includes("audio") ||
-                  typeLower.includes("podcast")
-                ) {
-                  ext = ".mp3";
-                } else {
-                  ext = ".mp4";
-                }
-              }
+} else {
+                 let typeLower = adType.toLowerCase().trim();
+                 const imageTypes = [
+                   "print", "ooh", "out of home", "outdoor", "billboard", "poster",
+                   "img", "image", "picture", "photo", "static", "display", "banner",
+                   "pic", "jpeg", "jpg", "png", "gif", "webp", "creative", "visual"
+                 ];
+                 const audioTypes = [
+                   "radio", "audio", "podcast", "sound", "voice", "music", "spot"
+                 ];
+                 const videoTypes = [
+                   "tv", "television", "video", "cinema", "pre-roll", "preroll",
+                   "mid-roll", "midroll", "post-roll", "postroll", "bumper",
+                   "in-stream", "instream", "ott", "ctv", "connected tv",
+                   "social video", "reels", "tiktok", "shorts", "story", "stories"
+                 ];
+
+                 let matched = false;
+                 for (const t of imageTypes) {
+                   if (typeLower === t || typeLower.includes(" " + t + " ") || typeLower.startsWith(t + " ") || typeLower.endsWith(" " + t)) {
+                     ext = ".jpg";
+                     matched = true;
+                     break;
+                   }
+                 }
+                 if (!matched) {
+                   for (const t of audioTypes) {
+                     if (typeLower === t || typeLower.includes(" " + t + " ") || typeLower.startsWith(t + " ") || typeLower.endsWith(" " + t)) {
+                       ext = ".mp3";
+                       matched = true;
+                       break;
+                     }
+                   }
+                 }
+                 if (!matched) {
+                   for (const t of videoTypes) {
+                     if (typeLower === t || typeLower.includes(" " + t + " ") || typeLower.startsWith(t + " ") || typeLower.endsWith(" " + t)) {
+                       ext = ".mp4";
+                       matched = true;
+                       break;
+                     }
+                   }
+                 }
+                 if (!matched) {
+                   ext = ".mp4";
+                 }
+               }
               clean = clean
                 .replace(/[^a-zA-Z0-9]/g, "_")
                 .replace(/_+/g, "_")
