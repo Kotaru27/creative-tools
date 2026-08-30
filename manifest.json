@@ -4,6 +4,17 @@
   "start_url": "./index.html",
   "display": "standalone",
   "background_color": "#000000",
-  "theme_color": "#7c5cff",
-  "description": "Toolkit for Logo, PDF, Video Stills, Storyboard, Ad Links & Video Downloads"
+  "theme_color": "#3B82F6",
+  "icons": [
+    {
+      "src": "logo.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "logo.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
 }

@@ -1,6 +1,0 @@
-{
-  "name": "Creative Tools Suite",
-  "description": "A premium, 3D-first creative utility workspace.",
-  "requestFramePermissions": [],
-  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
-}
