@@ -135,13 +135,6 @@
         --dur-slow: 500ms;
 
         --spacing: 24px;
-        --spacing-xs: 4px;
-        --spacing-sm: 8px;
-        --spacing-md: 12px;
-        --spacing-lg: 16px;
-        --spacing-xl: 20px;
-        --spacing-2xl: 32px;
-        --spacing-3xl: 40px;
         --font: "Roboto", "Roboto Flex", system-ui, sans-serif;
 
         /* M3 type scale (Roboto Flex optical sizing) */
@@ -204,24 +197,6 @@
       /* ---------- 2. STRUCTURAL SCAFFOLD (keeps all tools functional) ---------- */
       * { box-sizing: border-box; outline: none; }
       html { scroll-behavior: smooth; }
-      /* Smooth theme transition — only on color-bearing properties */
-      body,
-      body *,
-      body *::before,
-      body *::after {
-        transition: background-color 0.3s ease, color 0.25s ease, border-color 0.3s ease, box-shadow 0.3s ease, opacity 0.25s ease;
-      }
-      /* Exclude interactive elements that need instant feedback */
-      input[type="range"].range-slider,
-      .toggle-switch,
-      .toggle-switch::after,
-      .toggle-track,
-      .toggle-thumb,
-      canvas,
-      img,
-      video {
-        transition: none;
-      }
       body {
         margin: 0;
         padding: 0;
@@ -274,15 +249,7 @@
       #view-app.active { display: block; }
       #view-home.hidden { display: none !important; }
       .tool-section { display: none; max-width: 100%; margin: 0; height: 100%; }
-      .tool-section.active {
-        display: flex;
-        flex-direction: column;
-        animation: toolSectionIn 0.3s var(--ease) both;
-      }
-      @keyframes toolSectionIn {
-        from { opacity: 0; transform: translateY(8px); }
-        to { opacity: 1; transform: translateY(0); }
-      }
+      .tool-section.active { display: flex; flex-direction: column; }
       .editor-layout {
         display: grid;
         grid-template-columns: 320px minmax(0, 1fr);
@@ -458,7 +425,6 @@
       .nav-item.active {
         background: var(--accent-soft);
         color: var(--accent);
-        box-shadow: inset 0 0 0 1px var(--accent-soft);
       }
       .nav-item.active .nav-item-text { color: var(--accent); }
       @media (max-width: 760px) {
@@ -646,24 +612,6 @@
         color: var(--accent, var(--m3-on-surface)); 
         opacity: 1;
         transform: translateX(0) translateY(0);
-      }
-      /* Stagger entrance animation for home cards */
-      .home-card {
-        opacity: 0;
-        transform: translateY(12px);
-        animation: homeCardIn 0.4s var(--ease) forwards;
-      }
-      .home-card:nth-child(1) { animation-delay: 0.05s; }
-      .home-card:nth-child(2) { animation-delay: 0.1s; }
-      .home-card:nth-child(3) { animation-delay: 0.15s; }
-      .home-card:nth-child(4) { animation-delay: 0.2s; }
-      .home-card:nth-child(5) { animation-delay: 0.25s; }
-      .home-card:nth-child(6) { animation-delay: 0.3s; }
-      .home-card:nth-child(7) { animation-delay: 0.35s; }
-      .home-card:nth-child(8) { animation-delay: 0.4s; }
-      @keyframes homeCardIn {
-        from { opacity: 0; transform: translateY(12px); }
-        to { opacity: 1; transform: translateY(0); }
       }
 
       @media (max-width: 1000px) {
@@ -867,17 +815,11 @@
       }
       .liquid-btn:hover:not(:disabled)::before { opacity: 0.08; }
       .liquid-btn:active:not(:disabled)::before { opacity: 0.12; }
-      .liquid-btn:active:not(:disabled) { transform: scale(0.97); }
       .liquid-btn i,
       .liquid-btn svg { width: 18px; height: 18px; }
       .liquid-btn:focus-visible {
         outline: 2px solid var(--m3-primary);
         outline-offset: 2px;
-        animation: focusPulse 1.5s ease-in-out infinite;
-      }
-      @keyframes focusPulse {
-        0%, 100% { outline-offset: 2px; }
-        50% { outline-offset: 4px; }
       }
       .liquid-btn:disabled {
         color: color-mix(in srgb, var(--m3-on-surface) 38%, transparent);
@@ -964,14 +906,6 @@
         height: 3px;
         border-radius: 3px 3px 0 0;
         background: var(--m3-primary);
-      }
-      /* Tab content fade-in animation */
-      div[role="tabpanel"] {
-        animation: tabPanelIn 0.25s var(--ease) both;
-      }
-      @keyframes tabPanelIn {
-        from { opacity: 0; transform: translateY(4px); }
-        to { opacity: 1; transform: translateY(0); }
       }
 
       /* ---------- 8. TOOL SURFACES (M3) ---------- */
@@ -1099,8 +1033,6 @@
         background: var(--m3-primary-container);
         border: 1.5px dashed var(--m3-primary);
         color: var(--m3-on-primary-container);
-        transform: scale(1.01);
-        box-shadow: 0 0 0 3px var(--accent-soft);
       }
 
       /* Empty states — M3 plain surface */
@@ -1119,26 +1051,6 @@
         gap: 15px;
         justify-content: center;
         font-size: 0.95rem;
-        animation: emptyStateIn 0.4s var(--ease) both;
-      }
-      @keyframes emptyStateIn {
-        from { opacity: 0; transform: scale(0.97); }
-        to { opacity: 1; transform: scale(1); }
-      }
-      /* Skeleton shimmer for loading states */
-      .skeleton-shimmer {
-        background: linear-gradient(90deg,
-          var(--m3-surface-container) 25%,
-          var(--m3-surface-container-high) 50%,
-          var(--m3-surface-container) 75%
-        );
-        background-size: 200% 100%;
-        animation: shimmer 1.5s ease-in-out infinite;
-        border-radius: var(--radius);
-      }
-      @keyframes shimmer {
-        0% { background-position: 200% 0; }
-        100% { background-position: -200% 0; }
       }
       .empty-state-msg i { width: 48px; height: 48px; color: var(--m3-on-surface-variant); opacity: 0.6; margin-bottom: 10px; }
 
@@ -1158,16 +1070,6 @@
         border-radius: var(--radius-full);
         width: 0%;
         transition: width var(--dur) var(--ease);
-      }
-      .progress-bar-fill.indeterminate {
-        width: 100% !important;
-        background: linear-gradient(90deg, var(--m3-primary) 0%, color-mix(in srgb, var(--m3-primary) 50%, transparent) 50%, var(--m3-primary) 100%);
-        background-size: 200% 100%;
-        animation: progressPulse 1.5s ease-in-out infinite;
-      }
-      @keyframes progressPulse {
-        0% { background-position: 200% 0; }
-        100% { background-position: -200% 0; }
       }
       .progress-text {
         font-size: 0.85rem;
@@ -1256,10 +1158,9 @@
       /* Overlay scrim (structure from scaffold; M3 scrim token already applied) */
       .overlay-fixed.active { animation: m3FadeIn var(--dur) var(--ease) both; }
       @keyframes m3FadeIn { from { opacity: 0; } to { opacity: 1; } }
-      .overlay-fixed.leaving { animation: m3FadeOut 200ms var(--ease) both; }
-      @keyframes m3FadeOut { from { opacity: 1; } to { opacity: 0; } }
       #view-app.leaving,
       #view-home.leaving { animation: m3FadeOut 160ms var(--ease) both; }
+      @keyframes m3FadeOut { from { opacity: 1; } to { opacity: 0; } }
 
       /* Overlay content shells (inline var() styles resolve through aliases) */
       .overlay-content {
@@ -1274,16 +1175,9 @@
         box-shadow: var(--md-elev-3);
         animation: m3DialogIn var(--dur-slow) var(--ease) both;
       }
-      .overlay-fixed.leaving > div {
-        animation: m3DialogOut 200ms var(--ease) both;
-      }
       @keyframes m3DialogIn {
-        from { opacity: 0; transform: translateY(16px) scale(0.96); }
+        from { opacity: 0; transform: translateY(16px) scale(0.98); }
         to { opacity: 1; transform: translateY(0) scale(1); }
-      }
-      @keyframes m3DialogOut {
-        from { opacity: 1; transform: translateY(0) scale(1); }
-        to { opacity: 0; transform: translateY(8px) scale(0.98); }
       }
 
       /* Confirm dialog — M3 basic dialog */
@@ -1306,11 +1200,7 @@
         border-radius: 28px;
         box-shadow: 0 8px 12px rgba(0,0,0,0.15); /* M3 elevation 3 */
         padding: 24px;
-        animation: m3DialogBounceIn var(--dur) var(--ease-spring) both;
-      }
-      @keyframes m3DialogBounceIn {
-        from { opacity: 0; transform: translateY(16px) scale(0.95); }
-        to { opacity: 1; transform: translateY(0) scale(1); }
+        animation: m3DialogIn var(--dur) var(--ease) both;
       }
       .confirm-head { display: flex; align-items: center; gap: 12px; margin-bottom: 10px; }
       .confirm-head h3 { margin: 0; font-weight: 400; font-size: 1.05rem; color: var(--m3-on-surface); }
@@ -1338,7 +1228,7 @@
         border-radius: 28px;
         box-shadow: 0 8px 12px rgba(0,0,0,0.15);
         padding: 24px;
-        animation: m3DialogBounceIn var(--dur) var(--ease-spring) both;
+        animation: m3DialogIn var(--dur) var(--ease) both;
       }
       .presets-head { display: flex; align-items: center; gap: 10px; margin-bottom: 4px; }
       .presets-head h3 { margin: 0; font-weight: 400; font-size: 1.05rem; color: var(--m3-on-surface); flex: 1; }
@@ -1396,18 +1286,10 @@
         font-size: 0.875rem;
         box-shadow: var(--md-elev-3);
         animation: m3SnackbarIn var(--dur) var(--ease) both;
-        transition: opacity 0.2s ease, transform 0.2s ease;
-      }
-      #errorToast.hiding {
-        animation: m3SnackbarOut 0.25s var(--ease) both;
       }
       @keyframes m3SnackbarIn {
         from { opacity: 0; transform: translateY(16px); }
         to { opacity: 1; transform: translateY(0); }
-      }
-      @keyframes m3SnackbarOut {
-        from { opacity: 1; transform: translateY(0); }
-        to { opacity: 0; transform: translateY(16px); }
       }
       .undo-toast {
         position: fixed;
@@ -4656,15 +4538,8 @@
         },
         showError(msg) {
           this.els.toast.innerText = msg;
-          this.els.toast.classList.remove("hiding");
           this.els.toast.classList.add("visible");
-          clearTimeout(this._toastTimer);
-          this._toastTimer = setTimeout(() => {
-            this.els.toast.classList.add("hiding");
-            setTimeout(() => {
-              this.els.toast.classList.remove("visible", "hiding");
-            }, 250);
-          }, 4000);
+          setTimeout(() => this.els.toast.classList.remove("visible"), 4000);
         },
         /* In-app confirmation dialog (replaces native confirm()).
            Returns a Promise<boolean>. options: { title, message, okLabel, cancelLabel } */
@@ -4966,14 +4841,7 @@
           this.els.lightbox.classList.add("active");
         },
         closeLightbox() {
-          this.animateOverlayClose(this.els.lightbox);
-        },
-        animateOverlayClose(el, duration) {
-          if (!el || !el.classList.contains("active")) return;
-          const dur = duration || 200;
-          el.classList.add("leaving");
-          el.classList.remove("active");
-          setTimeout(() => el.classList.remove("leaving"), dur);
+          this.els.lightbox.classList.remove("active");
         },
         openCommandPalette() {
           document
@@ -4984,7 +4852,9 @@
           this.filterCommandPalette("");
         },
         closeCommandPalette() {
-          UI.animateOverlayClose(document.getElementById("commandPaletteOverlay"));
+          document
+            .getElementById("commandPaletteOverlay")
+            .classList.remove("active");
         },
         filterCommandPalette(term) {
           const query = term.toLowerCase();
@@ -5180,6 +5050,12 @@
               if (obj) {
                 obj.fname = Core.Utils.sanitize(this.els.mFname.value.trim());
                 obj.els.fname.value = obj.fname || "Untitled";
+              }
+            };
+            this.els.mFname.onblur = () => {
+              const obj = this.cards[this.activeDetailIndex];
+              if (obj) {
+                this.els.mFname.value = obj.fname || "Untitled";
               }
             };
             this.els.mText.oninput = () => {
@@ -5576,7 +5452,7 @@
             card.className = "logo-card-item";
             card.style.cssText =
               "display:flex; flex-direction:column; border-radius:6px; overflow:hidden; transition:none; position:relative;";
-            let baseName = file.name.replace(/\.[^/.]+$/, "").substring(0, 30);
+            let baseName = Core.Utils.sanitize(file.name.replace(/\.[^/.]+$/, "").substring(0, 30));
             card.innerHTML = `<div style="display:flex; justify-content:space-between; align-items:center; padding:12px; border-bottom:1px solid var(--border);"><input data-guide="Edit the exported filename for this individual logo." class="card-fname-lbl liquid-input" style="font-size:0.75rem; color:var(--text-muted); font-weight:600; padding:2px 6px; height:24px; max-width:150px; background:transparent; outline:none;" value="${baseName}" /><button data-guide="Remove this logo from the workspace." class="liquid-btn icon-only danger-btn card-rm" style="width:28px; height:28px; padding:0; display:flex; align-items:center; justify-content:center;"><span class="material-symbols-rounded" style="font-size: 14px;">delete</span></button></div><div data-guide="Click to open Focus Mode to inspect or copy this logo in full detail." class="card-preview-area" style="background-image:radial-gradient(var(--border) 1px, transparent 1px); background-size:15px 15px; position:relative; display:flex; justify-content:center; align-items:center; padding:3px; cursor:pointer; min-height:220px; flex:1; border-bottom:1px solid var(--border);"><canvas style="max-width:100%; max-height:100%; object-fit:contain; border:1px solid var(--border); background:#fff;"></canvas><div class="hover-overlay" style="position:absolute; inset:0; background:var(--m3-scrim); opacity:0; display:flex; align-items:center; justify-content:center; transition:opacity 0.2s;"><span style="background:var(--bg-panel); border:1px solid var(--border); padding:6px 12px; border-radius:6px; font-size:0.75rem; text-transform:uppercase; letter-spacing:1px; font-weight:bold;">Focus Mode</span></div></div><div style="padding:16px; display:flex; flex-direction:column; gap:12px;"><div style="display:flex; flex-direction:column; gap:6px;"><span style="font-size:0.8rem; font-weight:bold; color:var(--text-muted);">Overlay Label</span><textarea data-guide="Type a custom label or notation to overlay on this logo." class="liquid-input card-text" rows="1" placeholder="Type design label..." style="resize:none; padding:8px; font-size:0.75rem; height:34px;"></textarea></div><div style="display:flex; justify-content:space-between; align-items:center; gap:10px;"><div style="display:flex; align-items:center; gap:8px;"><span style="font-size:0.8rem; font-weight:bold; color:var(--text-muted);">Size Override:</span><input data-guide="Set a specific font size for this logo. Overrides global settings." type="number" class="liquid-input card-local-font-inp" placeholder="Auto" style="width:60px; height:26px; font-size:0.7rem; text-align:center; padding:4px;" /></div><button data-guide="Download this individual resized logo." class="liquid-btn icon-only active-mode card-dl" style="width:28px; height:28px; padding:0; display:flex; align-items:center; justify-content:center;"><span class="material-symbols-rounded" style="font-size: 14px;">download</span></button></div></div>`;
             const canvas = card.querySelector("canvas");
             const hoverOverlay = card.querySelector(".hover-overlay");
@@ -5612,6 +5488,9 @@
               if (this.activeDetailIndex === this.cards.indexOf(obj)) {
                 this.els.mFname.value = obj.fname;
               }
+            };
+            fnameLbl.onblur = () => {
+              fnameLbl.value = obj.fname || "Untitled";
             };
             textInput.oninput = Core.Utils.debounce(() => {
               obj.text = textInput.value;
@@ -5864,7 +5743,7 @@
           },
           closeDetail() {
             this.activeDetailIndex = null;
-            UI.animateOverlayClose(this.els.mOverlay);
+            this.els.mOverlay.classList.remove("active");
           },
           goDetail(dir) {
             if (this.activeDetailIndex === null || !this.cards.length) return;
@@ -5914,7 +5793,9 @@
               `${this.cards.length} logos loaded.`;
           },
           closeLinkGen() {
-            UI.animateOverlayClose(document.getElementById("logoLinkGenOverlay"));
+            document
+              .getElementById("logoLinkGenOverlay")
+              .classList.remove("active");
           },
           generateLinks() {
             const brandsText = document.getElementById("logoLinkBrands").value;
@@ -6310,7 +6191,7 @@
             }
           },
           closeDetail() {
-            UI.animateOverlayClose(this.els.overlay);
+            this.els.overlay.classList.remove("active");
             this.currentId = null;
           },
           toggleAll(val) {
@@ -7121,7 +7002,7 @@
             this.els.overlay.classList.add("active");
           },
           closeDetail() {
-            UI.animateOverlayClose(this.els.overlay);
+            this.els.overlay.classList.remove("active");
             this.currentId = null;
           },
           closeBoardMenu() {
