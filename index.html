@@ -8,7 +8,7 @@
     <link rel="icon" type="image/png" href="Toolkit%20logo.png">
     <link rel="manifest" href="manifest.json" />
     <link
-      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Roboto:wght@400;500;700&family=Roboto+Flex:opsz,wght@8..144,300..800&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Audiowide&family=Space+Mono:wght@400;700&family=IBM+Plex+Mono:wght@400;500&display=swap"
       rel="stylesheet"
       crossorigin="anonymous"
     />
@@ -40,52 +40,48 @@
 
     <style>
       /* ==================================================================
-         MATERIAL 3 — CLEAN-ROOM BUILD (Slice 0+1: tokens, scaffold, shell+home)
-         Old UI layers fully removed. No rules carried over from the legacy skin.
+         SYNAPSE — BRUTALIST / TECHNICAL UI (monochrome + red accent)
          Class names, IDs, state classes and DOM structure are unchanged —
-         all JS logic (Tools/UI/GuideEngine/persistence) works as-is.
+         all JS logic works as-is.
          ================================================================== */
 
-      /* ---------- 1. M3 DESIGN TOKENS ---------- */
+      /* ---------- 1. DESIGN TOKENS ---------- */
       :root {
-        /* Tonal palette (seed: #7C5CFF) */
-        --m3-primary: #CFBCFF;
-        --m3-on-primary: #381E72;
-        --m3-primary-container: #4F378B;
-        --m3-on-primary-container: #E9DDFF;
-        --m3-secondary: #CDC2DC;
-        --m3-on-secondary: #332D41;
-        --m3-secondary-container: #4A4458;
-        --m3-on-secondary-container: #E8DEF8;
-        --m3-tertiary: #E5BAD4;
-        --m3-on-tertiary: #422940;
-        --m3-tertiary-container: #5A3F57;
-        --m3-on-tertiary-container: #FFD8EC;
-        --m3-error: #FFB4AB;
-        --m3-on-error: #690005;
-        --m3-error-container: #93000A;
-        --m3-on-error-container: #FFDAD6;
-        --m3-surface: #0f0f13;
-        --m3-on-surface: #E1E1E6;
-        --m3-surface-variant: #42424A;
-        --m3-on-surface-variant: #C4C4CD;
-        --m3-surface-container-highest: #2D2D33;
-        --m3-surface-container-high: #24242A;
-        --m3-surface-container: #1C1C22;
-        --m3-surface-container-low: #15151A;
-        --m3-surface-container-lowest: #09090D;
-        --m3-outline: #8E8E98;
-        --m3-outline-variant: #42424A;
-        --m3-inverse-surface: #E1E1E6;
-        --m3-inverse-on-surface: #2D2D33;
-        --m3-scrim: rgba(0, 0, 0, 0.75);
+        --m3-primary: #FF0000;
+        --m3-on-primary: #FFFFFF;
+        --m3-primary-container: #CC0000;
+        --m3-on-primary-container: #FFFFFF;
+        --m3-secondary: #888888;
+        --m3-on-secondary: #FFFFFF;
+        --m3-secondary-container: #444444;
+        --m3-on-secondary-container: #FFFFFF;
+        --m3-tertiary: #AAAAAA;
+        --m3-on-tertiary: #000000;
+        --m3-tertiary-container: #666666;
+        --m3-on-tertiary-container: #FFFFFF;
+        --m3-error: #FF0000;
+        --m3-on-error: #FFFFFF;
+        --m3-error-container: #990000;
+        --m3-on-error-container: #FFFFFF;
+        --m3-surface: #0A0A0A;
+        --m3-on-surface: #E0E0E0;
+        --m3-surface-variant: #1A1A1A;
+        --m3-on-surface-variant: #999999;
+        --m3-surface-container-highest: #2A2A2A;
+        --m3-surface-container-high: #1E1E1E;
+        --m3-surface-container: #141414;
+        --m3-surface-container-low: #111111;
+        --m3-surface-container-lowest: #080808;
+        --m3-outline: #555555;
+        --m3-outline-variant: #333333;
+        --m3-inverse-surface: #E0E0E0;
+        --m3-inverse-on-surface: #0A0A0A;
+        --m3-scrim: rgba(0, 0, 0, 0.85);
 
-        /* Semantic aliases — legacy var names kept so inline var() usage in
-           untouched markup/JS keeps resolving (repointed at M3 roles) */
         --accent: var(--m3-primary);
-        --accent-hover: #E0D2FF;
-        --accent-soft: color-mix(in srgb, var(--m3-primary) 18%, transparent);
-        --accent-glow: color-mix(in srgb, var(--m3-primary) 40%, transparent);
+        --accent-hover: #FF3333;
+        --accent-soft: rgba(136, 136, 136, 0.15);
+        --accent-glow: rgba(136, 136, 136, 0.3);
         --bg-main: var(--m3-surface);
         --bg-body: var(--m3-surface);
         --bg-panel: var(--m3-surface-container-low);
@@ -99,104 +95,140 @@
         --text-faint: var(--m3-outline);
         --text-inverse: var(--m3-on-surface);
         --danger: var(--m3-error);
-        --danger-soft: color-mix(in srgb, var(--m3-error) 14%, transparent);
-        --success: #7FDBA8;
-        --success-soft: color-mix(in srgb, var(--success) 14%, transparent);
-        --warning: #ECC160;
-        --scrollbar-thumb: var(--m3-surface-container-highest);
-        --scrollbar-thumb-hover: var(--m3-outline);
+        --danger-soft: rgba(255, 0, 0, 0.15);
+        --success: #00CC66;
+        --success-soft: rgba(0, 204, 102, 0.15);
+        --warning: #FFAA00;
+        --scrollbar-thumb: #333333;
+        --scrollbar-thumb-hover: #555555;
 
-        /* Shape scale — M3 Expressive: larger, rounder */
-        --radius-xs: 4px;
-        --radius-sm: 8px;
-        --radius: 12px;
-        --radius-lg: 16px;
-        --radius-xl: 24px;
-        --radius-full: 999px;
+        --radius-xs: 0px;
+        --radius-sm: 0px;
+        --radius: 0px;
+        --radius-lg: 0px;
+        --radius-xl: 0px;
+        --radius-full: 0px;
 
-        /* Elevation (M3 levels 1–3) */
-        --md-elev-1: 0 1px 2px rgba(0, 0, 0, 0.3), 0 1px 3px 1px rgba(0, 0, 0, 0.15);
-        --md-elev-2: 0 1px 2px rgba(0, 0, 0, 0.3), 0 2px 6px 2px rgba(0, 0, 0, 0.15);
-        --md-elev-3: 0 4px 8px 3px rgba(0, 0, 0, 0.15), 0 1px 3px rgba(0, 0, 0, 0.3);
+        --md-elev-1: 0 1px 0 rgba(0,0,0,0.5);
+        --md-elev-2: 0 2px 0 rgba(0,0,0,0.5);
+        --md-elev-3: 0 3px 0 rgba(0,0,0,0.5);
         --shadow-sm: var(--md-elev-1);
-        --shadow-block: var(--md-elev-1);
-        --shadow-block-hover: var(--md-elev-2);
+        --shadow-block: 1px 1px 0 var(--m3-outline-variant);
         --shadow-pop: var(--md-elev-3);
         --inner-glow: none;
 
-        /* Motion — M3 Expressive: spring physics */
-        --md-emphasized: cubic-bezier(0.2, 0, 0, 1);
-        --md-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
-        --md-spring-soft: cubic-bezier(0.25, 1, 0.5, 1.15);
         --ease: cubic-bezier(0.2, 0, 0, 1);
         --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
-        --dur-fast: 150ms;
-        --dur: 300ms;
-        --dur-slow: 500ms;
+        --ease-out: cubic-bezier(0, 0, 0.2, 1);
+        --ease-in: cubic-bezier(0.4, 0, 1, 1);
+        --dur-micro: 80ms;
+        --dur-fast: 120ms;
+        --dur: 200ms;
+        --dur-component: 200ms;
+        --dur-workspace: 320ms;
+        --dur-nav: 420ms;
+        --dur-modal: 280ms;
+        --dur-slow: 350ms;
 
-        --spacing: 24px;
-        --font: "Roboto", "Roboto Flex", system-ui, sans-serif;
+        --spacing: 16px;
+        --font: "Space Mono", "IBM Plex Mono", monospace;
+        --font-display: "Audiowide", "Space Mono", monospace;
+        --font-mono: "IBM Plex Mono", "SF Mono", "Consolas", monospace;
 
-        /* M3 type scale (Roboto Flex optical sizing) */
-        --text-xs: 0.72rem;
-        --text-sm: 0.8rem;
-        --text-base: 0.9rem;
-        --text-md: 0.9rem;
-        --text-lg: 1rem;
-        --text-xl: 1.35rem;
-        --md-display: 2.25rem;
-        --md-headline: 1.75rem;
-        --md-title: 1.1rem;
+        --text-xs: 0.65rem;
+        --text-sm: 0.72rem;
+        --text-base: 0.82rem;
+        --text-md: 0.82rem;
+        --text-lg: 0.92rem;
+        --text-xl: 1.15rem;
+        --md-display: 2rem;
+        --md-headline: 1.5rem;
+        --md-title: 1rem;
 
         color-scheme: dark;
       }
 
-      /* ---------- Light scheme (applied via JS body.light-mode) ---------- */
       body.light-mode {
-        --m3-primary: #634B9B;
+        --m3-primary: #CC0000;
         --m3-on-primary: #FFFFFF;
-        --m3-primary-container: #E9DDFF;
-        --m3-on-primary-container: #1F1155;
-        --m3-secondary: #625B71;
-        --m3-secondary-container: #E8DEF8;
-        --m3-on-secondary-container: #1D192B;
-        --m3-tertiary: #7D5260;
-        --m3-tertiary-container: #FFD8EC;
-        --m3-on-tertiary-container: #31111D;
-        --m3-error: #B3261E;
+        --m3-primary-container: #FF4444;
+        --m3-on-primary-container: #FFFFFF;
+        --m3-secondary: #666666;
+        --m3-secondary-container: #DDDDDD;
+        --m3-on-secondary-container: #000000;
+        --m3-tertiary: #555555;
+        --m3-on-tertiary: #FFFFFF;
+        --m3-tertiary-container: #CCCCCC;
+        --m3-on-tertiary-container: #000000;
+        --m3-error: #CC0000;
         --m3-on-error: #FFFFFF;
-        --m3-error-container: #F9DEDC;
-        --m3-on-error-container: #410E0B;
-        --m3-surface: #FEF7FF;
-        --m3-on-surface: #1D1B20;
-        --m3-surface-variant: #E7E0EC;
-        --m3-on-surface-variant: #49454F;
-        --m3-outline: #79747E;
-        --m3-outline-variant: #CAC4D0;
+        --m3-error-container: #FF4444;
+        --m3-on-error-container: #FFFFFF;
+        --m3-surface: #F5F5F5;
+        --m3-on-surface: #1A1A1A;
+        --m3-surface-variant: #E0E0E0;
+        --m3-on-surface-variant: #666666;
         --m3-surface-container-lowest: #FFFFFF;
-        --m3-surface-container-low: #F7F2FA;
-        --m3-surface-container: #F3EDF7;
-        --m3-surface-container-high: #EDE8F2;
-        --m3-surface-container-highest: #E8E4EC;
-        --m3-inverse-surface: #1D1B20;
-        --m3-inverse-on-surface: #F4EFF4;
-        --m3-scrim: rgba(0, 0, 0, 0.4);
+        --m3-surface-container-low: #EEEEEE;
+        --m3-surface-container: #E8E8E8;
+        --m3-surface-container-high: #E0E0E0;
+        --m3-surface-container-highest: #D8D8D8;
+        --m3-outline: #AAAAAA;
+        --m3-outline-variant: #CCCCCC;
+        --m3-inverse-surface: #1A1A1A;
+        --m3-inverse-on-surface: #F5F5F5;
+        --m3-scrim: rgba(0, 0, 0, 0.5);
 
-        /* Legacy aliases re-resolve automatically via var() chain */
-        --accent-hover: #4B3486;
-        --success: #1B7A4B;
-        --warning: #8A5A00;
+        --accent: var(--m3-primary);
+        --accent-hover: #AA0000;
+        --accent-soft: rgba(204, 0, 0, 0.1);
+        --accent-glow: rgba(204, 0, 0, 0.3);
+        --bg-main: var(--m3-surface);
+        --bg-body: var(--m3-surface);
+        --bg-panel: var(--m3-surface-container-low);
+        --bg-input: var(--m3-surface-container-high);
+        --bg-elevated: var(--m3-surface-container-highest);
+        --border: var(--m3-outline-variant);
+        --border-strong: var(--m3-outline);
+        --text-main: var(--m3-on-surface);
+        --text-muted: var(--m3-on-surface-variant);
+        --text-dim: var(--m3-on-surface-variant);
+        --text-faint: var(--m3-outline);
+        --text-inverse: var(--m3-on-surface);
+        --danger: var(--m3-error);
+        --danger-soft: rgba(204, 0, 0, 0.1);
+        --success: #009944;
+        --success-soft: rgba(0, 153, 68, 0.1);
+        --warning: #CC8800;
+        --scrollbar-thumb: #CCCCCC;
+        --scrollbar-thumb-hover: #AAAAAA;
 
-        --md-elev-1: 0 1px 2px rgba(0, 0, 0, 0.12), 0 1px 3px 1px rgba(0, 0, 0, 0.08);
-        --md-elev-2: 0 1px 2px rgba(0, 0, 0, 0.12), 0 2px 6px 2px rgba(0, 0, 0, 0.08);
-        --md-elev-3: 0 4px 8px 3px rgba(0, 0, 0, 0.10), 0 1px 3px rgba(0, 0, 0, 0.16);
+        --md-elev-1: 0 1px 0 rgba(0,0,0,0.12);
+        --md-elev-2: 0 2px 0 rgba(0,0,0,0.12);
+        --md-elev-3: 0 3px 0 rgba(0,0,0,0.12);
+        --shadow-sm: var(--md-elev-1);
+        --shadow-block: 1px 1px 0 var(--m3-outline-variant);
+        --shadow-pop: var(--md-elev-3);
+        --inner-glow: none;
 
         color-scheme: light;
       }
 
-      /* ---------- 2. STRUCTURAL SCAFFOLD (keeps all tools functional) ---------- */
+      /* ---------- 2. STRUCTURAL SCAFFOLD ---------- */
       * { box-sizing: border-box; outline: none; }
       html { scroll-behavior: smooth; }
+      body::before {
+        content: "";
+        position: fixed;
+        inset: 0;
+        z-index: 9999;
+        pointer-events: none;
+        opacity: 0.035;
+        background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+        background-repeat: repeat;
+        background-size: 200px 200px;
+      }
+      body.light-mode::before { opacity: 0.025; }
       body {
         margin: 0;
         padding: 0;
@@ -207,53 +239,65 @@
         background: var(--m3-surface);
         color: var(--m3-on-surface);
         font-family: var(--font);
-        font-size: 0.9rem;
+        font-size: 0.875rem;
         font-weight: 400;
-        line-height: 1.55;
+        line-height: 1.5;
         font-optical-sizing: auto;
         -webkit-font-smoothing: antialiased;
       }
       .hidden { display: none !important; }
       input[type="number"]::-webkit-inner-spin-button,
-      input[type="number"]::-webkit-outer-spin-button {
-        -webkit-appearance: none;
-        margin: 0;
-      }
+      input[type="number"]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
       input[type="number"] { -moz-appearance: textfield; appearance: textfield; }
-      ::-webkit-scrollbar { width: 8px; height: 8px; }
-      ::-webkit-scrollbar-track { background: transparent; }
-      ::-webkit-scrollbar-thumb {
-        background: var(--scrollbar-thumb);
-        border-radius: var(--radius-full);
-      }
+      ::-webkit-scrollbar { width: 6px; height: 6px; }
+      ::-webkit-scrollbar-track { background: var(--m3-surface); }
+      ::-webkit-scrollbar-thumb { background: var(--scrollbar-thumb); }
       ::-webkit-scrollbar-thumb:hover { background: var(--scrollbar-thumb-hover); }
 
-      /* Layout skeleton */
       .main-layout { display: flex; flex: 1; overflow: hidden; position: relative; }
-      .view-container {
-        flex: 1;
-        position: relative;
-        overflow: hidden;
-        display: flex;
-        flex-direction: column;
-      }
-      #view-home,
-      #view-app {
-        width: 100%;
-        height: 100%;
-        overflow-y: auto;
-        padding: var(--spacing);
-      }
-      #view-home { display: flex; align-items: center; justify-content: center; }
+      .nav-sidebar { order: 0; }
+      .view-container { flex: 1; position: relative; overflow: hidden; display: flex; flex-direction: column; order: 1; }
+      #view-home, #view-app { width: 100%; height: 100%; overflow-y: auto; padding: 0; }
+      #view-home { display: flex; align-items: flex-start; justify-content: flex-start; }
       #view-app { display: none; }
-      #view-app.active { display: block; }
+      #view-app.active { display: block; animation: workspaceEnter var(--dur-nav) var(--ease-out) both; }
       #view-home.hidden { display: none !important; }
+      /* === MOTION SYSTEM: 6 Canonical Behaviors === */
+
+      /* 1. INSPECT — cards: directional hover reveals intent */
+      @keyframes cardReveal {
+        from { opacity: 0; transform: translateY(6px); }
+        to { opacity: 1; transform: translateY(0); }
+      }
+
+      /* 2. ENTER/EXIT — workspace navigation: substantial, deliberate */
+      @keyframes workspaceEnter {
+        from { opacity: 0; transform: translateX(24px); }
+        to { opacity: 1; transform: translateX(0); }
+      }
+      @keyframes workspaceExit {
+        from { opacity: 1; transform: translateX(0); }
+        to { opacity: 0; transform: translateX(-24px); }
+      }
+
+      /* 3. STABLE — panels: minimal, they are surfaces */
+      @keyframes panelReveal {
+        from { opacity: 0; }
+        to { opacity: 1; }
+      }
+
+      /* 4. ELEVATE — dialogs: rise above workspace */
+      @keyframes dialogElevate {
+        from { opacity: 0; transform: scale(0.96) translateY(8px); }
+        to { opacity: 1; transform: scale(1) translateY(0); }
+      }
+
       .tool-section { display: none; max-width: 100%; margin: 0; height: 100%; }
-      .tool-section.active { display: flex; flex-direction: column; }
+      .tool-section.active { display: flex; flex-direction: column; animation: panelReveal var(--dur-workspace) var(--ease-out) both; }
       .editor-layout {
         display: grid;
-        grid-template-columns: 320px minmax(0, 1fr);
-        gap: 24px;
+        grid-template-columns: 300px minmax(0, 1fr);
+        gap: 0;
         align-items: flex-start;
         height: 100%;
         max-width: 100%;
@@ -261,70 +305,49 @@
       }
       .sidebar-panel {
         background: var(--m3-surface-container-low);
-        border-left: 1px solid var(--m3-outline-variant);
         border-right: 1px solid var(--m3-outline-variant);
         display: flex;
         flex-direction: column;
         overflow-y: auto;
         position: relative;
         z-index: 10;
-        transition: transform 0.3s cubic-bezier(0.2, 0, 0, 1), opacity 0.3s;
+        transition: transform var(--dur-component) var(--ease-out), opacity var(--dur-component) var(--ease-out);
       }
       #logoDetailOverlay.active { display: flex !important; }
-      .canvas-grid,
-      .pdf-stacks-container { display: flex; flex-wrap: wrap; gap: var(--spacing); align-items: flex-start; }
-      .canvas-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: var(--spacing); align-content: start; }
+      .canvas-grid, .pdf-stacks-container { display: flex; flex-wrap: wrap; gap: var(--spacing); align-items: flex-start; }
+      .canvas-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 0; align-content: start; border: 1px solid var(--m3-outline-variant); border-top: none; border-left: none; }
+      .canvas-grid > * { border-right: 1px solid var(--m3-outline-variant); border-bottom: 1px solid var(--m3-outline-variant); }
       .pdf-grid-view {
         display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-        gap: var(--spacing);
+        grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+        gap: 0;
         overflow-y: auto;
-        padding: 10px;
+        padding: 0;
       }
-      .tiny-row,
-      .dense-grid-3 { display: flex; gap: 12px; }
+      .tiny-row, .dense-grid-3 { display: flex; gap: 8px; }
       .dense-grid-3 > * { flex: 1; }
-      /* Scroll grid containers (logo/split/pdf stacks) — legacy #ids kept for JS hooks */
-      #logoGrid,
-      #splitGrid,
-      #pdfStacksContainer {
-        height: 100%;
-        overflow-y: auto;
-        align-content: start;
-        padding-right: 6px;
-      }
+      #logoGrid, #splitGrid, #pdfStacksContainer { height: 100%; overflow-y: auto; align-content: start; }
       #logoGrid { grid-auto-rows: minmax(min-content, 1fr); align-content: stretch; }
       #pdfStacksContainer { align-content: flex-start; align-items: flex-start; }
-      #section-logo .editor-layout,
-      #section-pdf .editor-layout { height: calc(100vh - 190px); min-height: 420px; }
-      #section-logo .editor-layout { display: flex; overflow: hidden; height: calc(100vh - 190px); min-height: 420px; }
-      #section-logo .sidebar-panel { width: 320px; flex-shrink: 0; }
+      #section-logo .editor-layout, #section-pdf .editor-layout { height: calc(100vh - 140px); min-height: 400px; }
+      #section-logo .editor-layout { display: flex; overflow: hidden; height: calc(100vh - 140px); min-height: 400px; }
+      #section-logo .sidebar-panel { width: 300px; flex-shrink: 0; border-right: 1px solid var(--m3-outline-variant); }
       #section-logo #logoGrid { flex: 1; min-width: 0; overflow-y: auto; }
       @media (max-height: 720px) {
-        #section-logo .editor-layout,
-        #section-pdf .editor-layout { height: auto; min-height: 0; }
-        #logoGrid, #splitGrid, #pdfStacksContainer { height: auto; overflow-y: visible; padding-right: 0; }
+        #section-logo .editor-layout, #section-pdf .editor-layout { height: auto; min-height: 0; }
+        #logoGrid, #splitGrid, #pdfStacksContainer { height: auto; overflow-y: visible; }
       }
-      #storyProjectTabs {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 8px;
-        margin-bottom: 15px;
-      }
-      #storyFileList { display: flex; flex-direction: column; gap: 8px; }
-      .overlay-fixed { backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px);
-        position: fixed;
-        inset: 0;
-        background: var(--m3-scrim);
-        z-index: 1000;
-        display: none;
-        flex-direction: column;
-        padding: 40px;
+      #storyProjectTabs { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 12px; }
+      #storyFileList { display: flex; flex-direction: column; gap: 6px; }
+      .overlay-fixed {
+        backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px);
+        position: fixed; inset: 0; background: var(--m3-scrim); z-index: 1000;
+        display: none; flex-direction: column; padding: 40px;
       }
       .overlay-fixed.active { display: flex; }
-      #errorToast { position: fixed; bottom: 30px; right: 30px; z-index: 2000; display: none; max-width: 450px; }
+      #errorToast { position: fixed; bottom: 40px; right: 20px; z-index: 2000; display: none; max-width: 450px; }
       #errorToast.visible { display: block; }
-      .progress-container { margin-top: 15px; display: none; }
+      .progress-container { margin-top: 12px; display: none; }
       .progress-container.active { display: block; }
       .toggle-switch { appearance: none; -webkit-appearance: none; position: relative; cursor: pointer; flex-shrink: 0; }
       .toggle-switch.small { width: 36px; height: 20px; }
@@ -334,148 +357,128 @@
       }
       @media (max-width: 1000px) {
         .responsive-editor-layout { flex-direction: column !important; overflow-y: auto !important; }
-        .responsive-editor-right {
-          width: 100% !important; border-left: none !important;
-          border-top: 1px solid var(--border) !important; flex: auto !important;
-          grid-template-columns: 1fr !important;
-        }
+        .responsive-editor-right { width: 100% !important; border-left: none !important; border-top: 1px solid var(--border) !important; flex: auto !important; grid-template-columns: 1fr !important; }
         .responsive-editor-left { flex: none !important; height: 380px !important; }
         .pdf-grid-view { grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); }
       }
 
       /* ---------- 3. APP SHELL (header + nav + theme toggle) ---------- */
       .header {
-        min-height: 64px;
+        min-height: 44px;
         display: flex;
         align-items: center;
         justify-content: space-between;
         gap: 8px;
         padding: 0 16px;
-        background: var(--m3-surface);
+        background: #000000;
+        border-bottom: 1px solid var(--m3-outline-variant);
         flex-shrink: 0;
         z-index: 200;
         position: sticky;
         top: 0;
       }
+      body.light-mode .header { background: #FFFFFF; border-bottom-color: #CCCCCC; }
       .brand-title {
-        font-weight: 500;
-        font-size: 1rem;
-        letter-spacing: 0;
+        font-family: var(--font);
+        font-size: 0.75rem;
+        letter-spacing: 0.04em;
+        text-transform: uppercase;
         display: flex;
         align-items: center;
-        gap: 10px;
-        color: var(--m3-on-surface);
+        gap: 8px;
+        color: #FFFFFF;
         cursor: pointer;
         background: none;
         border: none;
-        padding: 8px;
-        border-radius: var(--radius-full);
-        transition: background var(--dur-fast) var(--ease);
+        padding: 6px 10px;
+        border-radius: 0;
+        transition: background var(--dur-fast) var(--ease-out);
+        overflow: hidden;
+        white-space: nowrap;
       }
-      .brand-title:hover { background: color-mix(in srgb, var(--m3-on-surface) 8%, transparent); }
-      .brand-title i,
-      .brand-title span.material-symbols-rounded { font-size: 20px;  width: 20px; height: 20px; color: var(--m3-primary); }
+      body.light-mode .brand-title { color: #1A1A1A; }
+      .brand-title:hover { background: rgba(255,255,255,0.08); }
+      body.light-mode .brand-title:hover { background: rgba(0,0,0,0.06); }
+      .brand-title .brand-icon { font-size: 16px; width: 16px; height: 16px; color: var(--m3-on-surface); flex-shrink: 0; }
+      .brand-title .brand-text { white-space: nowrap; }
 
-      
       .nav-sidebar {
         display: none;
-        flex-direction: row;
-        align-items: center;
-        justify-content: center;
-        flex: 1;
-        gap: 8px; /* Added gap */
-        width: auto;
+        flex-direction: column;
+        align-items: stretch;
+        width: 200px;
+        min-width: 200px;
         height: 100%;
-        padding: 0 16px;
-        background: transparent;
-        border: none;
-        overflow-x: auto; /* Allow scrolling on smaller screens */
-        overflow-y: hidden;
+        padding: 8px 0;
+        background: var(--m3-surface-container-low);
+        border-right: 1px solid var(--m3-outline-variant);
+        overflow-y: auto;
+        overflow-x: hidden;
+        gap: 2px;
+        transition: width var(--dur-workspace) var(--ease-out), min-width var(--dur-workspace) var(--ease-out);
       }
-      .nav-sidebar::-webkit-scrollbar { display: none; }
-
-      .nav-sidebar.visible { display: flex; }
+      .nav-sidebar.visible { display: flex; animation: panelReveal 200ms var(--ease-out) both; }
+      .nav-sidebar.collapsed { width: 48px; min-width: 48px; }
+      .nav-sidebar.collapsed .nav-item-text { opacity: 0; width: 0; overflow: hidden; margin: 0; }
+      .nav-sidebar.collapsed .nav-item { justify-content: center; padding: 8px; }
+      .nav-toggle { border-bottom: 1px solid var(--m3-outline-variant) !important; margin-bottom: 4px; flex-shrink: 0; }
+      .nav-toggle-icon-collapsed { display: none; }
+      .nav-sidebar.collapsed .nav-toggle-icon-expanded { display: none; }
+      .nav-sidebar.collapsed .nav-toggle-icon-collapsed { display: block; }
       .nav-item {
-        appearance: none;
-        -webkit-appearance: none;
-        border: none;
-        background: transparent;
-        width: auto;
-        height: auto;
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        gap: 8px;
-        color: var(--m3-on-surface-variant);
-        cursor: pointer;
-        font-family: var(--font);
-        font-size: 0.95rem;
-        font-weight: 500;
+        appearance: none; -webkit-appearance: none;
+        border: none; background: transparent;
+        width: 100%; height: auto;
+        display: flex; align-items: center; gap: 10px;
+        color: var(--m3-on-surface-variant); cursor: pointer;
+        font-family: var(--font); font-size: 0.7rem; font-weight: 500;
+        letter-spacing: 0.03em; text-transform: uppercase;
         padding: 8px 16px; margin: 0;
-        margin: 0 4px;
-        transition: background 0.2s cubic-bezier(0.2, 0, 0, 1), color 0.2s;
-        border-radius: 9999px;
+        transition: background var(--dur-fast) var(--ease-out), color var(--dur-fast) var(--ease-out);
+        border-radius: 0;
+        text-align: left;
       }
-      .nav-item i,
-      .nav-item span.material-symbols-rounded,
-      .nav-item svg { width: 18px !important; height: 18px !important; min-width: 18px !important; font-size: 18px !important; }
-      .nav-item-text { white-space: nowrap; }
-      .nav-item:hover { background: color-mix(in srgb, var(--m3-on-surface) 8%, transparent); color: var(--m3-on-surface); }
-      .nav-item:focus-visible { outline: 2px solid var(--m3-primary); outline-offset: 0; }
-      .nav-item.active {
-        background: var(--accent-soft);
-        color: var(--accent);
-      }
-      .nav-item.active .nav-item-text { color: var(--accent); }
+      .nav-item i, .nav-item span.material-symbols-rounded, .nav-item svg { width: 16px !important; height: 16px !important; min-width: 16px !important; font-size: 16px !important; flex-shrink: 0; }
+      .nav-item-text { white-space: nowrap; overflow: hidden; transition: opacity var(--dur-fast) var(--ease-out), width var(--dur-component) var(--ease-out), margin var(--dur-component) var(--ease-out); }
+      .nav-item:hover { background: rgba(255,255,255,0.06); color: var(--m3-on-surface); }
+      body.light-mode .nav-item:hover { background: rgba(0,0,0,0.05); }
+      .nav-item:focus-visible { outline: 2px solid var(--m3-primary); outline-offset: -2px; box-shadow: 0 0 0 4px rgba(255, 0, 0, 0.15); }
+      .nav-item.active { background: var(--m3-primary); color: #FFFFFF; }
+      .nav-item.active .nav-item-text { color: #FFFFFF; }
       @media (max-width: 760px) {
-        .nav-sidebar { padding: 0 8px; justify-content: flex-start; }
+        .nav-sidebar { width: 100%; min-width: 0; flex-direction: row; border-right: none; border-bottom: 1px solid var(--m3-outline-variant); overflow-x: auto; overflow-y: hidden; padding: 0 4px; }
+        .nav-sidebar.collapsed { width: 100%; min-width: 0; }
+        .nav-item { padding: 8px 12px; white-space: nowrap; }
+        .nav-item-text { display: none; }
+        .nav-toggle { display: none; }
       }
 
-      /* Theme toggle button (header) */
       header:nth-of-type(1) > button#themeToggleBtn:nth-of-type(1) {
-        display: inline-flex;
-        align-items: center;
-        gap: 8px;
-        background: transparent !important;
-        border: none !important;
-        box-shadow: none !important;
-        cursor: pointer;
-        padding: 4px;
-        height: auto !important;
-        transform: none !important;
+        display: inline-flex; align-items: center; gap: 6px;
+        background: transparent !important; border: none !important; box-shadow: none !important;
+        cursor: pointer; padding: 4px; height: auto !important; transform: none !important;
       }
       header:nth-of-type(1) > button#themeToggleBtn:nth-of-type(1):hover,
       header:nth-of-type(1) > button#themeToggleBtn:nth-of-type(1):active {
-        background: transparent !important;
-        border-color: transparent !important;
-        box-shadow: none !important;
-        transform: none !important;
+        background: transparent !important; border-color: transparent !important; box-shadow: none !important; transform: none !important;
       }
-      /* M3 switch styling of the toggle-track/thumb markup (JS rebuilds these) */
       .toggle-track {
-        width: 52px;
-        height: 32px;
+        width: 44px; height: 22px;
         background: var(--m3-surface-container-highest);
-        border: 2px solid var(--m3-outline);
-        border-radius: var(--radius-full);
-        position: relative;
-        display: inline-block;
-        transition: background var(--dur) var(--ease), border-color var(--dur) var(--ease);
+        border: 1px solid var(--m3-outline);
+        border-radius: 0; position: relative; display: inline-block;
+        transition: background var(--dur) var(--ease-out), border-color var(--dur) var(--ease-out);
       }
       .toggle-thumb {
-        position: absolute;
-        top: 6px;
-        left: 6px;
-        width: 16px;
-        height: 16px;
-        background: var(--m3-outline);
-        border-radius: var(--radius-full);
-        transition: left var(--dur) var(--ease), width var(--dur) var(--ease),
-          background var(--dur) var(--ease), transform var(--dur) var(--ease);
+        position: absolute; top: 3px; left: 3px;
+        width: 14px; height: 14px;
+        background: var(--m3-outline); border-radius: 0;
+        transition: left var(--dur) var(--ease-out), width var(--dur) var(--ease-out), background var(--dur) var(--ease-out);
       }
-      .toggle-track:hover .toggle-thumb { transform: scaleX(1.125); }
+      .toggle-track:hover .toggle-thumb { background: var(--m3-on-surface-variant); }
       body.light-mode .toggle-track { background: var(--m3-primary); border-color: var(--m3-primary); }
-      body.light-mode .toggle-thumb { left: 26px; width: 24px; height: 24px; top: 2px; background: var(--m3-on-primary); }
+      body.light-mode .toggle-track:hover .toggle-thumb { background: #FFFFFF; }
+      body.light-mode .toggle-thumb { left: 25px; width: 18px; height: 18px; top: 1px; background: #FFFFFF; }
       #themeMoonIcon { color: var(--m3-primary); opacity: 1; }
       #themeSunIcon { color: var(--m3-on-surface-variant); opacity: 0.4; }
       body.light-mode #themeMoonIcon { color: var(--m3-on-surface-variant); opacity: 0.4; }
@@ -483,920 +486,367 @@
 
       /* ---------- 4. HOME VIEW ---------- */
       #view-home {
-        flex-direction: column;
-        align-items: center;
-        justify-content: flex-start;
-        padding: 56px 24px 72px;
-        gap: 36px;
+        flex-direction: column; align-items: stretch; justify-content: flex-start;
+        padding: 0; gap: 0;
       }
-      
       .home-layout {
-        max-width: 1200px;
-        margin: 0 auto;
-        padding: 40px 24px 80px;
-        width: 100%;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
+        max-width: 100%; margin: 0; padding: 0 0 20px 0; width: 100%;
+        display: flex; flex-direction: column; align-items: stretch;
       }
-      .home-hero {
-        margin-bottom: 40px;
-        text-align: center;
-        max-width: 600px;
+      .home-wordmark {
+        padding: 40px 24px 24px;
+        border-bottom: 1px solid var(--m3-outline-variant);
+        display: flex; flex-direction: column; align-items: center; gap: 12px;
+        position: relative; overflow: hidden;
       }
-      .home-title {
-        margin: 0 0 16px;
-        font-size: 2.75rem;
-        font-weight: 500;
-        letter-spacing: -0.02em;
-        color: var(--m3-on-surface);
-        line-height: 1.1;
+      .home-wordmark::before {
+        content: ""; position: absolute; inset: 0;
+        background: repeating-linear-gradient(45deg, transparent, transparent 4px, var(--m3-outline-variant) 4px, var(--m3-outline-variant) 5px);
+        opacity: 0.15; pointer-events: none;
       }
-      .home-subtitle {
-        margin: 0 auto;
-        font-size: 1.05rem;
-        line-height: 1.6;
-        color: var(--m3-on-surface-variant);
-      }
+      .wordmark-svg { width: 100%; max-width: 750px; height: auto; color: var(--m3-on-surface); }
+      @keyframes wordmarkIn { from { opacity: 0; transform: scaleX(0.97); } to { opacity: 1; transform: scaleX(1); } }
+      .wordmark-svg { animation: wordmarkIn var(--dur-nav) var(--ease-out) both; }
       .home-grid {
         display: grid;
-        grid-template-columns: repeat(4, minmax(0, 1fr));
-        gap: 20px;
-        width: 100%;
-        align-items: stretch;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 0; width: 100%; align-items: stretch;
       }
-      .home-group-label {
-        grid-column: 1 / -1;
-        margin: 20px 0 0;
-        font-size: 0.85rem;
-        font-weight: 600;
-        letter-spacing: 0.1em;
-        text-transform: uppercase;
-        color: var(--m3-on-surface-variant);
-        border-bottom: 1px solid var(--m3-outline-variant);
-        padding-bottom: 12px;
-      }
+      .meta { font-family: var(--font-mono); font-size: 0.6875rem; font-weight: 500; letter-spacing: 0.1em; text-transform: uppercase; color: var(--m3-on-surface-variant); }
       .home-card {
-        position: relative;
-        appearance: none;
-        -webkit-appearance: none;
-        border: 1px solid var(--m3-surface-container-highest);
-        background: var(--m3-surface-container);
-        border-radius: 20px;
-        padding: 28px;
-        display: flex;
-        flex-direction: column;
-        align-items: flex-start;
-        text-align: left;
-        cursor: pointer;
-        overflow: hidden;
-        transition: transform 0.2s cubic-bezier(0.2, 0, 0, 1), box-shadow 0.2s ease, border-color 0.2s ease;
+        position: relative; appearance: none; -webkit-appearance: none;
+        border: 1px solid var(--m3-outline-variant); border-left: 3px solid var(--m3-outline);
+        background: var(--m3-surface); border-radius: 0; padding: 16px; margin: 0;
+        display: flex; flex-direction: column; align-items: flex-start; text-align: left;
+        cursor: pointer; overflow: hidden;
+        transition: background var(--dur-fast) var(--ease-out), border-color var(--dur-fast) var(--ease-out), border-left-color var(--dur-fast) var(--ease-out);
       }
-      .home-card::before {
-        content: "";
-        position: absolute;
-        inset: 0;
-        background: var(--accent, var(--m3-on-surface));
-        opacity: 0;
-        transition: opacity var(--dur) var(--ease);
-        pointer-events: none;
-      }
-      .home-card:hover {
-        transform: translateY(-2px);
-        box-shadow: var(--md-elev-2);
-        border-color: var(--accent, var(--m3-surface-container-highest));
-      }
-      .home-card-icon {
-        background: var(--accent-soft, var(--m3-surface-container-high));
-        color: var(--accent, var(--m3-on-surface));
-        padding: 14px;
-        border-radius: 16px;
-        margin-bottom: 12px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        transition: transform 0.2s ease;
-      }
-      .home-card:hover .home-card-icon {
-        transform: scale(1.05);
-      }
-      .home-card-icon svg,
-      .home-card-icon i,
-      .home-card-icon span.material-symbols-rounded { font-size: 26px; width: 26px; height: 26px; }
-      .home-card-body { display: flex; flex-direction: column; gap: 8px; flex: 1; min-width: 0; width: 100%; }
+      .home-card:hover { background: var(--m3-surface-container); border-color: var(--m3-outline); border-left-color: var(--m3-on-surface); }
+      .home-card:hover .home-card-go { color: var(--m3-on-surface); opacity: 1; transform: translateX(4px); }
+      .home-card { animation: cardReveal var(--dur-workspace) var(--ease-out) both; }
+      .home-card:nth-child(1) { animation-delay: 0.05s; }
+      .home-card:nth-child(2) { animation-delay: 0.1s; }
+      .home-card:nth-child(3) { animation-delay: 0.15s; }
+      .home-card:nth-child(4) { animation-delay: 0.2s; }
+      .home-card:nth-child(5) { animation-delay: 0.25s; }
+      .home-card:nth-child(6) { animation-delay: 0.3s; }
+      .home-card:nth-child(7) { animation-delay: 0.35s; }
+      .home-card:nth-child(8) { animation-delay: 0.4s; }
+      .home-card:nth-child(odd) { padding: 20px 16px; }
+      .home-card:nth-child(even) { padding: 14px 16px; }
+      .home-card-top { display: flex; justify-content: space-between; align-items: flex-start; width: 100%; margin-bottom: 12px; }
+      .home-card-num { font-family: var(--font-mono); font-size: 0.6rem; font-weight: 500; letter-spacing: 0.1em; color: var(--m3-on-surface-variant); }
+      .home-card-icon { color: var(--m3-on-surface); margin-bottom: 8px; }
+      .home-card-icon span.material-symbols-rounded { font-size: 28px; width: 28px; height: 28px; }
       .home-card-title {
-        margin: 0;
-        font-size: 1.15rem;
-        font-weight: 600;
-        letter-spacing: -0.01em;
+        margin: 0; font-size: 0.875rem; font-family: var(--font);
+        font-weight: 700; letter-spacing: 0.02em; text-transform: uppercase;
         color: var(--m3-on-surface);
       }
-      .home-card-desc {
-        margin: 0;
-        font-size: 0.9rem;
-        line-height: 1.5;
-        color: var(--m3-on-surface-variant);
-      }
-      .home-card-go {
-        position: absolute;
-        top: 24px;
-        right: 24px;
-        color: var(--m3-on-surface-variant);
-        opacity: 0;
-        transform: translateX(-4px) translateY(4px);
-        transition: all 0.2s ease;
-      }
-      .home-card-go svg,
-      .home-card-go span { font-size: 22px !important; }
-      .home-card:hover .home-card-go { 
-        color: var(--accent, var(--m3-on-surface)); 
-        opacity: 1;
-        transform: translateX(0) translateY(0);
-      }
+      .home-card-desc { margin: 4px 0 0; font-size: 0.75rem; line-height: 1.4; color: var(--m3-on-surface-variant); letter-spacing: 0.01em; }
+      .home-card-go { color: var(--m3-on-surface-variant); opacity: 0; transition: opacity var(--dur-fast) var(--ease-out), color var(--dur-fast) var(--ease-out), transform var(--dur-fast) var(--ease-out); transform: translateX(0); }
+      .liquid-btn:focus-visible, .liquid-btn:focus-within { outline: 2px solid var(--m3-primary); outline-offset: 2px; box-shadow: 0 0 0 4px rgba(255, 0, 0, 0.15); }
+      .liquid-btn:hover { background: var(--m3-surface-container-high); }
+      .liquid-btn:active { transform: scale(0.97); transition: transform var(--dur-micro) var(--ease-in); }
 
-      @media (max-width: 1000px) {
-        .home-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
-      }
-      @media (max-width: 620px) {
-        .home-grid { grid-template-columns: 1fr; }
-      }
+      @media (max-width: 900px) { .home-grid { grid-template-columns: repeat(2, 1fr); } }
+      @media (max-width: 600px) { .home-grid { grid-template-columns: 1fr; } .home-wordmark { padding: 24px 16px 16px; } .wordmark-svg { max-width: 100%; } }
 
-      /* ---------- 5. FORM CONTROLS (M3) ---------- */
-      /* M3 filled text field — liquid-input family (text/number/select/textarea) */
-      .liquid-input,
-      .terminal-input {
-        background: var(--m3-surface-container-highest);
-        border: none;
-        border-radius: var(--radius-xs, 4px) var(--radius-xs, 4px) 0 0;
-        color: var(--m3-on-surface);
-        height: 40px;
-        padding: 0 14px;
-        width: 100%;
-        font-family: var(--font);
-        font-size: 0.9rem;
-        font-weight: 400;
+      /* ---------- 5. FORM CONTROLS ---------- */
+      .liquid-input, .terminal-input {
+        background: var(--m3-surface-container-high); border: 1px solid var(--m3-outline-variant);
+        border-radius: 0; color: var(--m3-on-surface);
+        height: 34px; padding: 0 10px; width: 100%;
+        font-family: var(--font); font-size: 0.78rem; font-weight: 400;
         caret-color: var(--m3-primary);
-        border-bottom: 1px solid var(--m3-on-surface-variant);
-        transition: background var(--dur-fast) var(--ease),
-          border-bottom-color var(--dur-fast) var(--ease), box-shadow var(--dur-fast) var(--ease);
+        transition: border-color var(--dur-fast) var(--ease-out);
       }
-      .liquid-input::placeholder,
-      .terminal-input::placeholder { color: var(--m3-on-surface-variant); opacity: 0.7; }
-      .liquid-input:hover,
-      .terminal-input:hover { background: color-mix(in srgb, var(--m3-on-surface) 5%, var(--m3-surface-container-highest)); }
-      .liquid-input:focus,
-      .terminal-input:focus {
-        outline: none;
-        background: var(--m3-surface-container-highest);
-        border-bottom-color: var(--m3-primary);
-        box-shadow: inset 0 -2px 0 var(--m3-primary);
-      }
-      .liquid-input:disabled,
-      .terminal-input:disabled { color: color-mix(in srgb, var(--m3-on-surface) 38%, transparent); border-bottom-color: color-mix(in srgb, var(--m3-on-surface) 12%, transparent); }
-      textarea.liquid-input,
-      textarea.terminal-input {
-        height: auto;
-        min-height: 100px;
-        padding: 12px 14px;
-        resize: vertical;
-        line-height: 1.55;
-      }
-      select.liquid-input { cursor: pointer; padding-right: 32px; }
+      .liquid-input::placeholder, .terminal-input::placeholder { color: var(--m3-on-surface-variant); opacity: 0.6; }
+      .liquid-input:hover, .terminal-input:hover { border-color: var(--m3-outline); }
+      .liquid-input:focus, .terminal-input:focus { outline: none; border-color: var(--m3-primary); }
+      .liquid-input:disabled, .terminal-input:disabled { color: var(--m3-on-surface-variant); opacity: 0.4; border-color: var(--m3-outline-variant); }
+      textarea.liquid-input, textarea.terminal-input { height: auto; min-height: 80px; padding: 8px 10px; resize: vertical; line-height: 1.45; }
+      select.liquid-input { cursor: pointer; padding-right: 28px; }
       select.liquid-input option { background-color: var(--m3-surface-container-high); color: var(--m3-on-surface); }
-      input[type="color"].liquid-input,
-      input[type="color"] {
-        padding: 2px;
-        border: 1px solid var(--m3-outline);
-        border-radius: var(--radius);
-        background: var(--m3-surface-container-highest);
-        cursor: pointer;
-        border-bottom: 1px solid var(--m3-outline);
+      input[type="color"].liquid-input, input[type="color"] {
+        padding: 2px; border: 1px solid var(--m3-outline-variant); border-radius: 0;
+        background: var(--m3-surface-container-high); cursor: pointer;
       }
-      .terminal-input {
-        font-family: "JetBrains Mono", ui-monospace, Consolas, monospace;
-        font-size: 0.82rem;
-      }
+      .terminal-input { font-family: var(--font-mono); font-size: 0.75rem; }
 
-      /* M3 label (label-header) */
       .label-header {
-        font-family: var(--font);
-        font-size: var(--text-xs);
-        font-weight: 500;
-        color: var(--m3-on-surface-variant);
-        margin-bottom: 4px;
-        display: block;
-        line-height: 1.5;
-        letter-spacing: 0.04em;
+        font-family: var(--font-mono); font-size: 0.6rem; font-weight: 500;
+        color: var(--m3-on-surface-variant); margin-bottom: 4px;
+        display: block; line-height: 1.5; letter-spacing: 0.12em; text-transform: uppercase;
       }
 
-      /* M3 switch — toggle-switch (checkbox-based; both sizes) */
       .toggle-switch {
-        width: 52px;
-        height: 32px;
+        width: 44px; height: 22px;
         background: var(--m3-surface-container-highest);
-        border: 2px solid var(--m3-outline);
-        border-radius: 16px;
-        position: relative;
-        cursor: pointer;
-        transition: background 0.2s cubic-bezier(0.2, 0, 0, 1), border-color 0.2s;
-        box-sizing: border-box;
-        margin: 0;
+        border: 1px solid var(--m3-outline);
+        border-radius: 0; position: relative; cursor: pointer;
+        transition: background var(--dur) var(--ease-out), border-color var(--dur) var(--ease-out);
+        box-sizing: border-box; margin: 0;
       }
       .toggle-switch::after {
-        content: "";
-        position: absolute;
-        top: 6px;
-        left: 6px;
-        width: 16px;
-        height: 16px;
-        background: var(--m3-outline);
-        border-radius: 50%;
-        transition: left 0.2s cubic-bezier(0.2, 0, 0, 1), width 0.2s, height 0.2s, top 0.2s, background 0.2s;
+        content: ""; position: absolute; top: 3px; left: 3px;
+        width: 14px; height: 14px;
+        background: var(--m3-outline); border-radius: 0;
+        transition: left var(--dur) var(--ease-out), background var(--dur) var(--ease-out);
       }
-      .toggle-switch:hover::after {
-        background: var(--m3-on-surface-variant);
-      }
-      .toggle-switch:active::after {
-        width: 24px;
-        left: 2px;
-      }
-      .toggle-switch:checked {
-        background: var(--m3-primary);
-        border-color: var(--m3-primary);
-      }
-      .toggle-switch:checked::after {
-        left: 24px;
-        width: 24px;
-        height: 24px;
-        top: 2px;
-        background: var(--m3-on-primary);
-      }
-      .toggle-switch:checked:active::after {
-        width: 28px;
-        left: 20px;
-      }
-      
-      .toggle-switch.small { width: 36px; height: 20px; border-width: 2px; }
+      .toggle-switch:hover::after { background: var(--m3-on-surface-variant); }
+      .toggle-switch:active::after { width: 18px; left: 1px; }
+      .toggle-switch:checked { background: var(--m3-primary); border-color: var(--m3-primary); }
+      .toggle-switch:checked::after { left: 25px; width: 18px; height: 18px; top: 1px; background: #FFFFFF; }
+      .toggle-switch:checked:active::after { width: 22px; left: 22px; }
+      .toggle-switch.small { width: 36px; height: 18px; }
       .toggle-switch.small::after { width: 12px; height: 12px; top: 2px; left: 2px; }
-      .toggle-switch.small:checked::after { left: 18px; width: 16px; height: 16px; top: 0; }
-      .toggle-switch.small:checked:active::after { width: 18px; left: 16px; }
-      
+      .toggle-switch.small:checked::after { left: 20px; width: 14px; height: 14px; top: 1px; }
+      .toggle-switch.small:checked:active::after { width: 16px; left: 18px; }
       input[type="checkbox"]:not(.toggle-switch) { accent-color: var(--m3-primary); }
-      
-      /* M3 slider — range-slider */
+
       .range-slider {
-        -webkit-appearance: none;
-        appearance: none;
-        width: 100%;
-        height: 4px;
-        background: var(--m3-surface-container-highest);
-        border: none;
-        border-radius: var(--radius-full);
-        margin: 14px 0;
+        -webkit-appearance: none; appearance: none;
+        width: 100%; height: 3px;
+        background: var(--m3-outline-variant); border: none; border-radius: 0;
+        margin: 10px 0;
       }
       .range-slider::-webkit-slider-thumb {
-        -webkit-appearance: none;
-        width: 20px;
-        height: 20px;
-        border-radius: var(--radius-full);
-        background: var(--m3-primary);
-        border: none;
-        cursor: pointer;
-        margin-top: 0;
-        box-shadow: none;
-        transition: transform var(--dur-fast) var(--ease);
+        -webkit-appearance: none; width: 14px; height: 14px;
+        border-radius: 0; background: var(--m3-primary); border: 2px solid var(--m3-on-surface);
+        cursor: pointer; transition: transform var(--dur-fast) var(--ease-out);
       }
-      .range-slider::-webkit-slider-thumb:hover { transform: scale(1.1); }
-      .range-slider::-webkit-slider-thumb:active { transform: scale(1.16); }
+      .range-slider::-webkit-slider-thumb:hover { transform: scale(1.15); }
+      .range-slider::-webkit-slider-thumb:active { transform: scale(1.2); }
       .range-slider::-moz-range-thumb {
-        width: 20px;
-        height: 20px;
-        border-radius: var(--radius-full);
-        background: var(--m3-primary);
-        border: none;
-        cursor: pointer;
+        width: 14px; height: 14px; border-radius: 0;
+        background: var(--m3-primary); border: 2px solid var(--m3-on-surface); cursor: pointer;
       }
-      .range-slider:hover { box-shadow: none; }
 
-      /* ---------- 6. BUTTONS (M3) ---------- */
+      /* ---------- 6. BUTTONS ---------- */
       .liquid-btn {
-        appearance: none;
-        -webkit-appearance: none;
-        background: transparent;
-        border: none;
-        color: var(--m3-primary);
-        height: 40px;
-        padding: 0 16px;
-        cursor: pointer;
-        font-family: var(--font);
-        font-size: 0.9rem;
-        font-weight: 500;
-        letter-spacing: 0.01em;
-        border-radius: var(--radius-full);
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        gap: 8px;
-        white-space: nowrap;
-        user-select: none;
-        position: relative;
-        transition: background var(--dur-fast) var(--ease), color var(--dur-fast) var(--ease),
-          box-shadow var(--dur) var(--ease);
+        appearance: none; -webkit-appearance: none;
+        background: transparent; border: 1px solid var(--m3-outline-variant);
+        color: var(--m3-on-surface); height: 34px; padding: 0 14px;
+        cursor: pointer; font-family: var(--font); font-size: 0.75rem;
+        font-weight: 600; letter-spacing: 0.04em; text-transform: uppercase;
+        border-radius: 0; display: inline-flex; align-items: center;
+        justify-content: center; gap: 6px; white-space: nowrap;
+        user-select: none; position: relative;
+        transition: background var(--dur-fast) var(--ease-out), color var(--dur-fast) var(--ease-out), border-color var(--dur-fast) var(--ease-out), transform var(--dur-micro) var(--ease-out);
       }
-      .liquid-btn::before {
-        content: "";
-        position: absolute;
-        inset: 0;
-        border-radius: inherit;
-        background: currentColor;
-        opacity: 0;
-        transition: opacity var(--dur-fast) var(--ease);
-        pointer-events: none;
-      }
-      .liquid-btn:hover:not(:disabled)::before { opacity: 0.08; }
-      .liquid-btn:active:not(:disabled)::before { opacity: 0.12; }
-      .liquid-btn i,
-      .liquid-btn svg { width: 18px; height: 18px; }
-      .liquid-btn:focus-visible {
-        outline: 2px solid var(--m3-primary);
-        outline-offset: 2px;
-      }
-      .liquid-btn:disabled {
-        color: color-mix(in srgb, var(--m3-on-surface) 38%, transparent);
-        cursor: not-allowed;
-        background: color-mix(in srgb, var(--m3-on-surface) 12%, transparent);
-      }
-      /* Filled (active-mode) — the primary action variant */
-      .liquid-btn.active-mode {
-        background: var(--m3-primary);
-        color: var(--m3-on-primary);
-      }
+      .liquid-btn::before { content: ""; position: absolute; inset: 0; background: currentColor; opacity: 0; transition: opacity var(--dur-fast) var(--ease-out); pointer-events: none; }
+      .liquid-btn:hover:not(:disabled)::before { opacity: 0.06; }
+      .liquid-btn:active:not(:disabled)::before { opacity: 0.1; }
+      .liquid-btn i, .liquid-btn svg { width: 14px; height: 14px; }
+      .liquid-btn:focus-visible { outline: 1px solid var(--m3-primary); outline-offset: -1px; }
+      .liquid-btn:disabled { color: var(--m3-on-surface-variant); opacity: 0.4; cursor: not-allowed; border-color: var(--m3-outline-variant); }
+      .liquid-btn.active-mode { background: var(--m3-primary); color: #FFFFFF; border-color: var(--m3-primary); }
       .liquid-btn.active-mode::before { background: currentColor; }
-      .liquid-btn.active-mode:hover:not(:disabled) { box-shadow: var(--md-elev-1); }
-      .liquid-btn.active-mode:disabled {
-        background: color-mix(in srgb, var(--m3-on-surface) 12%, transparent);
-        color: color-mix(in srgb, var(--m3-on-surface) 38%, transparent);
-      }
-      .liquid-btn.active-mode i,
-      .liquid-btn.active-mode svg { color: inherit; }
-      /* Error variant */
-      .liquid-btn.danger-btn { color: var(--m3-error); }
+      .liquid-btn.active-mode:hover:not(:disabled) { border-color: var(--m3-primary); }
+      .liquid-btn.active-mode:disabled { background: var(--m3-surface-container-highest); color: var(--m3-on-surface-variant); opacity: 0.4; border-color: var(--m3-outline-variant); }
+      .liquid-btn.active-mode i, .liquid-btn.active-mode svg { color: inherit; }
+      .liquid-btn.danger-btn { color: var(--m3-error); border-color: var(--m3-error); }
       .liquid-btn.danger-btn::before { background: currentColor; }
-      .liquid-btn.danger-btn:hover:not(:disabled) { background: var(--m3-error); color: var(--m3-on-error); }
-      .liquid-btn.danger-btn:hover:not(:disabled) i { color: var(--m3-on-error); }
-      .liquid-btn.active-mode.danger-btn { background: var(--m3-error); color: var(--m3-on-error); }
-      /* Icon button — 40px target (up from legacy 28px inline sizing) */
-      .liquid-btn.icon-only { width: 40px; height: 40px; padding: 0; }
-      .liquid-btn.icon-only i,
-      .liquid-btn.icon-only svg { width: 20px; height: 20px; }
+      .liquid-btn.danger-btn:hover:not(:disabled) { background: var(--m3-error); color: #FFFFFF; border-color: var(--m3-error); }
+      .liquid-btn.danger-btn:hover:not(:disabled) i { color: #FFFFFF; }
+      .liquid-btn.active-mode.danger-btn { background: var(--m3-error); color: #FFFFFF; border-color: var(--m3-error); }
+      .liquid-btn.icon-only { width: 34px; height: 34px; padding: 0; }
+      .liquid-btn.icon-only i, .liquid-btn.icon-only svg { width: 16px; height: 16px; }
 
-      /* ---------- 7. TABS (M3 primary tabs) ---------- */
+      /* ---------- 7. TABS ---------- */
       div[role="tablist"] {
-        display: flex;
-        gap: 0;
-        padding: 0;
-        border-bottom: 1px solid var(--m3-outline-variant);
-        margin-bottom: 20px;
+        display: flex; gap: 0; padding: 0;
+        border-bottom: 1px solid var(--m3-outline-variant); margin-bottom: 16px;
       }
       div[role="tablist"] > span { display: inline-flex; }
       div[role="tablist"] button[role="tab"] {
-        appearance: none;
-        -webkit-appearance: none;
-        background: transparent;
-        border: none;
-        border-radius: 0;
-        color: var(--m3-on-surface-variant);
-        height: 48px;
-        padding: 0 16px;
-        font-family: var(--font);
-        font-size: 0.9rem;
-        font-weight: 500;
-        cursor: pointer;
-        position: relative;
-        display: inline-flex;
-        align-items: center;
-        gap: 8px;
-        white-space: nowrap;
-        transition: color var(--dur-fast) var(--ease);
-      }
-      div[role="tablist"] button[role="tab"]::before {
-        content: "";
-        position: absolute;
-        inset: 0;
-        background: currentColor;
-        opacity: 0;
-        transition: opacity var(--dur-fast) var(--ease);
-        pointer-events: none;
+        appearance: none; -webkit-appearance: none;
+        background: transparent; border: none; border-bottom: 2px solid transparent;
+        color: var(--m3-on-surface-variant); height: 40px; padding: 0 14px;
+        font-family: var(--font); font-size: 0.7rem; font-weight: 700;
+        letter-spacing: 0.04em; text-transform: uppercase;
+        cursor: pointer; position: relative; display: inline-flex;
+        align-items: center; gap: 6px; white-space: nowrap;
+        transition: color var(--dur-fast) var(--ease-out), border-color var(--dur-fast) var(--ease-out);
       }
       div[role="tablist"] button[role="tab"]:hover { color: var(--m3-on-surface); }
-      div[role="tablist"] button[role="tab"]:hover::before { opacity: 0.08; }
-      div[role="tablist"] button[role="tab"]:focus-visible { outline: 2px solid var(--m3-primary); outline-offset: -2px; }
-      /* Active tab: primary color + indicator pill on the bottom edge */
-      div[role="tablist"] button[role="tab"].active-mode {
-        background: transparent;
-        color: var(--m3-primary);
+      div[role="tablist"] button[role="tab"]:focus-visible { outline: 1px solid var(--m3-primary); outline-offset: -1px; }
+      div[role="tablist"] button[role="tab"].active-mode { background: transparent; color: var(--m3-primary); border-bottom-color: var(--m3-primary); }
+
+      /* ---------- 8. TOOL SURFACES ---------- */
+      .tool-header {
+        display: flex; align-items: center; gap: 10px;
+        margin-bottom: 0; padding: 10px 16px;
+        border-bottom: 2px solid var(--m3-outline-variant);
+        background: var(--m3-surface-container);
+        position: relative;
       }
-      div[role="tablist"] button[role="tab"].active-mode::after {
+      .tool-header::after {
         content: "";
         position: absolute;
-        bottom: 0;
-        left: 50%;
-        transform: translateX(-50%);
-        width: 64px;
-        height: 3px;
-        border-radius: 3px 3px 0 0;
-        background: var(--m3-primary);
-      }
-
-      /* ---------- 8. TOOL SURFACES (M3) ---------- */
-      /* Tool header strip */
-      .tool-header {
-        display: flex;
-        align-items: center;
-        gap: 12px;
-        margin-bottom: 24px;
-        padding-bottom: 16px;
-        border-bottom: 1px solid var(--m3-outline-variant);
+        bottom: -2px;
+        left: 0;
+        width: 60px;
+        height: 2px;
+        background: var(--m3-on-surface);
+        opacity: 0.3;
       }
       .tool-header h2 {
-        margin: 0;
-        font-family: var(--font);
-        font-size: 1.15rem;
-        font-weight: 400;
-        flex: 1;
-        line-height: 1.5;
-        color: var(--m3-on-surface);
-        letter-spacing: 0;
+        margin: 0; font-family: var(--font); font-size: 0.75rem;
+        letter-spacing: 0.04em; text-transform: uppercase;
+        color: var(--m3-on-surface); line-height: 1.5;
       }
-      .tool-icon { width: 22px; height: 22px; color: var(--m3-primary); }
+      .tool-icon { width: 16px; height: 16px; color: var(--m3-on-surface); }
 
-      /* Sidebar container — M3 surface-container-low */
-      .sidebar-panel {
-        background: var(--m3-surface-container-low);
-        border: none;
-        border-radius: var(--radius);
-        padding: 16px;
-        gap: 16px;
-      }
+      .sidebar-panel { background: var(--m3-surface-container-low); border: none; border-radius: 0; padding: 12px; gap: 12px; }
 
-      /* Panels & control groups — M3 outlined/filled cards, flat */
       .glass-panel {
-        background: var(--m3-surface-container-low);
-        border: 1px solid var(--m3-outline-variant);
-        border-radius: var(--radius);
-        padding: 24px;
-        position: relative;
-        overflow: hidden;
+        background: var(--m3-surface-container-low); border: 1px solid var(--m3-outline-variant);
+        border-radius: 0; padding: 16px; position: relative; overflow: hidden;
+        border-left: 3px solid var(--m3-outline-variant);
       }
       .control-group {
-        background: var(--m3-surface-container);
-        border: none;
-        border-radius: var(--radius);
-        padding: 20px;
-        display: flex;
-        flex-direction: column;
-        gap: 12px;
+        background: var(--m3-surface-container); border: 1px solid var(--m3-outline-variant);
+        border-radius: 0; padding: 14px; display: flex; flex-direction: column; gap: 10px;
+        border-left: 3px solid var(--m3-outline);
       }
-      .control-group .label-header {
-        font-size: var(--text-xs);
-        font-weight: 500;
-        letter-spacing: 0.04em;
-        color: var(--m3-on-surface-variant);
-      }
-      .actions-group { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-top: 12px; }
-
-      /* Right panel wrapper */
+      .control-group .label-header { font-family: var(--font-mono); font-size: 0.6rem; font-weight: 700; letter-spacing: 0.1em; color: var(--m3-on-surface-variant); }
+      .actions-group { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; margin-top: 10px; }
       .right-panel { display: flex; flex-direction: column; gap: var(--spacing); }
+      .story-center-panel, .preview-box {
+        background: var(--m3-surface-container-low); border: 1px solid var(--m3-outline-variant); border-radius: 0;
+      }
+      .story-center-panel { padding: 20px; display: flex; align-items: center; justify-content: center; overflow: hidden; position: relative; height: calc(100vh - 120px); }
+      .preview-box { display: flex; align-items: center; justify-content: center; aspect-ratio: 1; overflow: hidden; padding: 10px; position: relative; }
+      .preview-box img, .preview-box canvas { max-width: 100%; max-height: 100%; object-fit: contain; }
+      #storyPreview { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; overflow: hidden; }
+      #storyPreview canvas { max-width: 100%; max-height: 100%; width: auto; height: auto; object-fit: contain; border: 1px solid var(--m3-outline-variant); border-radius: 0; }
 
-      /* Preview surfaces */
-      .story-center-panel,
-      .preview-box {
-        background: var(--m3-surface-container-low);
-        border: 1px solid var(--m3-outline-variant);
-        border-radius: var(--radius);
-      }
-      .story-center-panel {
-        padding: 30px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        overflow: hidden;
-        position: relative;
-        height: calc(100vh - 150px);
-      }
-      .preview-box {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        aspect-ratio: 1;
-        overflow: hidden;
-        padding: 15px;
-        position: relative;
-      }
-      .preview-box img,
-      .preview-box canvas {
-        max-width: 100%;
-        max-height: 100%;
-        object-fit: contain;
-      }
-      #storyPreview {
-        width: 100%;
-        height: 100%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        overflow: hidden;
-      }
-      #storyPreview canvas {
-        max-width: 100%;
-        max-height: 100%;
-        width: auto;
-        height: auto;
-        object-fit: contain;
-        border: 1px solid var(--m3-outline-variant);
-        border-radius: var(--radius);
-      }
-
-      /* Drop zone — M3 dashed input surface (header inline styles keep dimensions) */
       .drop-zone {
-        border: 1.5px dashed var(--m3-outline);
-        background: var(--m3-surface-container-high);
-        color: var(--m3-on-surface-variant);
-        text-align: center;
-        border-radius: var(--radius);
-        font-family: var(--font);
-        font-size: 0.9rem;
-        transition: border-color var(--dur-fast) var(--ease), background var(--dur-fast) var(--ease), color var(--dur-fast) var(--ease);
+        border: 1px dashed var(--m3-outline); background: var(--m3-surface-container-high);
+        color: var(--m3-on-surface-variant); text-align: center;
+        border-radius: 0; font-family: var(--font); font-size: 0.78rem;
+        transition: border-color var(--dur-fast) var(--ease-out), background var(--dur-fast) var(--ease-out), color var(--dur-fast) var(--ease-out);
       }
-      .drop-zone:hover,
-      .drop-zone.drag-over {
-        background: var(--m3-primary-container);
-        border: 1.5px dashed var(--m3-primary);
-        color: var(--m3-on-primary-container);
-      }
+      .drop-zone:hover { background: var(--m3-surface-container-high); border: 1px dashed var(--m3-outline); }
+      .drop-zone.drag-over { background: var(--m3-primary); border: 1px dashed var(--m3-primary); color: #FFFFFF; }
 
-      /* Empty states — M3 plain surface */
       .empty-state-msg {
-        grid-column: 1 / -1;
-        width: 100%;
-        color: var(--m3-on-surface-variant);
-        text-align: center;
-        padding: 100px 20px;
-        border: none;
-        background: var(--m3-surface-container-low);
-        border-radius: var(--radius);
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        gap: 15px;
-        justify-content: center;
-        font-size: 0.95rem;
+        grid-column: 1 / -1; width: 100%;
+        color: var(--m3-on-surface-variant); text-align: center;
+        padding: 80px 16px; border: 1px solid var(--m3-outline-variant);
+        background: var(--m3-surface-container-low); border-radius: 0;
+        display: flex; flex-direction: column; align-items: center; gap: 12px;
+        justify-content: center; font-size: 0.8rem; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase;
       }
-      .empty-state-msg i { width: 48px; height: 48px; color: var(--m3-on-surface-variant); opacity: 0.6; margin-bottom: 10px; }
+      .empty-state-msg i { width: 40px; height: 40px; color: var(--m3-on-surface-variant); opacity: 0.5; margin-bottom: 8px; }
 
-      /* Progress — M3 linear progress */
-      .progress-bar-bg {
-        width: 100%;
-        height: 4px;
-        background: var(--m3-surface-container-highest);
-        border: none;
-        border-radius: var(--radius-full);
-        overflow: hidden;
-        margin-bottom: 8px;
-      }
-      .progress-bar-fill {
-        height: 100%;
-        background: var(--m3-primary);
-        border-radius: var(--radius-full);
-        width: 0%;
-        transition: width var(--dur) var(--ease);
-      }
-      .progress-text {
-        font-size: 0.85rem;
-        color: var(--m3-on-surface-variant);
-        display: flex;
-        justify-content: space-between;
-      }
+      .progress-bar-bg { width: 100%; height: 3px; background: var(--m3-outline-variant); border: none; border-radius: 0; overflow: hidden; margin-bottom: 6px; }
+      .progress-bar-fill { height: 100%; background: var(--m3-primary); border-radius: 0; width: 0%; transition: width var(--dur) var(--ease-out); }
+      .progress-text { font-size: 0.72rem; color: var(--m3-on-surface-variant); display: flex; justify-content: space-between; }
 
-      /* ---------- 9. CONTENT CARDS (M3) ---------- */
-      .logo-card-item,
-      .pdf-stack-wrapper {
-        background: var(--m3-surface-container-low);
-        border: none;
-        border-radius: var(--radius);
-        overflow: hidden;
-        position: relative;
-        transition: box-shadow var(--dur) var(--ease);
-      }
-      .logo-card-item {
-        background: var(--m3-surface-container-lowest);
-        border: 1px solid var(--m3-outline-variant);
-        border-radius: var(--radius);
-        overflow: hidden;
-        display: flex;
-        flex-direction: column;
-        transition: box-shadow 0.2s;
-      }
-      .pdf-stack-wrapper {
-        width: 240px;
-        cursor: pointer;
-        padding: 0;
-        display: flex;
-        flex-direction: column;
-      }
-      .logo-card-item:hover,
-      .pdf-stack-wrapper:hover { box-shadow: var(--md-elev-1); }
-      .pdf-stack-wrapper img {
-        width: 100%;
-        height: 220px;
-        display: block;
-        object-fit: contain;
-        background: var(--m3-surface-container-high);
-      }
-      .stack-meta,
-      .card-controls {
-        background: var(--m3-surface-container);
-        border-top: 1px solid var(--m3-outline-variant);
-      }
-      .stack-meta { padding: 15px; font-size: 0.9rem; display: flex; flex-direction: column; gap: 6px; }
-      .stack-title { font-weight: 500; color: var(--m3-on-surface); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-      .stack-count { color: var(--m3-on-surface-variant); font-size: 0.8rem; }
-      .pdf-page-card {
-        border: none;
-        background: var(--m3-surface-container-low);
-        border-radius: var(--radius);
-        overflow: hidden;
-        display: flex;
-        flex-direction: column;
-        transition: box-shadow var(--dur) var(--ease);
-      }
-      .pdf-page-card:hover { box-shadow: var(--md-elev-1); }
-      .pdf-thumb {
-        width: 100%;
-        display: block;
-        cursor: pointer;
-        aspect-ratio: 16/9;
-        object-fit: contain;
-        background: var(--m3-surface-container-high);
-        border-bottom: none;
-      }
-      .page-card-actions {
-        padding: 12px;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        background: var(--m3-surface-container);
-      }
-      /* Split overlay cells — outline-variant grid dividers (fixes light-mode white-border bug) */
+      /* ---------- 9. CONTENT CARDS ---------- */
+      .logo-card-item, .pdf-stack-wrapper { background: var(--m3-surface-container-low); border: 1px solid var(--m3-outline-variant); border-radius: 0; overflow: hidden; position: relative; }
+      .logo-card-item { background: var(--m3-surface); display: flex; flex-direction: column; }
+      .pdf-stack-wrapper { width: 220px; cursor: pointer; padding: 0; display: flex; flex-direction: column; }
+      .logo-card-item:hover, .pdf-stack-wrapper:hover { border-color: var(--m3-on-surface); }
+      .pdf-stack-wrapper img { width: 100%; height: 200px; display: block; object-fit: contain; background: var(--m3-surface-container-high); }
+      .stack-meta, .card-controls { background: var(--m3-surface-container); border-top: 1px solid var(--m3-outline-variant); }
+      .stack-meta { padding: 12px; font-size: 0.78rem; display: flex; flex-direction: column; gap: 4px; }
+      .stack-title { font-weight: 600; color: var(--m3-on-surface); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; letter-spacing: 0.04em; }
+      .stack-count { color: var(--m3-on-surface-variant); font-size: 0.7rem; }
+      .pdf-page-card { border: 1px solid var(--m3-outline-variant); background: var(--m3-surface-container-low); border-radius: 0; overflow: hidden; display: flex; flex-direction: column; }
+      .pdf-page-card:hover { border-color: var(--m3-on-surface); }
+      .pdf-thumb { width: 100%; display: block; cursor: pointer; aspect-ratio: 16/9; object-fit: contain; background: var(--m3-surface-container-high); border-bottom: none; }
+      .page-card-actions { padding: 10px; display: flex; justify-content: space-between; align-items: center; background: var(--m3-surface-container); }
       .split-preview-overlay { pointer-events: none; }
-      .split-cell {
-        border: 1px solid var(--m3-outline-variant);
-        box-shadow: none;
-      }
+      .split-cell { border: 1px solid var(--m3-outline-variant); box-shadow: none; }
 
-      /* ---------- 10. OVERLAYS & FEEDBACK (M3) ---------- */
-      /* Overlay scrim (structure from scaffold; M3 scrim token already applied) */
-      .overlay-fixed.active { animation: m3FadeIn var(--dur) var(--ease) both; }
-      @keyframes m3FadeIn { from { opacity: 0; } to { opacity: 1; } }
-      #view-app.leaving,
-      #view-home.leaving { animation: m3FadeOut 160ms var(--ease) both; }
-      @keyframes m3FadeOut { from { opacity: 1; } to { opacity: 0; } }
+      /* ---------- 10. OVERLAYS & FEEDBACK ---------- */
+      .overlay-fixed.active { animation: panelReveal var(--dur-workspace) var(--ease-out) both; }
+      #view-app.leaving, #view-home.leaving { animation: workspaceExit var(--dur-workspace) var(--ease-in) both; }
+      .overlay-content { background: var(--m3-surface-container-high); border: 1px solid var(--m3-outline-variant); border-radius: 0; animation: dialogElevate var(--dur-modal) var(--ease-spring) both; }
+      .overlay-fixed > div { background: var(--m3-surface-container-high); border: 1px solid var(--m3-outline-variant); border-radius: 0; animation: dialogElevate var(--dur-modal) var(--ease-spring) both; }
 
-      /* Overlay content shells (inline var() styles resolve through aliases) */
-      .overlay-content {
-        background: var(--m3-surface-container-high);
-        border-radius: var(--radius);
-        box-shadow: var(--md-elev-3);
-        animation: m3DialogIn var(--dur-slow) var(--ease) both;
-      }
-      .overlay-fixed > div {
-        background: var(--m3-surface-container-high);
-        border-radius: var(--radius);
-        box-shadow: var(--md-elev-3);
-        animation: m3DialogIn var(--dur-slow) var(--ease) both;
-      }
-      @keyframes m3DialogIn {
-        from { opacity: 0; transform: translateY(16px) scale(0.98); }
-        to { opacity: 1; transform: translateY(0) scale(1); }
-      }
-
-      /* Confirm dialog — M3 basic dialog */
-      .confirm-overlay { backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px);
-        position: fixed;
-        inset: 0;
-        z-index: 4000;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        padding: 24px;
-        background: var(--m3-scrim);
-      }
+      .confirm-overlay { backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px); position: fixed; inset: 0; z-index: 4000; display: flex; align-items: center; justify-content: center; padding: 24px; background: var(--m3-scrim); }
       .confirm-overlay[hidden] { display: none; }
-      .confirm-dialog {
-        width: 100%;
-        max-width: 420px;
-        background: var(--m3-surface-container-high);
-        border: none;
-        border-radius: 28px;
-        box-shadow: 0 8px 12px rgba(0,0,0,0.15); /* M3 elevation 3 */
-        padding: 24px;
-        animation: m3DialogIn var(--dur) var(--ease) both;
-      }
-      .confirm-head { display: flex; align-items: center; gap: 12px; margin-bottom: 10px; }
-      .confirm-head h3 { margin: 0; font-weight: 400; font-size: 1.05rem; color: var(--m3-on-surface); }
-      .confirm-icon { color: var(--m3-error); width: 22px; height: 22px; }
-      .confirm-body { margin: 0 0 20px; color: var(--m3-on-surface-variant); font-size: 0.9rem; line-height: 1.5; }
-      .confirm-actions { display: flex; justify-content: flex-end; gap: 10px; }
+      .confirm-dialog { width: 100%; max-width: 400px; background: var(--m3-surface-container-high); border: 1px solid var(--m3-outline-variant); border-radius: 0; box-shadow: 8px 8px 0 rgba(0,0,0,0.3); padding: 20px; animation: dialogElevate var(--dur-modal) var(--ease-spring) both; }
+      body.light-mode .confirm-dialog { box-shadow: 8px 8px 0 rgba(0,0,0,0.12); }
+      .confirm-head { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
+      .confirm-head h3 { margin: 0; font-weight: 700; font-size: 0.9375rem; color: var(--m3-on-surface); letter-spacing: 0.08em; text-transform: uppercase; }
+      .confirm-icon { color: var(--m3-error); width: 18px; height: 18px; }
+      .confirm-body { margin: 0 0 16px; color: var(--m3-on-surface-variant); font-size: 0.8125rem; line-height: 1.5; }
+      .confirm-actions { display: flex; justify-content: flex-end; gap: 8px; }
 
-      /* Presets dialog — M3 dialog */
-      .presets-overlay {
-        position: fixed;
-        inset: 0;
-        z-index: 4000;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        padding: 24px;
-        background: var(--m3-scrim);
-      }
+      .presets-overlay { position: fixed; inset: 0; z-index: 4000; display: flex; align-items: center; justify-content: center; padding: 24px; background: var(--m3-scrim); }
       .presets-overlay[hidden] { display: none; }
-      .presets-dialog {
-        width: 100%;
-        max-width: 450px;
-        background: var(--m3-surface-container-high);
-        border: none;
-        border-radius: 28px;
-        box-shadow: 0 8px 12px rgba(0,0,0,0.15);
-        padding: 24px;
-        animation: m3DialogIn var(--dur) var(--ease) both;
-      }
-      .presets-head { display: flex; align-items: center; gap: 10px; margin-bottom: 4px; }
-      .presets-head h3 { margin: 0; font-weight: 400; font-size: 1.05rem; color: var(--m3-on-surface); flex: 1; }
-      .presets-title-icon { color: var(--m3-primary); width: 20px; height: 20px; }
-      .presets-close {
-        border: none;
-        background: transparent;
-        color: var(--m3-on-surface-variant);
-        font-size: 1.4rem;
-        line-height: 1;
-        padding: 4px 8px;
-        border-radius: var(--radius-full);
-        cursor: pointer;
-      }
-      .presets-close:hover { background: color-mix(in srgb, var(--m3-on-surface) 8%, transparent); color: var(--m3-on-surface); }
-      .presets-sub { margin: 0 0 16px; color: var(--m3-on-surface-variant); font-size: 0.85rem; }
-      .presets-save-row { display: flex; gap: 8px; margin-bottom: 16px; }
+      .presets-dialog { width: 100%; max-width: 420px; background: var(--m3-surface-container-high); border: 1px solid var(--m3-outline-variant); border-radius: 0; box-shadow: 8px 8px 0 rgba(0,0,0,0.3); padding: 20px; animation: dialogElevate var(--dur-modal) var(--ease-spring) both; }
+      body.light-mode .presets-dialog { box-shadow: 8px 8px 0 rgba(0,0,0,0.12); }
+      .presets-head { display: flex; align-items: center; gap: 8px; margin-bottom: 4px; }
+      .presets-head h3 { margin: 0; font-weight: 700; font-size: 0.85rem; color: var(--m3-on-surface); flex: 1; letter-spacing: 0.08em; text-transform: uppercase; }
+      .presets-title-icon { color: var(--m3-on-surface); width: 16px; height: 16px; }
+      .presets-close { border: 1px solid var(--m3-outline-variant); background: transparent; color: var(--m3-on-surface-variant); font-size: 1rem; line-height: 1; padding: 4px 8px; border-radius: 0; cursor: pointer; }
+      .presets-close:hover { background: var(--m3-surface-container); color: var(--m3-on-surface); }
+      .presets-sub { margin: 0 0 12px; color: var(--m3-on-surface-variant); font-size: 0.75rem; }
+      .presets-save-row { display: flex; gap: 6px; margin-bottom: 12px; }
       .presets-save-row .liquid-input { flex: 1; }
       .presets-save-row .liquid-btn { white-space: nowrap; }
-      .presets-list { display: flex; flex-direction: column; gap: 8px; overflow-y: auto; padding-right: 2px; }
-      .preset-item {
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        padding: 10px 12px;
-        border: none;
-        border-radius: var(--radius);
-        background: var(--m3-surface-container);
-      }
-      .preset-item-name { flex: 1; font-size: 0.9rem; color: var(--m3-on-surface); font-weight: 400; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-      .preset-item-actions { display: flex; gap: 6px; flex-shrink: 0; }
-      .preset-btn {
-        border: none;
-        background: transparent;
-        color: var(--m3-primary);
-        border-radius: var(--radius-full);
-        padding: 6px 12px;
-        font-size: 0.8rem;
-        font-weight: 500;
-        cursor: pointer;
-        transition: background var(--dur-fast) var(--ease);
-      }
-      .preset-btn:hover:not(:disabled) { background: color-mix(in srgb, var(--m3-primary) 10%, transparent); }
-      .preset-btn.apply { color: var(--m3-primary); }
-      .preset-btn:disabled { color: color-mix(in srgb, var(--m3-on-surface) 38%, transparent); cursor: not-allowed; }
-      .presets-empty { margin: 8px 0 0; color: var(--m3-on-surface-variant); font-size: 0.85rem; text-align: center; }
+      .presets-list { display: flex; flex-direction: column; gap: 6px; overflow-y: auto; padding-right: 2px; }
+      .preset-item { display: flex; align-items: center; gap: 8px; padding: 8px 10px; border: 1px solid var(--m3-outline-variant); border-radius: 0; background: var(--m3-surface-container); }
+      .preset-item-name { flex: 1; font-size: 0.78rem; color: var(--m3-on-surface); font-weight: 600; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+      .preset-item-actions { display: flex; gap: 4px; flex-shrink: 0; }
+      .preset-btn { border: 1px solid var(--m3-outline-variant); background: transparent; color: var(--m3-on-surface); border-radius: 0; padding: 4px 10px; font-size: 0.68rem; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase; cursor: pointer; transition: background var(--dur-fast) var(--ease-out); font-family: var(--font); }
+      .preset-btn:hover:not(:disabled) { background: var(--m3-surface-container-high); }
+      .preset-btn.apply { color: var(--m3-on-surface); }
+      .preset-btn:disabled { color: var(--m3-on-surface-variant); opacity: 0.4; cursor: not-allowed; }
+      .presets-empty { margin: 8px 0 0; color: var(--m3-on-surface-variant); font-size: 0.75rem; text-align: center; }
 
-      /* Snackbars — M3 inverse surface */
-      #errorToast {
-        background: var(--m3-inverse-surface);
-        color: var(--m3-inverse-on-surface);
-        border: none;
-        border-radius: var(--radius-xs, 4px);
-        padding: 14px 16px;
-        font-size: 0.875rem;
-        box-shadow: var(--md-elev-3);
-        animation: m3SnackbarIn var(--dur) var(--ease) both;
-      }
-      @keyframes m3SnackbarIn {
-        from { opacity: 0; transform: translateY(16px); }
-        to { opacity: 1; transform: translateY(0); }
-      }
+      #errorToast { background: var(--m3-inverse-surface); color: var(--m3-inverse-on-surface); border: 1px solid var(--m3-outline-variant); border-radius: 0; padding: 12px 14px; font-size: 0.78rem; box-shadow: 4px 4px 0 rgba(0,0,0,0.3); animation: dialogElevate var(--dur-modal) var(--ease-spring) both; }
+      body.light-mode #errorToast { box-shadow: 4px 4px 0 rgba(0,0,0,0.12); }
       .undo-toast {
-        position: fixed;
-        bottom: 30px;
-        left: 50%;
-        transform: translateX(-50%);
-        z-index: 3000;
-        display: flex;
-        align-items: center;
-        gap: 16px;
-        padding: 12px 12px 12px 16px;
-        max-width: 92vw;
-        background: var(--m3-inverse-surface);
-        color: var(--m3-inverse-on-surface);
-        border: none;
-        border-radius: var(--radius-xs, 4px);
-        box-shadow: var(--md-elev-3);
-        animation: m3SnackbarIn var(--dur) var(--ease) both;
+        position: fixed; bottom: 40px; left: 50%; transform: translateX(-50%);
+        z-index: 3000; display: flex; align-items: center; gap: 12px;
+        padding: 10px 10px 10px 14px; max-width: 92vw;
+        background: var(--m3-inverse-surface); color: var(--m3-inverse-on-surface);
+        border: 1px solid var(--m3-outline-variant); border-radius: 0;
+        box-shadow: 4px 4px 0 rgba(0,0,0,0.3); animation: dialogElevate var(--dur-modal) var(--ease-spring) both;
       }
+      body.light-mode .undo-toast { box-shadow: 4px 4px 0 rgba(0,0,0,0.12); }
       .undo-toast[hidden] { display: none; }
-      .undo-toast-msg { color: var(--m3-inverse-on-surface); font-size: 0.875rem; font-weight: 400; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-      .undo-toast-btn {
-        flex-shrink: 0;
-        border: none;
-        background: transparent;
-        color: var(--m3-inverse-on-surface);
-        font-weight: 500;
-        font-size: 0.875rem;
-        padding: 8px 12px;
-        border-radius: var(--radius-full);
-        cursor: pointer;
-        text-transform: uppercase;
-        letter-spacing: 0.04em;
-      }
-      .undo-toast-btn:hover { background: color-mix(in srgb, var(--m3-inverse-on-surface) 12%, transparent); }
-      .undo-toast-btn:focus-visible { outline: 2px solid var(--m3-inverse-on-surface); outline-offset: 2px; }
+      .undo-toast-msg { color: var(--m3-inverse-on-surface); font-size: 0.78rem; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+      .undo-toast-btn { flex-shrink: 0; border: 1px solid var(--m3-inverse-on-surface); background: transparent; color: var(--m3-inverse-on-surface); font-weight: 700; font-size: 0.68rem; padding: 6px 10px; border-radius: 0; cursor: pointer; text-transform: uppercase; letter-spacing: 0.06em; font-family: var(--font); }
+      .undo-toast-btn:hover { background: rgba(255,255,255,0.1); }
+      body.light-mode .undo-toast-btn:hover { background: rgba(0,0,0,0.08); }
+      .undo-toast-btn:focus-visible { outline: 1px solid var(--m3-inverse-on-surface); outline-offset: -1px; }
 
-      /* Command palette — M3 search surface */
-      .cmd-item {
-        border-radius: var(--radius-full);
-        color: var(--m3-on-surface);
-        transition: background var(--dur-fast) var(--ease);
-      }
-      .cmd-item:hover,
-      .cmd-item.selected {
-        background: var(--m3-secondary-container);
-        color: var(--m3-on-secondary-container);
-      }
+      .cmd-item { border-radius: 0; color: var(--m3-on-surface); transition: background var(--dur-fast) var(--ease-out); }
+      .cmd-item:hover, .cmd-item.selected { background: var(--m3-secondary-container); color: var(--m3-on-secondary-container); }
 
-      /* Lightbox — scrim + neutral frame */
-      #lightbox img {
-        border: 1px solid var(--m3-outline-variant);
-        box-shadow: var(--md-elev-3);
-        border-radius: var(--radius);
-      }
+      #lightbox img { border: 1px solid var(--m3-outline-variant); box-shadow: 8px 8px 0 rgba(0,0,0,0.3); border-radius: 0; }
+      body.light-mode #lightbox img { box-shadow: 8px 8px 0 rgba(0,0,0,0.12); }
 
-      /* Guide system — M3 neutral highlights */
-      .guide-highlight {
-        outline: 2px solid var(--m3-primary) !important;
-        outline-offset: 2px !important;
-        border-radius: var(--radius);
-        background: color-mix(in srgb, var(--m3-primary) 8%, transparent) !important;
-      }
-      .guide-available {
-        outline: 1px dashed color-mix(in srgb, var(--m3-primary) 60%, transparent) !important;
-        outline-offset: 2px !important;
-        cursor: help !important;
-      }
+      .guide-highlight { outline: 2px solid var(--m3-primary) !important; outline-offset: 2px !important; border-radius: 0; background: rgba(255,0,0,0.06) !important; }
+      .guide-available { outline: 1px dashed rgba(255,0,0,0.5) !important; outline-offset: 2px !important; cursor: help !important; }
       .whats-new-highlight { color: var(--m3-primary); }
       .whats-new-highlight i { color: var(--m3-primary); }
 
-      /* ---------- 11. TABLE & DATA (M3) ---------- */
+      /* ---------- 11. TABLE & DATA ---------- */
       table { border-collapse: collapse; }
-      table thead {
-        background: var(--m3-surface-container);
-        color: var(--m3-on-surface-variant);
-      }
-      table th {
-        color: var(--m3-on-surface-variant);
-        font-weight: 500;
-        font-size: var(--text-xs);
-        letter-spacing: 0.04em;
-        text-transform: uppercase;
-        border-bottom: 1px solid var(--m3-outline-variant);
-      }
-      table td {
-        color: var(--m3-on-surface);
-        border-bottom: 1px solid var(--m3-outline-variant);
-      }
+      table thead { background: var(--m3-surface-container); color: var(--m3-on-surface-variant); }
+      table th { color: var(--m3-on-surface-variant); font-weight: 700; font-size: 0.6rem; letter-spacing: 0.1em; text-transform: uppercase; border-bottom: 1px solid var(--m3-outline-variant); padding: 10px 14px; }
+      table td { color: var(--m3-on-surface); border-bottom: 1px solid var(--m3-outline-variant); padding: 10px 14px; }
       tr.downloaded { background: var(--m3-surface-container-low); }
       .badge { color: var(--m3-on-surface); }
       .badge i { color: var(--success); }
-      /* Stills board active frame */
-      .active-still { outline: 2px solid var(--m3-primary); outline-offset: 2px; border-radius: var(--radius); }
-      /* Story project tab pills (JS-generated buttons inside storyProjectTabs) */
+      .active-still { outline: 2px solid var(--m3-primary); outline-offset: 2px; border-radius: 0; }
       #storyProjectTabs button {
-        appearance: none;
-        border: none;
-        background: var(--m3-surface-container);
-        color: var(--m3-on-surface-variant);
-        border-radius: var(--radius-full);
-        padding: 6px 14px;
-        font-family: var(--font);
-        font-size: 0.8rem;
-        font-weight: 500;
-        cursor: pointer;
-        transition: background var(--dur-fast) var(--ease), color var(--dur-fast) var(--ease);
+        appearance: none; border: 1px solid var(--m3-outline-variant);
+        background: var(--m3-surface-container); color: var(--m3-on-surface-variant);
+        border-radius: 0; padding: 5px 12px;
+        font-family: var(--font); font-size: 0.68rem; font-weight: 700;
+        letter-spacing: 0.04em; text-transform: uppercase;
+        transition: background var(--dur-fast) var(--ease-out), color var(--dur-fast) var(--ease-out);
       }
       #storyProjectTabs button:hover { background: var(--m3-secondary-container); color: var(--m3-on-secondary-container); }
       #storyProjectTabs button.active-mode,
@@ -1411,45 +861,20 @@
         border-radius: var(--radius);
       }
 
-      /* ---------- 11b. JS-TEMPLATE FRAGMENTS (M3) ----------
-         Classes emitted by tool render templates (logo cards, split grid,
-         stills overlay, YT panels). Structural inline styles stay; these
-         rules make every fragment read as M3. */
+      /* ---------- 11b. JS-TEMPLATE FRAGMENTS ---------- */
       .text-muted { color: var(--m3-on-surface-variant); }
-      .processing-pulse {
-        background: var(--m3-surface-container-high);
-        color: var(--m3-on-surface-variant);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-      }
-      .card-preview-area {
-        background-image: radial-gradient(var(--m3-outline-variant) 1px, transparent 1px);
-        background-size: 15px 15px;
-      }
-      .hover-overlay {
-        background: var(--m3-scrim);
-        opacity: 0;
-        transition: opacity var(--dur-fast) var(--ease);
-      }
+      .processing-pulse { background: var(--m3-surface-container-high); color: var(--m3-on-surface-variant); display: flex; align-items: center; justify-content: center; }
+      .card-preview-area { background-image: radial-gradient(var(--m3-outline-variant) 1px, transparent 1px); background-size: 15px 15px; }
+      .hover-overlay { background: var(--m3-scrim); opacity: 0; transition: opacity var(--dur-fast) var(--ease-out); }
       .split-status { color: var(--m3-on-surface-variant); }
-      .zoomImage { max-width: 80%; border-radius: var(--radius); }
-      /* Composite-only modifiers (base classes liquid-btn / liquid-input /
-         toggle-switch.small already styled; these carry JS hooks, not looks) */
-      .card-dl, .card-rm { width: 32px; height: 32px; }
-      .card-dl i, .card-dl svg,
-      .card-rm i, .card-rm svg { width: 16px; height: 16px; }
-      .card-fname-lbl { font-size: 0.75rem; font-weight: 600; }
+      .zoomImage { max-width: 80%; border-radius: 0; }
+      .card-dl, .card-rm { width: 28px; height: 28px; }
+      .card-dl i, .card-dl svg, .card-rm i, .card-rm svg { width: 14px; height: 14px; }
+      .card-fname-lbl { font-size: 0.7rem; font-weight: 700; letter-spacing: 0.04em; }
       .detail-check, .split-check { flex-shrink: 0; }
-      /* Menu surfaces (stills board menu, JS-positioned) */
-      #stillsBoardMenu {
-        background: var(--m3-surface-container-high);
-        border: none;
-        border-radius: var(--radius);
-        box-shadow: var(--md-elev-2);
-      }
-      #stillsBoardMenu button,
-      #stillsBoardMenu .liquid-btn { color: var(--m3-on-surface); }
+      #stillsBoardMenu { background: var(--m3-surface-container-high); border: 1px solid var(--m3-outline-variant); border-radius: 0; box-shadow: 4px 4px 0 rgba(0,0,0,0.3); }
+      body.light-mode #stillsBoardMenu { box-shadow: 4px 4px 0 rgba(0,0,0,0.12); }
+      #stillsBoardMenu button, #stillsBoardMenu .liquid-btn { color: var(--m3-on-surface); }
 
       /* ---------- 12. REDUCED MOTION ---------- */
       @media (prefers-reduced-motion: reduce) {
@@ -1460,97 +885,24 @@
           scroll-behavior: auto !important;
         }
       }
-    
+
       .material-symbols-rounded {
         font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 20;
-        font-size: 20px;
+        font-size: 18px;
         display: inline-flex;
         align-items: center;
         justify-content: center;
       }
-      .liquid-btn .material-symbols-rounded { font-size: 18px; margin-right: 6px; }
+      .liquid-btn .material-symbols-rounded { font-size: 14px; margin-right: 4px; }
       .icon-only .material-symbols-rounded { margin-right: 0; }
     </style>
   </head>
   <body>
     <header class="header">
       <div class="brand-title" style="cursor: pointer" onclick="UI.showHome()">
-        <span class="material-symbols-rounded" style="color: var(--accent)">deployed_code</span>Tools
+        <span class="material-symbols-rounded brand-icon">deployed_code</span>
+        <span class="brand-text" id="brandText">CREATIVE TOOLS SUITE</span>
       </div>
-      <nav class="nav-sidebar" id="mainSidebar">
-        <button
-          class="nav-item"
-          id="nav-logo"
-          onclick="UI.openTool('section-logo')"
-          title="Logo Resizer"
-        >
-          <span class="material-symbols-rounded">image</span
-          ><span class="nav-item-text">Logo Resizer</span>
-        </button>
-        <button
-          class="nav-item"
-          id="nav-pdf-image"
-          onclick="UI.openTool('section-pdf','convert')"
-          title="PDF to Image"
-        >
-          <span class="material-symbols-rounded">picture_as_pdf</span
-          ><span class="nav-item-text">PDF to Image</span>
-        </button>
-        <button
-          class="nav-item"
-          id="nav-pdf-split"
-          onclick="UI.openTool('section-pdf','split')"
-          title="Image Splitter"
-        >
-          <span class="material-symbols-rounded">content_cut</span
-          ><span class="nav-item-text">Image Splitter</span>
-        </button>
-        <button
-          class="nav-item"
-          id="nav-stills"
-          onclick="UI.openTool('section-stills-boards','video')"
-          title="Video Stills"
-        >
-          <span class="material-symbols-rounded">movie</span
-          ><span class="nav-item-text">Video Stills</span>
-        </button>
-        <button
-          class="nav-item"
-          id="nav-story"
-          onclick="UI.openTool('section-stills-boards','story')"
-          title="Storyboard"
-        >
-          <span class="material-symbols-rounded">view_timeline</span
-          ><span class="nav-item-text">Storyboard</span>
-        </button>
-        <button
-          class="nav-item"
-          id="nav-adlinks-gen"
-          onclick="UI.openTool('section-adlinks','gen')"
-          title="Link Gen"
-        >
-          <span class="material-symbols-rounded">link</span
-          ><span class="nav-item-text">Link Gen</span>
-        </button>
-        <button
-          class="nav-item"
-          id="nav-adlinks-dl"
-          onclick="UI.openTool('section-adlinks','downloader')"
-          title="Ad Link Downloader"
-        >
-          <span class="material-symbols-rounded">download</span
-          ><span class="nav-item-text">Ad Link Downloader</span>
-        </button>
-        <button
-          class="nav-item"
-          id="nav-yt-helper"
-          onclick="UI.openTool('section-yt-helper')"
-          title="Video Downloads"
-        >
-          <span class="material-symbols-rounded">video_library</span
-          ><span class="nav-item-text">Video Downloads</span>
-        </button>
-      </nav>
       <button id="themeToggleBtn" onclick="UI.toggleTheme()">
         <span class="material-symbols-rounded" id="themeMoonIcon" style="font-size: 14px;">dark_mode</span>
         <span class="toggle-track">
@@ -1560,89 +912,136 @@
       </button>
     </header>
     <div class="main-layout">
-      
+      <nav class="nav-sidebar" id="mainSidebar">
+        <button class="nav-item nav-toggle" onclick="document.getElementById('mainSidebar').classList.toggle('collapsed')" title="Toggle sidebar">
+          <span class="material-symbols-rounded nav-toggle-icon-expanded">left_panel_close</span>
+          <span class="material-symbols-rounded nav-toggle-icon-collapsed">left_panel_open</span>
+          <span class="nav-item-text">Collapse</span>
+        </button>
+        <button class="nav-item" id="nav-logo" onclick="UI.openTool('section-logo')" title="Logo Resizer">
+          <span class="material-symbols-rounded">image</span><span class="nav-item-text">Logo Resizer</span>
+        </button>
+        <button class="nav-item" id="nav-pdf-image" onclick="UI.openTool('section-pdf','convert')" title="PDF to Image">
+          <span class="material-symbols-rounded">picture_as_pdf</span><span class="nav-item-text">PDF to Image</span>
+        </button>
+        <button class="nav-item" id="nav-pdf-split" onclick="UI.openTool('section-pdf','split')" title="Image Splitter">
+          <span class="material-symbols-rounded">content_cut</span><span class="nav-item-text">Image Splitter</span>
+        </button>
+        <button class="nav-item" id="nav-stills-video" onclick="UI.openTool('section-stills-boards','video')" title="Video Stills">
+          <span class="material-symbols-rounded">movie</span><span class="nav-item-text">Video Stills</span>
+        </button>
+        <button class="nav-item" id="nav-stills-story" onclick="UI.openTool('section-stills-boards','story')" title="Storyboard">
+          <span class="material-symbols-rounded">view_timeline</span><span class="nav-item-text">Storyboard</span>
+        </button>
+        <button class="nav-item" id="nav-adlinks-gen" onclick="UI.openTool('section-adlinks','gen')" title="Link Gen">
+          <span class="material-symbols-rounded">link</span><span class="nav-item-text">Link Gen</span>
+        </button>
+        <button class="nav-item" id="nav-adlinks-dl" onclick="UI.openTool('section-adlinks','downloader')" title="Ad Link Downloader">
+          <span class="material-symbols-rounded">download</span><span class="nav-item-text">Ad Link Downloader</span>
+        </button>
+        <button class="nav-item" id="nav-yt-helper" onclick="UI.openTool('section-yt-helper')" title="Video Downloads">
+          <span class="material-symbols-rounded">video_library</span><span class="nav-item-text">Video Downloads</span>
+        </button>
+      </nav>
       <div class="view-container">
         <div id="view-home">
-          
           <div class="home-layout">
-            <div class="home-hero">
-              <h1 class="home-title">Creative Toolsuite</h1>
-              
+            <div class="home-wordmark">
+              <svg viewBox="0 0 960 90" xmlns="http://www.w3.org/2000/svg" class="wordmark-svg" aria-label="CREATIVE TOOLS SUITE">
+                <defs>
+                  <pattern id="smGrid" width="12" height="12" patternUnits="userSpaceOnUse">
+                    <path d="M 12 0 L 0 0 0 12" fill="none" stroke="currentColor" stroke-width="0.25" opacity="0.08"/>
+                  </pattern>
+                  <pattern id="lgGrid" width="60" height="60" patternUnits="userSpaceOnUse">
+                    <rect width="60" height="60" fill="url(#smGrid)"/>
+                    <path d="M 60 0 L 0 0 0 60" fill="none" stroke="currentColor" stroke-width="0.5" opacity="0.1"/>
+                  </pattern>
+                </defs>
+                <!-- background grid -->
+                <rect width="960" height="90" fill="url(#lgGrid)"/>
+                <!-- outer frame -->
+                <rect x="4" y="4" width="952" height="82" fill="none" stroke="currentColor" stroke-width="1" opacity="0.15"/>
+                <!-- corner brackets -->
+                <path d="M 4 20 L 4 4 L 20 4" fill="none" stroke="currentColor" stroke-width="1.5" opacity="0.3"/>
+                <path d="M 940 4 L 956 4 L 956 20" fill="none" stroke="currentColor" stroke-width="1.5" opacity="0.3"/>
+                <path d="M 4 70 L 4 86 L 20 86" fill="none" stroke="currentColor" stroke-width="1.5" opacity="0.3"/>
+                <path d="M 940 86 L 956 86 L 956 70" fill="none" stroke="currentColor" stroke-width="1.5" opacity="0.3"/>
+                <!-- center crosshair marks -->
+                <line x1="480" y1="4" x2="480" y2="14" stroke="currentColor" stroke-width="0.5" opacity="0.2"/>
+                <line x1="480" y1="76" x2="480" y2="86" stroke="currentColor" stroke-width="0.5" opacity="0.2"/>
+                <line x1="4" y1="45" x2="14" y2="45" stroke="currentColor" stroke-width="0.5" opacity="0.2"/>
+                <line x1="946" y1="45" x2="956" y2="45" stroke="currentColor" stroke-width="0.5" opacity="0.2"/>
+                <!-- measurement ticks top -->
+                <line x1="120" y1="4" x2="120" y2="10" stroke="currentColor" stroke-width="0.4" opacity="0.15"/>
+                <line x1="240" y1="4" x2="240" y2="10" stroke="currentColor" stroke-width="0.4" opacity="0.15"/>
+                <line x1="360" y1="4" x2="360" y2="10" stroke="currentColor" stroke-width="0.4" opacity="0.15"/>
+                <line x1="480" y1="4" x2="480" y2="10" stroke="currentColor" stroke-width="0.4" opacity="0.15"/>
+                <line x1="600" y1="4" x2="600" y2="10" stroke="currentColor" stroke-width="0.4" opacity="0.15"/>
+                <line x1="720" y1="4" x2="720" y2="10" stroke="currentColor" stroke-width="0.4" opacity="0.15"/>
+                <line x1="840" y1="4" x2="840" y2="10" stroke="currentColor" stroke-width="0.4" opacity="0.15"/>
+                <!-- text -->
+                <text x="480" y="54" text-anchor="middle" fill="currentColor" font-family="Audiowide, monospace" font-weight="400" font-size="44" letter-spacing="10">CREATIVE TOOLS SUITE</text>
+                <!-- baseline + descender lines -->
+                <line x1="60" y1="60" x2="900" y2="60" stroke="currentColor" stroke-width="0.4" opacity="0.1"/>
+                <line x1="60" y1="64" x2="900" y2="64" stroke="currentColor" stroke-width="0.4" opacity="0.06"/>
+              </svg>
             </div>
             <div class="home-grid" id="homeContent">
 
-              
               <button class="home-card home-item" onclick="UI.openTool('section-logo')">
-                <div class="home-card-icon"><span class="material-symbols-rounded" >image</span></div>
-                <div class="home-card-body">
-                  <h2 class="home-card-title">Logo Workspace</h2>
-                  <p class="home-card-desc">Resize, brand and export logo images for any channel.</p>
-                </div>
-                <span class="material-symbols-rounded home-card-go">open_in_new</span>
+                <div class="home-card-top"><span class="home-card-num">01</span><span class="material-symbols-rounded home-card-go">arrow_outward</span></div>
+                <div class="home-card-icon"><span class="material-symbols-rounded">image</span></div>
+                <h2 class="home-card-title">LOGO WORKSPACE</h2>
+                <p class="home-card-desc">RESIZE, BRAND AND EXPORT.</p>
               </button>
 
               <button class="home-card home-item" onclick="UI.openTool('section-pdf','convert')">
+                <div class="home-card-top"><span class="home-card-num">02</span><span class="material-symbols-rounded home-card-go">arrow_outward</span></div>
                 <div class="home-card-icon"><span class="material-symbols-rounded">picture_as_pdf</span></div>
-                <div class="home-card-body">
-                  <h2 class="home-card-title">PDF to Image</h2>
-                  <p class="home-card-desc">Convert PDF pages into individual image files.</p>
-                </div>
-                <span class="material-symbols-rounded home-card-go">open_in_new</span>
+                <h2 class="home-card-title">PDF TO IMAGE</h2>
+                <p class="home-card-desc">CONVERT PAGES TO FILES.</p>
               </button>
 
               <button class="home-card home-item" onclick="UI.openTool('section-pdf','split')">
+                <div class="home-card-top"><span class="home-card-num">03</span><span class="material-symbols-rounded home-card-go">arrow_outward</span></div>
                 <div class="home-card-icon"><span class="material-symbols-rounded">content_cut</span></div>
-                <div class="home-card-body">
-                  <h2 class="home-card-title">Image Splitter</h2>
-                  <p class="home-card-desc">Slice one image into a grid of smaller pieces.</p>
-                </div>
-                <span class="material-symbols-rounded home-card-go">open_in_new</span>
+                <h2 class="home-card-title">IMAGE SPLITTER</h2>
+                <p class="home-card-desc">SLICE INTO A GRID.</p>
               </button>
 
               <button class="home-card home-item" onclick="UI.openTool('section-stills-boards','video')">
-                <div class="home-card-icon"><span class="material-symbols-rounded" >movie</span></div>
-                <div class="home-card-body">
-                  <h2 class="home-card-title">Video Stills</h2>
-                  <p class="home-card-desc">Extract thumbnails automatically from video files.</p>
-                </div>
-                <span class="material-symbols-rounded home-card-go">open_in_new</span>
+                <div class="home-card-top"><span class="home-card-num">04</span><span class="material-symbols-rounded home-card-go">arrow_outward</span></div>
+                <div class="home-card-icon"><span class="material-symbols-rounded">movie</span></div>
+                <h2 class="home-card-title">VIDEO STILLS</h2>
+                <p class="home-card-desc">EXTRACT THUMBNAILS.</p>
               </button>
 
               <button class="home-card home-item" onclick="UI.openTool('section-stills-boards','story')">
+                <div class="home-card-top"><span class="home-card-num">05</span><span class="material-symbols-rounded home-card-go">arrow_outward</span></div>
                 <div class="home-card-icon"><span class="material-symbols-rounded">view_timeline</span></div>
-                <div class="home-card-body">
-                  <h2 class="home-card-title">Storyboard</h2>
-                  <p class="home-card-desc">Arrange images and videos into custom layout boards.</p>
-                </div>
-                <span class="material-symbols-rounded home-card-go">open_in_new</span>
+                <h2 class="home-card-title">STORYBOARD</h2>
+                <p class="home-card-desc">ARRANGE INTO BOARDS.</p>
               </button>
 
-              
               <button class="home-card home-item" onclick="UI.openTool('section-adlinks','gen')">
-                <div class="home-card-icon"><span class="material-symbols-rounded" >link</span></div>
-                <div class="home-card-body">
-                  <h2 class="home-card-title">Link Gen</h2>
-                  <p class="home-card-desc">Build final URLs for standard and dynamic ads.</p>
-                </div>
-                <span class="material-symbols-rounded home-card-go">open_in_new</span>
+                <div class="home-card-top"><span class="home-card-num">06</span><span class="material-symbols-rounded home-card-go">arrow_outward</span></div>
+                <div class="home-card-icon"><span class="material-symbols-rounded">link</span></div>
+                <h2 class="home-card-title">LINK GEN</h2>
+                <p class="home-card-desc">BUILD AD URLs.</p>
               </button>
 
               <button class="home-card home-item" onclick="UI.openTool('section-adlinks','downloader')">
-                <div class="home-card-icon"><span class="material-symbols-rounded" >download</span></div>
-                <div class="home-card-body">
-                  <h2 class="home-card-title">Ad Link Downloader</h2>
-                  <p class="home-card-desc">Extract bucket parameters from a Forsta Excel file.</p>
-                </div>
-                <span class="material-symbols-rounded home-card-go">open_in_new</span>
+                <div class="home-card-top"><span class="home-card-num">07</span><span class="material-symbols-rounded home-card-go">arrow_outward</span></div>
+                <div class="home-card-icon"><span class="material-symbols-rounded">download</span></div>
+                <h2 class="home-card-title">AD DOWNLOADER</h2>
+                <p class="home-card-desc">EXTRACT FROM EXCEL.</p>
               </button>
 
               <button class="home-card home-item" onclick="UI.openTool('section-yt-helper')">
+                <div class="home-card-top"><span class="home-card-num">08</span><span class="material-symbols-rounded home-card-go">arrow_outward</span></div>
                 <div class="home-card-icon"><span class="material-symbols-rounded">video_library</span></div>
-                <div class="home-card-body">
-                  <h2 class="home-card-title">Video Downloads</h2>
-                  <p class="home-card-desc">Extract frames, thumbnails and visuals from YouTube.</p>
-                </div>
-                <span class="material-symbols-rounded home-card-go">open_in_new</span>
+                <h2 class="home-card-title">VIDEO DOWNLOADS</h2>
+                <p class="home-card-desc">EXTRACT FROM YOUTUBE.</p>
               </button>
             </div>
           </div>
@@ -1650,12 +1049,12 @@
         <div id="view-app">
           <div class="tool-section" id="section-logo">
             <div class="tool-header">
-              <span class="material-symbols-rounded" class="tool-icon">image</span>
+              <span class="material-symbols-rounded tool-icon">image</span>
               <h2 style="flex: 1">Logo Workspace</h2>
               <div
                 class="drop-zone"
                 id="dropZone"
-                style="padding: 5px 10px; border-width: 1px; display: flex; align-items: center; gap: 10px; height: 40px; border-radius: 6px;"
+                style="padding: 5px 10px; border-width: 1px; display: flex; align-items: center; gap: 10px; height: 40px; border-radius: 0;"
               >
                 <label class="liquid-btn active-mode" style="height: 30px; font-size: 0.85rem; padding: 0 10px;"
                   ><input
@@ -1666,7 +1065,7 @@
                     type="file"
                   /><span class="material-symbols-rounded" style="font-size: 14px;">upload</span> Upload</label
                 >
-                <div style="font-size: 0.65rem; color: var(--text-muted); font-weight: 500;">Images, PPTX, XLSX</div>
+                <div class="meta" style="font-size: 0.6rem; color: var(--text-muted);">Images, PPTX, XLSX</div>
               </div>
               <div
                 data-guide="Bundles every processed logo into a single .zip file and downloads it."
@@ -1761,7 +1160,7 @@
                           justify-content: center;
                           background: rgba(255, 255, 255, 0.03);
                           border: 1px solid rgba(255, 255, 255, 0.08);
-                          border-radius: 6px;
+                          border-radius: 0;
                           height: 40px;
                           width: 40px;
                           padding: 2px;
@@ -1778,7 +1177,7 @@
                             width: 100%;
                             cursor: pointer;
                             padding: 0;
-                            border-radius: 4px;
+                            border-radius: 0;
                             background: transparent;
                           "
                           title="Font Color"
@@ -1945,7 +1344,7 @@
                 <!-- 2. Logo Canvas (Preview) -->
                 <div style="position: relative; background: var(--bg-main); border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: center; padding: 20px; min-height: auto; background-image: radial-gradient(var(--border) 1px, transparent 1px); background-size: 20px 20px;" data-guide="Full-sized, pixel-accurate preview of what the exported logo will look like.">
                   <canvas id="logoDetailCanvas" style="max-width: 100%; max-height: 280px; border: 1px solid var(--border); box-shadow: none; border-radius: var(--radius); transition: transform 0.2s; background: #ffffff;"></canvas>
-                  <div style="position: absolute; bottom: 8px; width: 100%; text-align: center; font-size: 0.75rem; color: var(--text-muted); pointer-events: none; background: rgba(0,0,0,0.5); padding: 2px 8px; border-radius: 4px; left: 50%; transform: translateX(-50%); display: inline-block;">
+                  <div style="position: absolute; bottom: 8px; width: 100%; text-align: center; font-size: 0.75rem; color: var(--text-muted); pointer-events: none; background: rgba(0,0,0,0.5); padding: 2px 8px; border-radius: 0; left: 50%; transform: translateX(-50%); display: inline-block;">
                     Arrow Keys to navigate
                   </div>
                 </div>
@@ -2006,13 +1405,13 @@
 
           <div class="tool-section" id="section-pdf">
             <div class="tool-header">
-              <span class="material-symbols-rounded" class="tool-icon">layers</span>
+              <span class="material-symbols-rounded tool-icon">layers</span>
               <h2 style="flex: 1">PDF Tools</h2>
               <div id="convertHeaderControls" style="display: flex; gap: 10px; align-items: center;">
                 <div
                   class="drop-zone"
                   id="pdfDropZone"
-                  style="padding: 5px 10px; border-width: 1px; display: flex; align-items: center; gap: 10px; height: 40px; border-radius: 6px;"
+                  style="padding: 5px 10px; border-width: 1px; display: flex; align-items: center; gap: 10px; height: 40px; border-radius: 0;"
                 >
                   <label class="liquid-btn active-mode" style="height: 30px; font-size: 0.85rem; padding: 0 10px;"
                     ><input
@@ -2048,7 +1447,7 @@
                 <div
                   class="drop-zone"
                   id="splitDropZone"
-                  style="padding: 5px 10px; border-width: 1px; display: flex; align-items: center; gap: 10px; height: 40px; border-radius: 6px;"
+                  style="padding: 5px 10px; border-width: 1px; display: flex; align-items: center; gap: 10px; height: 40px; border-radius: 0;"
                 >
                   <label class="liquid-btn active-mode" style="height: 30px; font-size: 0.85rem; padding: 0 10px;"
                     ><input
@@ -2184,13 +1583,13 @@
           </div>
           <div class="tool-section" id="section-stills-boards">
             <div class="tool-header">
-              <span class="material-symbols-rounded" class="tool-icon">movie</span>
+              <span class="material-symbols-rounded tool-icon">movie</span>
               <h2 style="flex: 1">Stills & Boards</h2>
               <div id="videoHeaderControls" style="display: flex; gap: 10px; align-items: center;">
                 <div
                   class="drop-zone"
                   id="stillsDropZone"
-                  style="padding: 5px 10px; border-width: 1px; display: flex; align-items: center; gap: 10px; height: 40px; border-radius: 6px;"
+                  style="padding: 5px 10px; border-width: 1px; display: flex; align-items: center; gap: 10px; height: 40px; border-radius: 0;"
                 >
                   <label class="liquid-btn active-mode" style="height: 30px; font-size: 0.85rem; padding: 0 10px;"
                     ><input
@@ -2235,7 +1634,7 @@
                 <div
                   class="drop-zone"
                   id="storyDropZone"
-                  style="padding: 5px 10px; border-width: 1px; display: flex; align-items: center; gap: 10px; height: 40px; border-radius: 6px;"
+                  style="padding: 5px 10px; border-width: 1px; display: flex; align-items: center; gap: 10px; height: 40px; border-radius: 0;"
                 >
                   <label class="liquid-btn active-mode" style="height: 30px; font-size: 0.85rem; padding: 0 10px;"
                     ><input
@@ -2434,7 +1833,7 @@
 
           <div class="tool-section" id="section-adlinks">
             <div class="tool-header">
-              <span class="material-symbols-rounded" class="tool-icon">link</span>
+              <span class="material-symbols-rounded tool-icon">link</span>
               <h2 style="flex: 1">Ad Links & Downloader</h2>
               <div id="adlinksGenHeaderControls" style="display: flex; gap: 10px; align-items: center;">
                 <div style="display: flex; gap: 6px; align-items: center;">
@@ -2455,7 +1854,7 @@
                 </div>
               </div>
               <div id="adlinksDlHeaderControls" style="display: none; gap: 10px; align-items: center;">
-                <div class="drop-zone" id="adDlDropZone" style="padding: 5px 10px; border-width: 1px; display: flex; align-items: center; gap: 10px; height: 40px; border-radius: 6px;">
+                <div class="drop-zone" id="adDlDropZone" style="padding: 5px 10px; border-width: 1px; display: flex; align-items: center; gap: 10px; height: 40px; border-radius: 0;">
                   <label class="liquid-btn active-mode" style="height: 30px; font-size: 0.85rem; padding: 0 10px;">
                     <input accept=".xlsx,.xls" hidden id="adDlInput" type="file" />
                     <span class="material-symbols-rounded" style="font-size: 14px;">table_view</span>
@@ -2726,7 +2125,7 @@
 
           <div class="tool-section" id="section-yt-helper">
             <div class="tool-header">
-              <span class="material-symbols-rounded" class="tool-icon">smart_display</span>
+              <span class="material-symbols-rounded tool-icon">smart_display</span>
               <h2 style="flex: 1">Video Downloads</h2>
             </div>
             <div class="editor-layout">
@@ -2776,10 +2175,10 @@
                     style="
                       background: rgba(255, 255, 255, 0.05);
                       padding: 8px;
-                      border-radius: 4px;
+                      border-radius: 0;
                       display: block;
                       font-size: 0.75rem;
-                      font-family: monospace;
+                      font-family: var(--font-mono);
                       cursor: pointer;
                     "
                     onclick="
@@ -2829,7 +2228,7 @@
           max-width: 600px;
           background: var(--bg-panel);
           border: 1px solid var(--border);
-          border-radius: 6px;
+          border-radius: 0;
           box-shadow: none;
           overflow: hidden;
           display: flex;
@@ -2885,7 +2284,7 @@
                 color: var(--text-muted);
                 background: var(--bg-input);
                 padding: 2px 6px;
-                border-radius: 4px;
+                border-radius: 0;
               "
               >Tool</span
             >
@@ -2912,7 +2311,7 @@
                 color: var(--text-muted);
                 background: var(--bg-input);
                 padding: 2px 6px;
-                border-radius: 4px;
+                border-radius: 0;
               "
               >Tool</span
             >
@@ -2939,7 +2338,7 @@
                 color: var(--text-muted);
                 background: var(--bg-input);
                 padding: 2px 6px;
-                border-radius: 4px;
+                border-radius: 0;
               "
               >Tool</span
             >
@@ -2966,7 +2365,7 @@
                 color: var(--text-muted);
                 background: var(--bg-input);
                 padding: 2px 6px;
-                border-radius: 4px;
+                border-radius: 0;
               "
               >Tool</span
             >
@@ -2993,7 +2392,7 @@
                 color: var(--text-muted);
                 background: var(--bg-input);
                 padding: 2px 6px;
-                border-radius: 4px;
+                border-radius: 0;
               "
               >Tool</span
             >
@@ -3020,7 +2419,7 @@
                 color: var(--text-muted);
                 background: var(--bg-input);
                 padding: 2px 6px;
-                border-radius: 4px;
+                border-radius: 0;
               "
               >Tool</span
             >
@@ -3047,7 +2446,7 @@
                 color: var(--text-muted);
                 background: var(--bg-input);
                 padding: 2px 6px;
-                border-radius: 4px;
+                border-radius: 0;
               "
               >Tool</span
             >
@@ -3074,7 +2473,7 @@
                 color: var(--text-muted);
                 background: var(--bg-input);
                 padding: 2px 6px;
-                border-radius: 4px;
+                border-radius: 0;
               "
               >Tool</span
             >
@@ -3101,7 +2500,7 @@
                 color: var(--text-muted);
                 background: var(--bg-input);
                 padding: 2px 6px;
-                border-radius: 6px;
+                border-radius: 0;
               "
               >Navigation</span
             >
@@ -3128,7 +2527,7 @@
                 color: var(--text-muted);
                 background: var(--bg-input);
                 padding: 2px 6px;
-                border-radius: 6px;
+                border-radius: 0;
               "
               >Action</span
             >
@@ -3305,7 +2704,7 @@
                 rows="8"
                 style="
                   width: 100%;
-                  font-family: monospace;
+                  font-family: var(--font-mono);
                   resize: vertical;
                   padding: 10px;
                 "
@@ -3331,7 +2730,7 @@
               wrap="off"
               style="
                 width: 100%;
-                font-family: monospace;
+                font-family: var(--font-mono);
                 resize: vertical;
                 padding: 10px;
                 background: var(--bg-body);
@@ -3567,7 +2966,7 @@
                 min-width: 240px;
                 background: var(--bg-panel);
                 border: 1px solid var(--border);
-                border-radius: 10px;
+                border-radius: 0;
                 box-shadow: none;
                 padding: 6px;
                 z-index: 100;
@@ -3602,7 +3001,7 @@
             align-items: center;
             justify-content: center;
             background: var(--bg-panel);
-            border-radius: 12px;
+            border-radius: 0;
             border: 1px solid var(--border);
           "
           id="stillsOverlayPreview"
@@ -3642,7 +3041,7 @@
         aria-describedby="confirmBody"
       >
         <div class="confirm-head">
-          <span class="material-symbols-rounded" class="confirm-icon">warning</span>
+          <span class="material-symbols-rounded confirm-icon">warning</span>
           <h3 id="confirmTitle">Are you sure?</h3>
         </div>
         <p id="confirmBody" class="confirm-body">This action cannot be undone.</p>
@@ -3657,7 +3056,7 @@
     <div id="logoDimensionOverlay" class="confirm-overlay" hidden>
       <div class="confirm-dialog" role="dialog" aria-modal="true">
         <div class="confirm-head">
-          <span class="material-symbols-rounded" class="confirm-icon" style="color: var(--m3-primary)">crop</span>
+          <span class="material-symbols-rounded confirm-icon">crop</span>
           <h3>Set Logo Dimensions</h3>
         </div>
         <p class="confirm-body">Enter the target width and height for these logos before processing.</p>
@@ -3688,7 +3087,7 @@
     <div id="presetsOverlay" class="presets-overlay" hidden>
       <div class="presets-dialog" role="dialog" aria-modal="true" aria-labelledby="presetsTitle">
         <div class="presets-head">
-          <span class="material-symbols-rounded" class="presets-title-icon">tune</span>
+          <span class="material-symbols-rounded presets-title-icon">tune</span>
           <h3 id="presetsTitle">Presets</h3>
           <button type="button" id="presetsCloseBtn" class="presets-close" aria-label="Close">&times;</button>
         </div>
@@ -3713,7 +3112,7 @@
           tooltip.className = "guide-tooltip";
           tooltip.id = "guideTooltipReal";
           tooltip.style.cssText =
-            "position:fixed; background:var(--bg-panel); color:var(--text-main); border:1px solid var(--border); padding:12px 18px; border-radius:6px; font-size:0.9rem; z-index:10000; pointer-events:none; opacity:0; transition:opacity 0.2s, transform 0.2s; transform:translateY(10px); box-shadow: none; max-width:280px; line-height:1.4;";
+            "position:fixed; background:var(--bg-panel); color:var(--text-main); border:1px solid var(--border); padding:12px 18px; border-radius:0; font-size:0.9rem; z-index:10000; pointer-events:none; opacity:0; transition:opacity 0.2s, transform 0.2s; transform:translateY(10px); box-shadow: none; max-width:280px; line-height:1.4;";
           document.body.appendChild(tooltip);
           this.tooltip = tooltip;
 
@@ -3726,7 +3125,7 @@
                         <span class="material-symbols-rounded" style="font-size: 16px;">help</span> Interactive Guide Mode
                     </span>
                     <span style="color:var(--text-muted); font-weight:normal;">Hover over any highlighted element below to read instructions.</span>
-                    <button class="liquid-btn active-mode" style="height:26px; border-radius:15px; font-size:0.75rem; padding:0 12px; margin-left:20px;" onclick="GuideEngine.close()">Exit Guide</button>
+                    <button class="liquid-btn active-mode" style="height:26px; border-radius:0; font-size:0.75rem; padding:0 12px; margin-left:20px;" onclick="GuideEngine.close()">Exit Guide</button>
                 `;
           document.body.appendChild(banner);
           this.banner = banner;
@@ -4240,12 +3639,12 @@
 
       const UI = {
         ToolColors: {
-          home:             { accent: "#7c5cff", soft: "rgba(124, 92, 255, 0.16)", glow: "rgba(124, 92, 255, 0.45)" },
-          "section-logo":   { accent: "#8b5cf6", soft: "rgba(139, 92, 246, 0.16)", glow: "rgba(139, 92, 246, 0.45)" },
-          "section-pdf":    { accent: "#2563eb", soft: "rgba(37, 99, 235, 0.16)", glow: "rgba(37, 99, 235, 0.45)" },
-          "section-stills-boards": { accent: "#0d9488", soft: "rgba(13, 148, 136, 0.18)", glow: "rgba(13, 148, 136, 0.45)" },
-          "section-adlinks":{ accent: "#ea580c", soft: "rgba(234, 88, 12, 0.18)", glow: "rgba(234, 88, 12, 0.45)" },
-          "section-yt-helper": { accent: "#ef4444", soft: "rgba(239, 68, 68, 0.16)", glow: "rgba(239, 68, 68, 0.45)" },
+          home:             { accent: "#888888", soft: "rgba(136, 136, 136, 0.15)", glow: "rgba(136, 136, 136, 0.3)" },
+          "section-logo":   { accent: "#888888", soft: "rgba(136, 136, 136, 0.15)", glow: "rgba(136, 136, 136, 0.3)" },
+          "section-pdf":    { accent: "#888888", soft: "rgba(136, 136, 136, 0.15)", glow: "rgba(136, 136, 136, 0.3)" },
+          "section-stills-boards": { accent: "#888888", soft: "rgba(136, 136, 136, 0.15)", glow: "rgba(136, 136, 136, 0.3)" },
+          "section-adlinks":{ accent: "#888888", soft: "rgba(136, 136, 136, 0.15)", glow: "rgba(136, 136, 136, 0.3)" },
+          "section-yt-helper": { accent: "#888888", soft: "rgba(136, 136, 136, 0.15)", glow: "rgba(136, 136, 136, 0.3)" },
         },
         els: {
           sidebar: document.getElementById("mainSidebar"),
@@ -4275,6 +3674,7 @@
           this.els.viewHome.classList.remove("hidden");
           this.updateNav("nav-home");
           this.applyTheme("home");
+          document.getElementById("brandText").textContent = "CREATIVE TOOLS SUITE";
           
           document.querySelectorAll(".home-card").forEach((card) => {
             const m = (card.getAttribute("onclick") || "").match(/openTool\('([^']+)'/);
@@ -4330,7 +3730,7 @@
           };
           const navByMode = {
             "section-pdf": { convert: "nav-pdf-image", split: "nav-pdf-split" },
-            "section-stills-boards": { video: "nav-stills", story: "nav-story" },
+            "section-stills-boards": { video: "nav-stills-video", story: "nav-stills-story" },
             "section-adlinks": { gen: "nav-adlinks-gen", downloader: "nav-adlinks-dl" },
           };
           const tabRows = {
@@ -4359,11 +3759,16 @@
           this.updateNav(navId);
           this.applyTheme(id);
           Core.AppState.save("activeTool", id);
+          const toolName = this.toolDisplayName(id);
+          document.getElementById("brandText").textContent = "HOME";
         },
         openTool(id, mode) {
-          const core = () => this._openTool(id, mode);
-          if (this.els.viewApp.classList.contains("active")) this.switchViews(core);
-          else core();
+          if (this.els.viewApp.classList.contains("active")) {
+            this._openTool(id, mode);
+          } else {
+            const core = () => this._openTool(id, mode);
+            this.switchViews(core);
+          }
         },
         switchPdfTab(tabId) {
           const convertTab = document.getElementById("pdfTabConvert");
@@ -5451,9 +4856,9 @@
             const card = document.createElement("div");
             card.className = "logo-card-item";
             card.style.cssText =
-              "display:flex; flex-direction:column; border-radius:6px; overflow:hidden; transition:none; position:relative;";
+              "display:flex; flex-direction:column; border-radius:0; overflow:hidden; transition:none; position:relative;";
             let baseName = Core.Utils.sanitize(file.name.replace(/\.[^/.]+$/, "").substring(0, 30));
-            card.innerHTML = `<div style="display:flex; justify-content:space-between; align-items:center; padding:12px; border-bottom:1px solid var(--border);"><input data-guide="Edit the exported filename for this individual logo." class="card-fname-lbl liquid-input" style="font-size:0.75rem; color:var(--text-muted); font-weight:600; padding:2px 6px; height:24px; max-width:150px; background:transparent; outline:none;" value="${baseName}" /><button data-guide="Remove this logo from the workspace." class="liquid-btn icon-only danger-btn card-rm" style="width:28px; height:28px; padding:0; display:flex; align-items:center; justify-content:center;"><span class="material-symbols-rounded" style="font-size: 14px;">delete</span></button></div><div data-guide="Click to open Focus Mode to inspect or copy this logo in full detail." class="card-preview-area" style="background-image:radial-gradient(var(--border) 1px, transparent 1px); background-size:15px 15px; position:relative; display:flex; justify-content:center; align-items:center; padding:3px; cursor:pointer; min-height:220px; flex:1; border-bottom:1px solid var(--border);"><canvas style="max-width:100%; max-height:100%; object-fit:contain; border:1px solid var(--border); background:#fff;"></canvas><div class="hover-overlay" style="position:absolute; inset:0; background:var(--m3-scrim); opacity:0; display:flex; align-items:center; justify-content:center; transition:opacity 0.2s;"><span style="background:var(--bg-panel); border:1px solid var(--border); padding:6px 12px; border-radius:6px; font-size:0.75rem; text-transform:uppercase; letter-spacing:1px; font-weight:bold;">Focus Mode</span></div></div><div style="padding:16px; display:flex; flex-direction:column; gap:12px;"><div style="display:flex; flex-direction:column; gap:6px;"><span style="font-size:0.8rem; font-weight:bold; color:var(--text-muted);">Overlay Label</span><textarea data-guide="Type a custom label or notation to overlay on this logo." class="liquid-input card-text" rows="1" placeholder="Type design label..." style="resize:none; padding:8px; font-size:0.75rem; height:34px;"></textarea></div><div style="display:flex; justify-content:space-between; align-items:center; gap:10px;"><div style="display:flex; align-items:center; gap:8px;"><span style="font-size:0.8rem; font-weight:bold; color:var(--text-muted);">Size Override:</span><input data-guide="Set a specific font size for this logo. Overrides global settings." type="number" class="liquid-input card-local-font-inp" placeholder="Auto" style="width:60px; height:26px; font-size:0.7rem; text-align:center; padding:4px;" /></div><button data-guide="Download this individual resized logo." class="liquid-btn icon-only active-mode card-dl" style="width:28px; height:28px; padding:0; display:flex; align-items:center; justify-content:center;"><span class="material-symbols-rounded" style="font-size: 14px;">download</span></button></div></div>`;
+            card.innerHTML = `<div style="display:flex; justify-content:space-between; align-items:center; padding:12px; border-bottom:1px solid var(--border);"><input data-guide="Edit the exported filename for this individual logo." class="card-fname-lbl liquid-input" style="font-size:0.75rem; color:var(--text-muted); font-weight:600; padding:2px 6px; height:24px; max-width:150px; background:transparent; outline:none;" value="${baseName}" /><button data-guide="Remove this logo from the workspace." class="liquid-btn icon-only danger-btn card-rm" style="width:28px; height:28px; padding:0; display:flex; align-items:center; justify-content:center;"><span class="material-symbols-rounded" style="font-size: 14px;">delete</span></button></div><div data-guide="Click to open Focus Mode to inspect or copy this logo in full detail." class="card-preview-area" style="background-image:radial-gradient(var(--border) 1px, transparent 1px); background-size:15px 15px; position:relative; display:flex; justify-content:center; align-items:center; padding:3px; cursor:pointer; min-height:220px; flex:1; border-bottom:1px solid var(--border);"><canvas style="max-width:100%; max-height:100%; object-fit:contain; border:1px solid var(--border); background:#fff;"></canvas><div class="hover-overlay" style="position:absolute; inset:0; background:var(--m3-scrim); opacity:0; display:flex; align-items:center; justify-content:center; transition:opacity 0.2s;"><span style="background:var(--bg-panel); border:1px solid var(--border); padding:6px 12px; border-radius:0; font-size:0.75rem; text-transform:uppercase; letter-spacing:1px; font-weight:bold;">Focus Mode</span></div></div><div style="padding:16px; display:flex; flex-direction:column; gap:12px;"><div style="display:flex; flex-direction:column; gap:6px;"><span style="font-size:0.8rem; font-weight:bold; color:var(--text-muted);">Overlay Label</span><textarea data-guide="Type a custom label or notation to overlay on this logo." class="liquid-input card-text" rows="1" placeholder="Type design label..." style="resize:none; padding:8px; font-size:0.75rem; height:34px;"></textarea></div><div style="display:flex; justify-content:space-between; align-items:center; gap:10px;"><div style="display:flex; align-items:center; gap:8px;"><span style="font-size:0.8rem; font-weight:bold; color:var(--text-muted);">Size Override:</span><input data-guide="Set a specific font size for this logo. Overrides global settings." type="number" class="liquid-input card-local-font-inp" placeholder="Auto" style="width:60px; height:26px; font-size:0.7rem; text-align:center; padding:4px;" /></div><button data-guide="Download this individual resized logo." class="liquid-btn icon-only active-mode card-dl" style="width:28px; height:28px; padding:0; display:flex; align-items:center; justify-content:center;"><span class="material-symbols-rounded" style="font-size: 14px;">download</span></button></div></div>`;
             const canvas = card.querySelector("canvas");
             const hoverOverlay = card.querySelector(".hover-overlay");
             const textInput = card.querySelector(".card-text");
@@ -6616,8 +6021,8 @@
             this.active.images.forEach((item, index) => {
               const div = document.createElement("div");
               div.style.cssText =
-                "display:flex; justify-content:space-between; align-items:center; padding:10px 12px; background:var(--bg-panel); border:1px solid var(--border); font-size:0.85rem; border-radius:6px; margin-bottom:6px; transition: none;";
-              div.innerHTML = `<div style="display:flex; align-items:center; gap:10px;"><img src="${item.img.src}" title="${item.label || ""}" style="width:30px; height:30px; object-fit:cover; border-radius:6px;"><span>${index + 1}</span></div><div style="display:flex; gap:5px;"><button class="liquid-btn" style="padding:0 8px; height:28px;" onclick="Tools.Story.moveImage(${index},-1)">&uarr;</button><button class="liquid-btn" style="padding:0 8px; height:28px;" onclick="Tools.Story.moveImage(${index},1)">&darr;</button><button class="liquid-btn danger-btn" style="padding:0 8px; height:28px;" onclick="Tools.Story.removeImage(${index})">&times;</button></div>`;
+                "display:flex; justify-content:space-between; align-items:center; padding:10px 12px; background:var(--bg-panel); border:1px solid var(--border); font-size:0.85rem; border-radius:0; margin-bottom:6px; transition: none;";
+              div.innerHTML = `<div style="display:flex; align-items:center; gap:10px;"><img src="${item.img.src}" title="${item.label || ""}" style="width:30px; height:30px; object-fit:cover; border-radius:0;"><span>${index + 1}</span></div><div style="display:flex; gap:5px;"><button class="liquid-btn" style="padding:0 8px; height:28px;" onclick="Tools.Story.moveImage(${index},-1)">&uarr;</button><button class="liquid-btn" style="padding:0 8px; height:28px;" onclick="Tools.Story.moveImage(${index},1)">&darr;</button><button class="liquid-btn danger-btn" style="padding:0 8px; height:28px;" onclick="Tools.Story.removeImage(${index})">&times;</button></div>`;
               this.els.list.appendChild(div);
             });
           },
@@ -6680,7 +6085,7 @@
             const badge = document.createElement("div");
             badge.innerHTML = `<span style="opacity:0.7">SIZE:</span> ${Math.round(c.width)} <span style="opacity:0.7">x</span> ${Math.round(c.height)}`;
             badge.style.cssText =
-              "position:absolute; top:20px; right:20px; background:var(--bg-panel); color:var(--text-main); padding:6px 10px; border-radius:6px; font-size:1.2rem; font-family:var(--font); font-weight:600; border:1px solid var(--border); pointer-events:none; letter-spacing:1px; z-index:10; box-shadow: none;";
+              "position:absolute; top:20px; right:20px; background:var(--bg-panel); color:var(--text-main); padding:6px 10px; border-radius:0; font-size:1.2rem; font-family:var(--font); font-weight:600; border:1px solid var(--border); pointer-events:none; letter-spacing:1px; z-index:10; box-shadow: none;";
             this.els.preview.appendChild(badge);
           },
           async downloadAll() {
@@ -6974,8 +6379,8 @@
             data.frames.forEach((f) => {
               const card = document.createElement("div");
               card.style.cssText =
-                "display:flex; align-items:center; gap:10px; padding:10px; border-bottom:1px solid var(--border); cursor:pointer; transition:background 0.2s; border-radius:6px; margin-bottom:4px;";
-              card.innerHTML = `<img src="${f.url}" style="width:50px; height:50px; object-fit:cover; border-radius:4px; flex-shrink:0;"><div style="flex:1; font-size:0.85rem; font-family:monospace; color:var(--text-main);">${f.type === "storyboard" ? "Storyboard" : "#" + f.num}</div><input data-guide="Select or deselect this frame for batch downloading." type="checkbox" class="detail-check toggle-switch small" ${f.checked ? "checked" : ""}>`;
+                "display:flex; align-items:center; gap:10px; padding:10px; border-bottom:1px solid var(--border); cursor:pointer; transition:background 0.2s; border-radius:0; margin-bottom:4px;";
+              card.innerHTML = `<img src="${f.url}" style="width:50px; height:50px; object-fit:cover; border-radius:0; flex-shrink:0;"><div style="flex:1; font-size:0.85rem; font-family:var(--font-mono); color:var(--text-main);">${f.type === "storyboard" ? "Storyboard" : "#" + f.num}</div><input data-guide="Select or deselect this frame for batch downloading." type="checkbox" class="detail-check toggle-switch small" ${f.checked ? "checked" : ""}>`;
 
               card.onclick = (e) => {
                 if (e.target.tagName !== "INPUT") {
@@ -6987,7 +6392,7 @@
                   card.classList.add("active-still");
                   card.style.background = "var(--text-main)";
                   card.querySelector("div").style.color = "var(--bg-main)";
-                  previewArea.innerHTML = `<img src="${f.url}" style="max-width:100%; max-height:100%; object-fit:contain; border-radius:8px;">`;
+                  previewArea.innerHTML = `<img src="${f.url}" style="max-width:100%; max-height:100%; object-fit:contain; border-radius:0;">`;
                 }
               };
               card.querySelector(".detail-check").onchange = (e) =>
@@ -7033,7 +6438,7 @@
             menu.appendChild(header);
 
             const rowStyle =
-              "display:flex; align-items:center; gap:10px; padding:8px 10px; font-size:0.85rem; cursor:pointer; border-radius:6px; color:var(--text-main); background:transparent;";
+              "display:flex; align-items:center; gap:10px; padding:8px 10px; font-size:0.85rem; cursor:pointer; border-radius:0; color:var(--text-main); background:transparent;";
             const rowHover = (el) => {
               el.addEventListener("mouseenter", () => {
                 el.style.background = "var(--text-main)";
@@ -7475,7 +6880,7 @@
               this.allNames.push(finalName);
               let tr = document.createElement("tr");
               tr.id = `adDl-row-${adNo}`;
-              tr.innerHTML = `<td style="padding: 16px; border-bottom: 1px solid var(--border); font-family: monospace;">${adNo}</td><td style="padding: 16px; border-bottom: 1px solid var(--border); font-family: monospace; color: var(--success);">AD${adNo}_${clean}<span style="color: var(--text-muted); opacity: 0.7;">${ext}</span></td><td style="padding: 16px; border-bottom: 1px solid var(--border); text-align: right;"><div style="display:flex; gap:8px; justify-content:flex-end;"><button class="liquid-btn" style="padding:4px 8px; font-size:0.75rem;" onclick="Tools.AdDownloader.copySingleName('${finalName}')"><span class="material-symbols-rounded" style="margin-right:4px; font-size: 14px;">content_copy</span>Copy</button><button class="liquid-btn active-mode" style="padding:4px 8px; font-size:0.75rem;" onclick="Tools.AdDownloader.downloadPopup('${link}', '${adNo}', '${finalName}')"><span class="material-symbols-rounded" style="margin-right:4px; font-size: 14px;">download</span>Download</button></div></td>`;
+              tr.innerHTML = `<td style="padding: 16px; border-bottom: 1px solid var(--border); font-family: var(--font-mono);">${adNo}</td><td style="padding: 16px; border-bottom: 1px solid var(--border); font-family: var(--font-mono); color: var(--success);">AD${adNo}_${clean}<span style="color: var(--text-muted); opacity: 0.7;">${ext}</span></td><td style="padding: 16px; border-bottom: 1px solid var(--border); text-align: right;"><div style="display:flex; gap:8px; justify-content:flex-end;"><button class="liquid-btn" style="padding:4px 8px; font-size:0.75rem;" onclick="Tools.AdDownloader.copySingleName('${finalName}')"><span class="material-symbols-rounded" style="margin-right:4px; font-size: 14px;">content_copy</span>Copy</button><button class="liquid-btn active-mode" style="padding:4px 8px; font-size:0.75rem;" onclick="Tools.AdDownloader.downloadPopup('${link}', '${adNo}', '${finalName}')"><span class="material-symbols-rounded" style="margin-right:4px; font-size: 14px;">download</span>Download</button></div></td>`;
               tr.style.transition = "background 0.2s";
               tr.onmouseover = () => {
                 if (!tr.classList.contains("downloaded"))
@@ -7858,7 +7263,7 @@
 
               htmlContent += `<div class="glass-panel" style="padding:15px; border:1px solid var(--m3-outline-variant); margin-bottom:10px;">
                             <div style="display:flex; gap:12px; align-items:flex-start; flex-wrap:wrap;">
-                                <img src="${meta.thumbnail}" style="width:120px; height:68px; object-fit:cover; border-radius:6px; flex-shrink:0;" onerror="this.style.display='none'">
+                                <img src="${meta.thumbnail}" style="width:120px; height:68px; object-fit:cover; border-radius:0; flex-shrink:0;" onerror="this.style.display='none'">
                                 <div style="flex:1; min-width:0;">
                                     <h4 style="margin:0 0 6px; font-size:0.95rem; word-break:break-word;">${meta.title}</h4>
                                     <div style="font-size:0.8rem; color:var(--text-muted); display:flex; flex-wrap:wrap; gap:10px; margin-bottom:12px;">
@@ -8240,7 +7645,7 @@
           box.style.cssText =
             "position:fixed;bottom:24px;right:24px;left:24px;max-width:560px;margin:0 auto;" +
             "background:var(--bg-panel,#0b0b0f);border:1px solid var(--danger,#ff5c7c);" +
-            "border-left:5px solid var(--danger,#ff5c7c);border-radius:12px;padding:18px 20px;" +
+            "border-left:5px solid var(--danger,#ff5c7c);border-radius:0;padding:18px 20px;" +
             "color:var(--text-main,#ececf3);font:500 .92rem/1.5 Inter,sans-serif;z-index:3000;" +
             "box-shadow:0 24px 60px -12px rgba(0,0,0,.75);display:flex;gap:14px;align-items:flex-start;";
 
@@ -8262,7 +7667,7 @@
           retry.textContent = "Retry";
           retry.style.cssText =
             "background:var(--danger,#ff5c7c);border:none;color:#fff;font-weight:600;" +
-            "border-radius:8px;padding:8px 14px;cursor:pointer;font:600 .9rem Inter,sans-serif;";
+            "border-radius:0;padding:8px 14px;cursor:pointer;font:600 .9rem Inter,sans-serif;";
           retry.addEventListener("click", function () {
             var table = {
               lucide: "https://unpkg.com/lucide@latest",
@@ -8287,7 +7692,7 @@
           close.textContent = "Dismiss";
           close.style.cssText =
             "background:transparent;border:1px solid var(--border-strong,#2c2c36);color:var(--text-muted,#9a9ab2);" +
-            "border-radius:8px;padding:8px 12px;cursor:pointer;font:600 .9rem Inter,sans-serif;";
+            "border-radius:0;padding:8px 12px;cursor:pointer;font:600 .9rem Inter,sans-serif;";
           close.addEventListener("click", function () { box.remove(); });
 
           actions.appendChild(retry);
