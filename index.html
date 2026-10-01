@@ -6808,6 +6808,7 @@
                 .normalize("NFD")
                 .replace(/[\u0300-\u036f]/g, "")
                 .replace(/\u00df/g, "ss");
+              clean = clean.replace(/\.(mp4|mov|avi|mkv|webm|flv|wmv|mp3|wav|ogg|m4a|aac|flac|jpg|jpeg|png|gif|webp|svg|bmp)$/i, "");
               if (ext) {
                 if (clean.toLowerCase().endsWith(ext)) {
                   clean = clean.substring(0, clean.length - ext.length);
@@ -6876,11 +6877,11 @@
                 let regex = new RegExp(typeBaseClean, "i");
                 clean = clean.replace(regex, typeBaseClean + typeNumber);
               }
-              let finalName = `AD${adNo}_${clean}${ext}`;
+              let finalName = `AD${adNo}_${clean}`;
               this.allNames.push(finalName);
               let tr = document.createElement("tr");
               tr.id = `adDl-row-${adNo}`;
-              tr.innerHTML = `<td style="padding: 16px; border-bottom: 1px solid var(--border); font-family: var(--font-mono);">${adNo}</td><td style="padding: 16px; border-bottom: 1px solid var(--border); font-family: var(--font-mono); color: var(--success);">AD${adNo}_${clean}<span style="color: var(--text-muted); opacity: 0.7;">${ext}</span></td><td style="padding: 16px; border-bottom: 1px solid var(--border); text-align: right;"><div style="display:flex; gap:8px; justify-content:flex-end;"><button class="liquid-btn" style="padding:4px 8px; font-size:0.75rem;" onclick="Tools.AdDownloader.copySingleName('${finalName}')"><span class="material-symbols-rounded" style="margin-right:4px; font-size: 14px;">content_copy</span>Copy</button><button class="liquid-btn active-mode" style="padding:4px 8px; font-size:0.75rem;" onclick="Tools.AdDownloader.downloadPopup('${link}', '${adNo}', '${finalName}')"><span class="material-symbols-rounded" style="margin-right:4px; font-size: 14px;">download</span>Download</button></div></td>`;
+              tr.innerHTML = `<td style="padding: 16px; border-bottom: 1px solid var(--border); font-family: var(--font-mono);">${adNo}</td><td style="padding: 16px; border-bottom: 1px solid var(--border); font-family: var(--font-mono); color: var(--success);">${finalName}</td><td style="padding: 16px; border-bottom: 1px solid var(--border); text-align: right;"><div style="display:flex; gap:8px; justify-content:flex-end;"><button class="liquid-btn" style="padding:4px 8px; font-size:0.75rem;" onclick="Tools.AdDownloader.copySingleName('${finalName}')"><span class="material-symbols-rounded" style="margin-right:4px; font-size: 14px;">content_copy</span>Copy</button><button class="liquid-btn active-mode" style="padding:4px 8px; font-size:0.75rem;" onclick="Tools.AdDownloader.downloadPopup('${link}', '${adNo}', '${finalName}')"><span class="material-symbols-rounded" style="margin-right:4px; font-size: 14px;">download</span>Download</button></div></td>`;
               tr.style.transition = "background 0.2s";
               tr.onmouseover = () => {
                 if (!tr.classList.contains("downloaded"))
