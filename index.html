@@ -1919,6 +1919,7 @@
                       <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
                         <span class="label-header" style="margin-bottom: 0;">Loaded Stills (<span id="filmstripCountBadge">0</span>)</span>
                         <div style="display: flex; gap: 6px;">
+                          <button class="liquid-btn" type="button" onclick="Tools.Filmstrip.sortAscendingAndRefresh()" style="padding: 2px 8px; font-size: 0.72rem; height: 24px; display: inline-flex; align-items: center; gap: 3px;" title="Sort stills ascending by name"><span class="material-symbols-rounded" style="font-size: 13px;">sort_by_alpha</span> Sort Asc</button>
                           <button class="liquid-btn" type="button" onclick="UI.sendFilmstripToStory()" style="padding: 2px 8px; font-size: 0.72rem; height: 24px;" title="Send stills to Grid Board">Send to Board</button>
                           <button class="liquid-btn danger-btn" id="filmstripClearListBtn" style="padding: 2px 8px; font-size: 0.72rem; height: 24px;">Clear</button>
                         </div>
@@ -4229,6 +4230,7 @@
             img: item.img,
           }));
           Tools.Filmstrip.images.push(...imgs);
+          if (Tools.Filmstrip.sortImagesAscending) Tools.Filmstrip.sortImagesAscending();
           Tools.Filmstrip.updateList();
           Tools.Filmstrip.draw();
           this.switchStorySubMode("filmstrip");
@@ -7143,11 +7145,34 @@
 
             this.draw();
           },
+          sortImagesAscending() {
+            this.images.sort((a, b) => {
+              const nameA = String(a.name || "");
+              const nameB = String(b.name || "");
+              return nameA.localeCompare(nameB, undefined, {
+                numeric: true,
+                sensitivity: "base",
+              });
+            });
+          },
+          sortAscendingAndRefresh() {
+            if (!this.images || !this.images.length) return;
+            this.sortImagesAscending();
+            this.updateList();
+            this.draw();
+            UI.toast("Stills sorted in ascending order");
+          },
           handleFiles(files) {
             const valid = files.filter(
               (f) => f.type.startsWith("image/") || f.type.startsWith("video/"),
             );
             if (!valid.length) return;
+            valid.sort((a, b) =>
+              String(a.name || "").localeCompare(String(b.name || ""), undefined, {
+                numeric: true,
+                sensitivity: "base",
+              }),
+            );
             let loaded = 0;
             valid.forEach((file) => {
               if (file.type.startsWith("video/")) {
@@ -7171,6 +7196,7 @@
                     });
                     loaded++;
                     if (loaded === valid.length) {
+                      this.sortImagesAscending();
                       this.updateList();
                       this.draw();
                     }
@@ -7190,6 +7216,7 @@
                     });
                     loaded++;
                     if (loaded === valid.length) {
+                      this.sortImagesAscending();
                       this.updateList();
                       this.draw();
                     }
@@ -7203,16 +7230,17 @@
           addFromStills(stills) {
             if (!stills || !stills.length) return;
             let loaded = 0;
-            stills.forEach((still) => {
+            stills.forEach((still, idx) => {
               const img = new Image();
               img.onload = () => {
                 this.images.push({
                   id: `fs-${Date.now()}-${Math.random()}`,
-                  name: `Still_${still.num || "frame"}`,
+                  name: still.name || `Still_${still.num !== undefined ? still.num : idx + 1}`,
                   img,
                 });
                 loaded++;
                 if (loaded === stills.length) {
+                  this.sortImagesAscending();
                   this.updateList();
                   this.draw();
                 }
