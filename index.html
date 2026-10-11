@@ -886,6 +886,22 @@
         }
       }
 
+      /* FIT TO PLATFORM - reference-aligned circular storyboard preset */
+      #section-stills-boards .tool-header { flex-wrap: wrap; }
+      .fit-editor-layout { min-height: 420px; height: calc(100vh - 130px); }
+      .fit-controls { gap: 12px; padding: 12px; }
+      .fit-controls .control-group { margin: 0; gap: 9px; }
+      .fit-help { color: var(--text-muted); font: 0.7rem/1.55 var(--font); margin: 0; }
+      .fit-source-status { overflow-wrap: anywhere; color: var(--m3-on-surface); padding: 9px 10px; background: var(--bg-input); border: 1px solid var(--border); font-size: 0.7rem; }
+      .fit-preview-panel { display: flex; flex-direction: column; min-width: 0; min-height: 0; overflow: auto; background: var(--m3-surface-container-lowest); }
+      .fit-preview-heading { display:flex; justify-content: space-between; align-items:center; gap: 12px; padding: 16px; border-bottom: 1px solid var(--border); font: 0.7rem var(--font); }
+      .fit-preview-heading strong { font-size:0.78rem; }
+      .fit-canvas-surface { flex: 1; min-height: 230px; padding: 20px 12px; display: flex; align-items: center; justify-content: center; overflow: auto; background: repeating-linear-gradient(45deg, var(--m3-surface-container-low), var(--m3-surface-container-low) 10px, var(--m3-surface-container) 10px, var(--m3-surface-container) 20px); }
+      #fitCanvas { display:block; max-width:100%; width:1033px; height:auto; background:#fff; box-shadow:0 4px 22px rgba(0,0,0,.35); }
+      .fit-render-status { padding: 12px 16px; margin:0; border-top:1px solid var(--border); color:var(--text-muted); font-size:0.71rem; }
+      @media (max-width:980px) { .fit-editor-layout { height:auto; } .fit-controls { max-height: none; } .fit-canvas-surface { min-height:205px; } }
+      @media (max-width:700px) { #storySubModeToggle { flex-wrap:wrap; } #fitHeaderControls { max-width: 100%; } #fitCanvas { min-width:600px; } .fit-canvas-surface { justify-content:flex-start; } }
+
       .material-symbols-rounded {
         font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 20;
         font-size: 18px;
@@ -1606,6 +1622,16 @@
                 >
                   <span class="material-symbols-rounded" style="font-size: 15px;">theaters</span> Filmstrip
                 </button>
+                <button
+                  id="subModeBtnFit"
+                  class="liquid-btn"
+                  type="button"
+                  onclick="UI.switchStorySubMode('fit')"
+                  style="height: 30px; font-size: 0.8rem; padding: 0 12px; display: flex; align-items: center; gap: 6px; border: none;"
+                  title="Create the three-circle Fit to Platform layout"
+                >
+                  <span class="material-symbols-rounded" style="font-size: 15px;">adjust</span> Fit to Platform
+                </button>
               </div>
               <div id="videoHeaderControls" style="display: flex; gap: 10px; align-items: center;">
                 <div
@@ -1741,6 +1767,19 @@
                     <span class="material-symbols-rounded" style="font-size: 14px;">delete</span>
                   </button>
                 </div>
+              </div>
+              <div id="fitHeaderControls" style="display: none; gap: 8px; align-items: center; flex-wrap: wrap;">
+                <label class="liquid-btn active-mode" style="cursor:pointer;" title="Upload a single storyboard image">
+                  <input id="fitUploadInput" type="file" accept="image/*" hidden />
+                  <span class="material-symbols-rounded">upload</span> Upload Storyboard
+                </label>
+                <button type="button" class="liquid-btn" id="fitUseBoardBtn" title="Use the current Grid Board without modifying it">
+                  <span class="material-symbols-rounded">grid_view</span> Use Current Board
+                </button>
+                <button type="button" class="liquid-btn active-mode" id="fitExportPngBtn" disabled>
+                  <span class="material-symbols-rounded">download</span> Save PNG
+                </button>
+                <button type="button" class="liquid-btn" id="fitExportJpgBtn" disabled>Save JPG</button>
               </div>
             </div>
 
@@ -2002,6 +2041,55 @@
                     "
                     title="Click to view full size in lightbox"
                   ></div>
+                </div>
+              </div>
+            </div>
+
+            <div id="stillsTabContentFit" style="display: none" role="tabpanel" aria-label="Fit to Platform preset">
+              <div class="editor-layout fit-editor-layout">
+                <aside class="sidebar-panel fit-controls">
+                  <div class="glass-panel control-group">
+                    <span class="label-header">Storyboard Source</span>
+                    <div id="fitSourceStatus" class="fit-source-status" role="status">No storyboard selected. Upload an image or use the current Grid Board.</div>
+                    <button type="button" class="liquid-btn danger-btn" id="fitClearSourceBtn" style="width:100%">Remove Source Image</button>
+                  </div>
+                  <div class="glass-panel control-group">
+                    <label class="label-header" for="fitStatement">Statement · Shown in all 3 circles</label>
+                    <textarea id="fitStatement" class="liquid-input" rows="6" maxlength="400" placeholder="Enter the statement to repeat in all three circles...">le uniche cose a cui dovrai rinunciare sono i problemi di stomaco.</textarea>
+                    <span class="fit-help">The statement automatically wraps to stay inside each blue circle. Long text is reduced in size.</span>
+                  </div>
+                  <div class="glass-panel control-group" id="fitImageTypography" hidden style="display:none">
+                    <span class="label-header">Image &amp; Typography</span>
+                    <label class="label-header" for="fitImageFit">Storyboard image fitting</label>
+                    <select id="fitImageFit" class="liquid-input">
+                      <option value="contain" selected>Fit entire image (recommended)</option>
+                      <option value="cover">Fill circle (crop edges)</option>
+                    </select>
+                    <label class="label-header" for="fitImageSize">Image Size <span id="fitImageSizeValue">86%</span></label>
+                    <input id="fitImageSize" type="range" class="range-slider" min="60" max="98" value="86" />
+                    <label class="label-header" for="fitFontSize">Maximum Text Size <span id="fitFontSizeValue">20 px</span></label>
+                    <input id="fitFontSize" type="range" class="range-slider" min="12" max="24" value="20" />
+                    <label class="label-header" for="fitResolution">Output Resolution</label>
+                    <select id="fitResolution" class="liquid-input">
+                      <option value="1">Original · 1033 × 195 px</option>
+                      <option value="2">2× · 2066 × 390 px</option>
+                      <option value="3" selected>3× · 3099 × 585 px</option>
+                    </select>
+                    <button type="button" id="fitResetBtn" class="liquid-btn">Reset Preset Settings</button>
+                  </div>
+                </aside>
+                <div class="fit-preview-panel">
+                  <div class="fit-preview-heading">
+                    <div>
+                      <strong>FIT TO PLATFORM / LIVE PREVIEW</strong>
+                      <div class="fit-help">Exact reference geometry · 3 progressively overlapping circle pairs</div>
+                    </div>
+                    <span id="fitDimensions" class="meta">3099 × 585</span>
+                  </div>
+                  <div id="fitCanvasSurface" class="fit-canvas-surface" title="Three-circle storyboard preview">
+                    <canvas id="fitCanvas" width="3099" height="585" role="img" aria-label="Three pairs of overlapping storyboard and statement circles"></canvas>
+                  </div>
+                  <p id="fitRenderStatus" class="fit-render-status" role="status" aria-live="polite">Add a storyboard image to enable downloads.</p>
                 </div>
               </div>
             </div>
@@ -4032,13 +4120,13 @@
           };
           const singleMode = {
             "section-pdf": (m) => (m === "split" ? "split" : "convert"),
-            "section-stills-boards": (m) => (m === "story" ? "story" : m === "filmstrip" ? "filmstrip" : "video"),
+            "section-stills-boards": (m) => (["story", "filmstrip", "fit"].includes(m) ? m : "video"),
             "section-adlinks": (m) =>
               m === "downloader" ? "downloader" : "gen",
           };
           const navByMode = {
             "section-pdf": { convert: "nav-pdf-image", split: "nav-pdf-split" },
-            "section-stills-boards": { video: "nav-stills-video", story: "nav-stills-story", filmstrip: "nav-stills-story" },
+            "section-stills-boards": { video: "nav-stills-video", story: "nav-stills-story", filmstrip: "nav-stills-story", fit: "nav-stills-story" },
             "section-adlinks": { gen: "nav-adlinks-gen", downloader: "nav-adlinks-dl" },
           };
           const tabRows = {
@@ -4048,7 +4136,7 @@
           };
           const headerByMode = {
             "section-pdf": { convert: "PDF to Image", split: "Image Splitter" },
-            "section-stills-boards": { video: "Video Stills", story: "Storyboard", filmstrip: "Storyboard" },
+            "section-stills-boards": { video: "Video Stills", story: "Storyboard", filmstrip: "Storyboard", fit: "Storyboard" },
             "section-adlinks": { gen: "Link Gen", downloader: "Ad Link Downloader" },
           };
           let navId = navMap[id];
@@ -4120,12 +4208,15 @@
           const storyContent = document.getElementById("stillsTabContentStory");
           const videoContent = document.getElementById("stillsTabContentVideo");
           const filmstripContent = document.getElementById("stillsTabContentFilmstrip");
+          const fitContent = document.getElementById("stillsTabContentFit");
           const videoHeader = document.getElementById("videoHeaderControls");
           const storyHeader = document.getElementById("storyHeaderControls");
           const filmstripHeader = document.getElementById("filmstripHeaderControls");
+          const fitHeader = document.getElementById("fitHeaderControls");
           const subModeToggle = document.getElementById("storySubModeToggle");
           const subModeBtnBoard = document.getElementById("subModeBtnBoard");
           const subModeBtnFilmstrip = document.getElementById("subModeBtnFilmstrip");
+          const subModeBtnFit = document.getElementById("subModeBtnFit");
           const toolIcon = document.getElementById("stillsToolIcon");
           const toolTitle = document.getElementById("stillsToolTitle");
 
@@ -4138,13 +4229,16 @@
               t.setAttribute("tabindex", "-1");
             }
           });
-          [storyContent, videoContent, filmstripContent].forEach((c) => {
+          [storyContent, videoContent, filmstripContent, fitContent].forEach((c) => {
             if (c) c.style.display = "none";
           });
-          [videoHeader, storyHeader, filmstripHeader].forEach((h) => {
+          [videoHeader, storyHeader, filmstripHeader, fitHeader].forEach((h) => {
             if (h) h.style.display = "none";
           });
 
+          [subModeBtnBoard, subModeBtnFilmstrip, subModeBtnFit].forEach((b) => {
+            if (b) { b.classList.remove("active-mode"); b.style.background = "transparent"; }
+          });
           if (tabId === "story") {
             if (storyTab) {
               storyTab.classList.add("active-mode");
@@ -4199,6 +4293,22 @@
             if (Tools.Filmstrip && Tools.Filmstrip.draw) {
               Tools.Filmstrip.draw();
             }
+          } else if (tabId === "fit") {
+            if (storyTab) {
+              storyTab.classList.add("active-mode");
+              storyTab.style.background = "";
+              storyTab.style.border = "";
+              storyTab.setAttribute("aria-selected", "true");
+              storyTab.removeAttribute("tabindex");
+            }
+            if (fitContent) fitContent.style.display = "block";
+            if (fitHeader) fitHeader.style.display = "flex";
+            if (subModeToggle) subModeToggle.style.display = "flex";
+            if (subModeBtnFit) { subModeBtnFit.classList.add("active-mode"); subModeBtnFit.style.background = ""; }
+            if (toolIcon) toolIcon.textContent = "adjust";
+            if (toolTitle) toolTitle.textContent = "Storyboard";
+            this.updateNav("nav-stills-story");
+            if (Tools.FitToPlatform) Tools.FitToPlatform.onActivate();
           } else {
             // video
             if (videoTab) {
@@ -6526,6 +6636,294 @@
             a.download = "boards.zip";
             a.click();
             btn.innerText = "Download All (Zip)";
+          },
+        },
+        FitToPlatform: {
+          BASE_WIDTH: 1033,
+          BASE_HEIGHT: 195,
+          CIRCLES: [
+            { imageX: 90, y: 91, textX: 272, textY: 91 },
+            { imageX: 548, y: 96, textX: 630, textY: 96 },
+            { imageX: 883, y: 103, textX: 942, textY: 103 },
+          ],
+          image: null,
+          sourceUrl: null,
+          sourceKind: null,
+          initialized: false,
+          canvas: null,
+          els: {},
+          init() {
+            if (this.initialized) return;
+            this.els = {
+              input: document.getElementById("fitUploadInput"),
+              useBoard: document.getElementById("fitUseBoardBtn"),
+              source: document.getElementById("fitSourceStatus"),
+              clear: document.getElementById("fitClearSourceBtn"),
+              statement: document.getElementById("fitStatement"),
+              imageFit: document.getElementById("fitImageFit"),
+              imageSize: document.getElementById("fitImageSize"),
+              fontSize: document.getElementById("fitFontSize"),
+              resolution: document.getElementById("fitResolution"),
+              imageSizeValue: document.getElementById("fitImageSizeValue"),
+              fontSizeValue: document.getElementById("fitFontSizeValue"),
+              dimensions: document.getElementById("fitDimensions"),
+              status: document.getElementById("fitRenderStatus"),
+              png: document.getElementById("fitExportPngBtn"),
+              jpg: document.getElementById("fitExportJpgBtn"),
+              reset: document.getElementById("fitResetBtn"),
+              surface: document.getElementById("fitCanvasSurface"),
+            };
+            this.canvas = document.getElementById("fitCanvas");
+            this.els.input.addEventListener("change", (e) => {
+              this.handleFile(e.target.files && e.target.files[0]);
+              e.target.value = "";
+            });
+            Core.Utils.createDropZone(this.els.surface, (files) => this.handleFile(files[0]));
+            this.els.useBoard.addEventListener("click", () => this.useCurrentBoard());
+            this.els.clear.addEventListener("click", () => this.clearSource());
+            this.els.png.addEventListener("click", () => this.download("png"));
+            this.els.jpg.addEventListener("click", () => this.download("jpeg"));
+            this.els.reset.addEventListener("click", () => {
+              this.els.statement.value = "le uniche cose a cui dovrai rinunciare sono i problemi di stomaco.";
+              this.els.imageFit.value = "contain";
+              this.els.imageSize.value = "86";
+              this.els.fontSize.value = "20";
+              this.els.resolution.value = "3";
+              this.render();
+            });
+            [this.els.statement, this.els.imageFit, this.els.imageSize,
+              this.els.fontSize, this.els.resolution].forEach((el) => {
+              el.addEventListener("input", () => this.render());
+              el.addEventListener("change", () => this.render());
+            });
+            this.initialized = true;
+            this.render();
+          },
+          onActivate() {
+            if (!this.initialized) this.init();
+            // When the currently selected input is a board, refresh only the
+            // read-only canvas snapshot. Uploaded images are never replaced.
+            if (this.sourceKind === "board") this.useCurrentBoard(true);
+            else if (!this.image && Tools.Story && Tools.Story.active &&
+              Tools.Story.active.images.length) this.useCurrentBoard(true);
+            else this.render();
+          },
+          setStatus(message, error = false) {
+            this.els.status.textContent = message;
+            this.els.status.style.color = error ? "var(--danger)" : "var(--text-muted)";
+          },
+          clearSource() {
+            if (this.sourceUrl) URL.revokeObjectURL(this.sourceUrl);
+            this.sourceUrl = null;
+            this.sourceKind = null;
+            this.image = null;
+            this.els.source.textContent = "No storyboard selected. Upload an image or use the current Grid Board.";
+            this.render();
+          },
+          async handleFile(file) {
+            if (!file) return;
+            if (!file.type.startsWith("image/")) {
+              this.setStatus("Please upload an image (PNG, JPG, or WebP).", true);
+              return;
+            }
+            const url = URL.createObjectURL(file);
+            const img = new Image();
+            try {
+              img.src = url;
+              if (img.decode) await img.decode();
+              else await new Promise((resolve, reject) => {
+                img.onload = resolve;
+                img.onerror = reject;
+              });
+              if (!img.naturalWidth || !img.naturalHeight) throw new Error("Empty image");
+              if (this.sourceUrl) URL.revokeObjectURL(this.sourceUrl);
+              this.sourceUrl = url;
+              this.sourceKind = "upload";
+              this.image = img;
+              this.els.source.textContent = `Uploaded: ${file.name} (${img.naturalWidth} × ${img.naturalHeight})`;
+              this.render();
+            } catch (err) {
+              URL.revokeObjectURL(url);
+              this.setStatus("That image could not be opened. Choose another image.", true);
+            }
+          },
+          useCurrentBoard(silent = false) {
+            const story = Tools.Story;
+            if (!story || !story.active || !story.active.images.length) {
+              if (!silent) this.setStatus("Add images to the Grid Board first, or upload an existing storyboard image.", true);
+              return;
+            }
+            story.draw();
+            if (!story.canvas || !story.canvas.width || !story.canvas.height) {
+              if (!silent) this.setStatus("The current Grid Board is not ready yet. Try again once the images have loaded.", true);
+              return;
+            }
+            if (this.sourceUrl) URL.revokeObjectURL(this.sourceUrl);
+            this.sourceUrl = null;
+            this.sourceKind = "board";
+            this.image = story.canvas; // Canvas is read-only here; the board stays intact.
+            this.els.source.textContent = `Current Board: ${story.active.name} (${story.canvas.width} × ${story.canvas.height})`;
+            this.render();
+          },
+          wrapLines(ctx, statement, width) {
+            const words = statement.replace(/\r/g, "").trim().split(/\s+/).filter(Boolean);
+            const lines = [];
+            let line = "";
+            for (const word of words) {
+              const test = line ? line + " " + word : word;
+              if (ctx.measureText(test).width <= width) {
+                line = test;
+                continue;
+              }
+              if (line) { lines.push(line); line = ""; }
+              // Split exceptionally long unbroken words to avoid overflow.
+              let part = "";
+              for (const char of word) {
+                const next = part + char;
+                if (part && ctx.measureText(next).width > width) {
+                  lines.push(part);
+                  part = char;
+                } else part = next;
+              }
+              line = part;
+            }
+            if (line) lines.push(line);
+            return lines;
+          },
+          textLayout(ctx, statement, preferredSize) {
+            const circleR = 90;
+            const maxWidth = 132;
+            let backup = null;
+            for (let size = preferredSize; size >= 7.5; size -= 0.5) {
+              ctx.font = `700 ${size}px Arial, Helvetica, sans-serif`;
+              const lines = this.wrapLines(ctx, statement, maxWidth);
+              const step = size * 1.01;
+              const blockHeight = lines.length * step;
+              const boundsFit = blockHeight <= 147;
+              // Check every line's bounding rectangle against the circle.
+              const leftX = -52;
+              const top = -(blockHeight / 2);
+              const circleFit = lines.every((line, i) => {
+                const y = top + (i + 0.5) * step;
+                const envelope = Math.min(circleR - 5, Math.abs(y) + size * 0.36);
+                const halfChord = Math.sqrt(Math.max(0, (circleR - 4) ** 2 - envelope ** 2));
+                return leftX >= -halfChord - 3 &&
+                  (leftX + ctx.measureText(line).width) <= halfChord + 3;
+              });
+              backup = { lines, size, step, blockHeight };
+              if (boundsFit && circleFit) return { ...backup, fits: true };
+            }
+            // Never export a clipped statement. Ask for shorter copy instead.
+            return { ...backup, fits: false };
+          },
+          imageDimensions() {
+            if (!this.image) return null;
+            const width = this.image.naturalWidth || this.image.width;
+            const height = this.image.naturalHeight || this.image.height;
+            return width > 0 && height > 0 ? { width, height } : null;
+          },
+          drawImageCircle(ctx, pair) {
+            const { imageX: x, y } = pair;
+            const r = 90;
+            ctx.fillStyle = "#ffffff";
+            ctx.beginPath(); ctx.arc(x, y, r, 0, Math.PI * 2); ctx.fill();
+            const dims = this.imageDimensions();
+            if (dims) {
+              const fit = this.els.imageFit.value;
+              const boxSize = 180 * (Number(this.els.imageSize.value) / 100);
+              let drawW, drawH;
+              if (fit === "cover") {
+                const factor = boxSize / Math.min(dims.width, dims.height);
+                drawW = dims.width * factor;
+                drawH = dims.height * factor;
+              } else {
+                const factor = boxSize / Math.max(dims.width, dims.height);
+                drawW = dims.width * factor;
+                drawH = dims.height * factor;
+              }
+              ctx.save();
+              ctx.beginPath(); ctx.arc(x, y, r - 2, 0, Math.PI * 2); ctx.clip();
+              if (fit === "cover") {
+                ctx.beginPath(); ctx.rect(x - boxSize / 2, y - boxSize / 2, boxSize, boxSize); ctx.clip();
+              }
+              ctx.drawImage(this.image, x - drawW / 2, y - drawH / 2, drawW, drawH);
+              ctx.restore();
+            } else {
+              ctx.fillStyle = "#d4d4d4";
+              ctx.font = "700 12px Arial, sans-serif";
+              ctx.textAlign = "center";
+              ctx.fillText("STORYBOARD", x, y + 4);
+            }
+            ctx.strokeStyle = "#cccccc";
+            ctx.lineWidth = 2.2;
+            ctx.beginPath(); ctx.arc(x, y, r, 0, Math.PI * 2); ctx.stroke();
+          },
+          drawTextCircle(ctx, pair, layout) {
+            const x = pair.textX;
+            const y = pair.textY;
+            const r = 90;
+            ctx.fillStyle = "#ffffff";
+            ctx.beginPath(); ctx.arc(x, y, r, 0, 2 * Math.PI); ctx.fill();
+            ctx.strokeStyle = "#006cde";
+            ctx.lineWidth = 2.2;
+            ctx.beginPath(); ctx.arc(x, y, r, 0, 2 * Math.PI); ctx.stroke();
+            if (!layout || !layout.lines.length) return;
+            ctx.save();
+            ctx.beginPath(); ctx.arc(x, y, r - 3, 0, Math.PI * 2); ctx.clip();
+            ctx.font = `700 ${layout.size}px Arial, Helvetica, sans-serif`;
+            ctx.fillStyle = "#111111";
+            ctx.textAlign = "left";
+            ctx.textBaseline = "middle";
+            const start = y - layout.blockHeight / 2;
+            layout.lines.forEach((line, i) => {
+              ctx.fillText(line, x - 52, start + (i + 0.5) * layout.step);
+            });
+            ctx.restore();
+          },
+          render() {
+            if (!this.initialized) return;
+            const scale = Math.max(1, Math.min(3, Number(this.els.resolution.value) || 3));
+            const width = this.BASE_WIDTH * scale;
+            const height = this.BASE_HEIGHT * scale;
+            if (this.canvas.width !== width) this.canvas.width = width;
+            if (this.canvas.height !== height) this.canvas.height = height;
+            const ctx = this.canvas.getContext("2d");
+            if (!ctx) return;
+            ctx.setTransform(scale, 0, 0, scale, 0, 0);
+            ctx.clearRect(0, 0, this.BASE_WIDTH, this.BASE_HEIGHT);
+            ctx.fillStyle = "#ffffff";
+            ctx.fillRect(0, 0, this.BASE_WIDTH, this.BASE_HEIGHT);
+            const statement = this.els.statement.value.trim();
+            const layout = statement ? this.textLayout(ctx, statement, Number(this.els.fontSize.value)) : null;
+            this.CIRCLES.forEach((pair) => this.drawImageCircle(ctx, pair));
+            this.CIRCLES.forEach((pair) => this.drawTextCircle(ctx, pair, layout));
+            this.els.imageSizeValue.textContent = this.els.imageSize.value + "%";
+            this.els.fontSizeValue.textContent = this.els.fontSize.value + " px";
+            this.els.dimensions.textContent = `${width} × ${height}`;
+            const ready = !!this.imageDimensions() && !!statement && !!layout && layout.fits;
+            this.els.png.disabled = this.els.jpg.disabled = !ready;
+            if (!this.imageDimensions()) this.setStatus("Upload a storyboard image or use the current Grid Board to enable export.");
+            else if (!statement) this.setStatus("Enter a statement to enable export.");
+            else if (layout && !layout.fits) this.setStatus("The statement cannot fit inside the circles. Shorten it to export without clipping.", true);
+            else if (layout && layout.size < 12) this.setStatus(`Preview ready (${width} × ${height}). Long statement: auto-fitted to ${layout.size}px; shorten it for better readability.`);
+            else this.setStatus(`Ready to export (${width} × ${height}) · statement repeated 3 times · image source ${this.sourceKind === "board" ? "Grid Board" : "upload"}.`);
+          },
+          download(format) {
+            if (!this.imageDimensions() || !this.els.statement.value.trim()) return;
+            this.render();
+            if (this.els.png.disabled) return;
+            const mime = format === "png" ? "image/png" : "image/jpeg";
+            this.canvas.toBlob((blob) => {
+              if (!blob) { this.setStatus("Export failed. Try lowering the output resolution.", true); return; }
+              const url = URL.createObjectURL(blob);
+              const a = document.createElement("a");
+              a.href = url;
+              a.download = `fit_to_platform_${this.BASE_WIDTH * Number(this.els.resolution.value)}x${this.BASE_HEIGHT * Number(this.els.resolution.value)}.${format === "png" ? "png" : "jpg"}`;
+              document.body.appendChild(a);
+              a.click();
+              a.remove();
+              setTimeout(() => URL.revokeObjectURL(url), 15000);
+            }, mime, 0.95);
           },
         },
         Stills: {
